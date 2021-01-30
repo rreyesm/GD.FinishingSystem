@@ -1,0 +1,139 @@
+﻿@model IEnumerable<GD.FinishingSystem.Entities.Rulo>
+
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h1 class="mt-4">Rulos</h1>
+
+@if (User.IsInRole("RuloAdd") || User.IsInRole("AdminFull") || User.IsInRole("RuloFull"))
+{
+    <p>
+        <a asp-action="Create" class="btn btn-sm btn-outline-light border-dark btn-dark">
+            <i class="lni lni-circle-plus"></i> Create New
+        </a>
+    </p>
+}
+<form asp-action="Index">
+    <div class="row">
+        <div class="col-lg-2 col-6" style="text-align:right">
+            Begin :
+        </div>
+        <div class="col-lg-3 col-6" style="text-align:left">
+            <input type="date" id="dtBegin" name="dtBegin" />
+        </div>
+        <div class="col-lg-2 col-6" style="text-align:right">
+            End :
+        </div>
+        <div class="col-lg-3 col-6" style="text-align:left">
+            <input type="date" id="dtEnd" name="dtEnd" />
+        </div>
+        <div class="col-lg-2 col-12" style="text-align:center">
+            <input type="submit" value="Filter" class="btn btn-outline-info" />
+        </div>
+    </div>
+
+
+
+   
+
+</form>
+
+
+<table class="table table-hover table-responsive-md">
+    <thead>
+        <tr>
+            <th colspan="8">Rulo List</th>
+        </tr>
+        <tr>
+            <th>
+                <i class="lni lni-line-dashed"></i>
+            </th>
+            <th>
+                Lote - Beam - Loom - Piece
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Style)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.StyleName)
+            </th>
+
+            <th>
+                @Html.DisplayNameFor(model => model.EntranceLength)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.ExitLength)
+            </th>
+
+
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.RuloID)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Lote)
+                    -
+                    @Html.DisplayFor(modelItem => item.Beam)
+                    -
+                    @Html.DisplayFor(modelItem => item.Loom)
+                    -
+                    @Html.DisplayFor(modelItem => item.Piece)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Style)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.StyleName)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.EntranceLength)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.ExitLength)
+                </td>
+
+                <td>
+                    <div style="display:block;width:80px;">
+                        @if (User.IsInRole("RuloUp") || User.IsInRole("AdminFull") || User.IsInRole("RuloFull"))
+                        {
+                            <a asp-controller="Rulo" asp-action="Edit" asp-route-ruloid="@item.RuloID">
+                                <i class="lni lni-slice"></i>
+                            </a>
+                            @Html.Raw(" | ");
+                        }
+                        @if (User.IsInRole("RuloShow") || User.IsInRole("AdminFull") || User.IsInRole("RuloFull"))
+                        {
+                            <a asp-controller="Rulo" asp-action="Details" asp-route-ruloid="@item.RuloID">
+                                <i class="lni lni-question-circle"></i>
+                            </a>
+                            @Html.Raw(" | ");
+                        }
+                        @if (User.IsInRole("RuloDel") || User.IsInRole("AdminFull") || User.IsInRole("RuloFull"))
+                        {
+                            <a asp-controller="Rulo" asp-action="Delete" asp-route-ruloid="@item.RuloID">
+                                <i class="lni lni-circle-minus"></i>
+                            </a>
+                        }
+                    </div>
+
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+
+<script>
+
+    document.getElementById("dtBegin").value = '@ViewBag.dtBegin.ToString()';
+    document.getElementById("dtEnd").value = '@ViewBag.dtEnd.ToString()';
+
+</script>

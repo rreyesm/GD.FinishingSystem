@@ -1,0 +1,99 @@
+﻿<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <meta name="description" content="" />
+    <meta name="author" content="" />
+    <title>Dashboard - @ViewData["Title"]</title>
+
+    <link href="~/css/styles.css" rel="stylesheet" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/js/all.min.js" crossorigin="anonymous"></script>
+    <link href="~/css/LineIcons.css" rel="stylesheet" />
+</head>
+<body class="sb-nav-fixed">
+    @{
+        var Nameclm = User.Claims.FirstOrDefault(o => o.Type == System.Security.Claims.ClaimTypes.NameIdentifier);
+        string Name = "";
+        if (Nameclm != null && !string.IsNullOrEmpty(Nameclm.Value))
+        {
+            if (Nameclm.Value.Length > 20) Name = Nameclm.Value.Substring(0, 17) + "...";
+            else Name = Nameclm.Value;
+        }
+
+
+    }
+    <nav class="sb-topnav navbar navbar-expand navbar-dark bg-dark">
+        <a class="navbar-brand" href="/Home/Index">
+            Finishing Manager
+        </a>
+        <button class="btn btn-link btn-sm order-1 order-lg-0" id="sidebarToggle" href="#"><svg class="svg-inline--fa fa-bars fa-w-14" aria-hidden="true" focusable="false" data-prefix="fas" data-icon="bars" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" data-fa-i2svg=""><path fill="currentColor" d="M16 132h416c8.837 0 16-7.163 16-16V76c0-8.837-7.163-16-16-16H16C7.163 60 0 67.163 0 76v40c0 8.837 7.163 16 16 16zm0 160h416c8.837 0 16-7.163 16-16v-40c0-8.837-7.163-16-16-16H16c-8.837 0-16 7.163-16 16v40c0 8.837 7.163 16 16 16zm0 160h416c8.837 0 16-7.163 16-16v-40c0-8.837-7.163-16-16-16H16c-8.837 0-16 7.163-16 16v40c0 8.837 7.163 16 16 16z"></path></svg><!-- <i class="fas fa-bars"></i> Font Awesome fontawesome.com --></button>
+        <!-- Navbar Search-->
+        <div class="d-none d-md-inline-block form-inline ml-auto mr-0 mr-md-3 my-2 my-md-0">
+
+        </div>
+        <!-- Navbar-->
+        <ul class="navbar-nav ml-auto ml-md-0">
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" id="userDropdown" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <i class="lni lni-user"></i>
+                </a>
+                <div class="dropdown-menu dropdown-menu-right" aria-labelledby="userDropdown">
+                    <a class="dropdown-item" href="/Account/MyProfile">Account Details</a>
+                    @if (User.IsInRole("AdminFull"))
+                    {
+                        <a class="dropdown-item" href="/Account/UserList">User List</a>
+                    }
+                    <div class="dropdown-divider"></div>
+                    <a class="dropdown-item" href="/Account/Logout">Logout</a>
+                </div>
+            </li>
+        </ul>
+    </nav>
+
+    <div id="layoutSidenav">
+
+        <div id="layoutSidenav_nav">
+            <nav class="sb-sidenav accordion sb-sidenav-dark" id="sidenavAccordion">
+                <div class="sb-sidenav-menu">
+                    <div class="nav">
+                        <div class="sb-sidenav-menu-heading">Definations</div>
+                        @if (User.IsInRole("RuloFull") || User.IsInRole("AdminFull") || User.IsInRole("RuloShow"))
+                        {
+                            <a class="nav-link" asp-controller="Rulo" asp-action="Index">
+                                <div class="sb-nav-link-icon">
+                                    <i class="lni lni-domain"></i>
+                                </div>
+                                Rulo
+                            </a>
+                        }
+
+                    </div>
+
+                </div>
+                <div class="sb-sidenav-footer">
+                    <div class="small">Logged in as:</div>
+                    @(Name)
+                </div>
+            </nav>
+        </div>
+        <div id="layoutSidenav_content">
+            <main>
+                <div class="container-fluid">
+                    @RenderBody()
+                </div>
+            </main>
+        </div>
+
+
+
+    </div>
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js" crossorigin="anonymous"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
+    <script src="~/js/scripts.js"></script>
+    @RenderSection("Scripts", required: false)
+</body>
+
+</html>

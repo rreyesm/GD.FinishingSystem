@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\GD.FinishingSystem.DAL\GD.FinishingSystem.DAL.csproj" />
+    <ProjectReference Include="..\GD.FinishingSystem.Entities\GD.FinishingSystem.Entities.csproj" />
+  </ItemGroup>
+
+</Project>
