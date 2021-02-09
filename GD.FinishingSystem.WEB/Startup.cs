@@ -30,6 +30,10 @@ namespace GD.FinishingSystem.WEB
                  {
                      options.LoginPath = new PathString("/Account/Login");
                  });
+
+            //Configuration added
+            services.AddDistributedMemoryCache(); // Adds a default in-memory implementation of IDistributedCache
+            services.AddSession();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -45,12 +49,16 @@ namespace GD.FinishingSystem.WEB
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
-            app.UseHttpsRedirection();
 
+            app.UseHttpsRedirection();
 
             app.UseRouting();
 
             app.UseAuthorization();
+
+            //Configuration added
+            app.UseSession();
+
             app.UseStaticFiles();
             app.UseAuthentication();
             app.UseEndpoints(endpoints =>

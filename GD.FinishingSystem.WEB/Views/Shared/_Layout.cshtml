@@ -1,5 +1,5 @@
 ﻿<!DOCTYPE html>
-<html lang="tr">
+<html lang="en">
 <head>
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
@@ -58,16 +58,40 @@
             <nav class="sb-sidenav accordion sb-sidenav-dark" id="sidenavAccordion">
                 <div class="sb-sidenav-menu">
                     <div class="nav">
-                        <div class="sb-sidenav-menu-heading">Definations</div>
+                        <div class="sb-sidenav-menu-heading">Process</div>
                         @if (User.IsInRole("RuloFull") || User.IsInRole("AdminFull") || User.IsInRole("RuloShow"))
                         {
                             <a class="nav-link" asp-controller="Rulo" asp-action="Index">
                                 <div class="sb-nav-link-icon">
-                                    <i class="lni lni-domain"></i>
+                                    <i class="lni lni-sm lni-layers"></i>
                                 </div>
                                 Rulo
                             </a>
                         }
+
+                    </div>
+                    <div class="nav">
+                        <div class="sb-sidenav-menu-heading">Definitions</div>
+                        @if (User.IsInRole("DefinationProcessFull") || User.IsInRole("DefinationProcessShow") || User.IsInRole("AdminFull"))
+                        {
+                            <a class="nav-link" asp-controller="DefinationProcess" asp-action="Index">
+                                <div class="sb-nav-link-icon">
+                                    <i class="lni lni-sm lni-cogs"></i>
+
+                                </div>
+                                Definition Process
+                            </a>
+                        }
+
+                        @*@if (User.IsInRole("TestResultFull") || User.IsInRole("TestResultShow") || User.IsInRole("AdminFull"))
+                        {
+                            <a class="nav-link" asp-controller="TestResult" asp-action="Index">
+                                <div class="sb-nav-link-icon">
+                                    <i class="lni lni-sm lni-chevron-right"></i>
+                                </div>
+                                Test Result
+                            </a>
+                        }*@
 
                     </div>
 

@@ -9,8 +9,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace GD.FinishingSystem.DAL.Migrations
 {
     [DbContext(typeof(FinishingSystemContext))]
-    [Migration("20210130180620_v1")]
-    partial class v1
+    [Migration("20210209160205_v2")]
+    partial class v2
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -57,13 +57,48 @@ namespace GD.FinishingSystem.DAL.Migrations
                     b.ToTable("tblDefinationProcess");
                 });
 
+            modelBuilder.Entity("GD.FinishingSystem.Entities.Floor", b =>
+                {
+                    b.Property<int>("FloorID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("FloorName")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("FloorID");
+
+                    b.ToTable("tblFloors");
+                });
+
             modelBuilder.Entity("GD.FinishingSystem.Entities.Machine", b =>
                 {
                     b.Property<int>("MachineID")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("CreatorID")
+                        .HasColumnType("INTEGER");
+
                     b.Property<int>("DefinationProcessID")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime?>("DeletedDate")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int?>("DeleterID")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("LastUpdateDate")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("LastUpdaterID")
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("MachineCode")
@@ -239,7 +274,7 @@ namespace GD.FinishingSystem.DAL.Migrations
 
                     b.HasKey("TestResultID");
 
-                    b.ToTable("TestResults");
+                    b.ToTable("tblTestResults");
                 });
 
             modelBuilder.Entity("GD.FinishingSystem.Entities.User", b =>

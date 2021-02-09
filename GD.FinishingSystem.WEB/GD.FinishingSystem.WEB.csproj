@@ -6,12 +6,28 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Reports\RuloLabel.frx" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="Reports\RuloLabel.frx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="FastReport.OpenSource.Export.PdfSimple" Version="2021.1.7" />
+    <PackageReference Include="FastReport.OpenSource.Web" Version="2021.1.7" />
+    <PackageReference Include="iTextSharp.LGPLv2.Core" Version="1.7.1" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="5.0.2" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="3.8.0" />
+    <PackageReference Include="Microsoft.CodeAnalysis.VisualBasic" Version="3.8.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="5.0.2">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="5.0.1" />
+    <PackageReference Include="PDFtoZPL" Version="1.1.0" />
   </ItemGroup>
 
   <ItemGroup>

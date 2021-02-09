@@ -1,0 +1,98 @@
+﻿@model GD.FinishingSystem.Entities.Rulo
+
+@{
+    ViewData["Title"] = "Details";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h1>Details</h1>
+
+<div>
+    <h4>Rulo Information</h4>
+    <hr />
+    <dl class="row">
+        <dt class = "col-sm-2">
+            <i class="lni lni-line-dashed"></i>
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.RuloID)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.Lote)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.Lote)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.Beam)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.Beam)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.Loom)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.Loom)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.Piece)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.Piece)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.Style)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.Style)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.StyleName)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.StyleName)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.Width)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.Width)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.EntranceLength)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.EntranceLength)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.ExitLength)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.ExitLength)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.IsWaitingAnswerFromTest)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.IsWaitingAnswerFromTest)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.TestResultID)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.TestResultID)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.TestResultAuthorizer)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.TestResultAuthorizer)
+        </dd>
+        
+    </dl>
+</div>
+<div>
+    <a asp-action="Edit" class="btn btn-sm btn-success" asp-route-ruloid="@Model.RuloID"><i class="lni lni-slice"></i> Edit</a> |
+    <a asp-action="Index" class="btn btn-sm btn-secondary"><i class="lni lni-chevron-left-circle"></i> Back to List</a>
+</div>

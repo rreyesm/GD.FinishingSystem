@@ -3,6 +3,8 @@
 @{
     ViewData["Title"] = "Index";
     Layout = "~/Views/Shared/_Layout.cshtml";
+
+    var styleList = ViewBag.StyleList;
 }
 
 <h1 class="mt-4">Rulos</h1>
@@ -15,28 +17,73 @@
         </a>
     </p>
 }
+
 <form asp-action="Index">
     <div class="row">
         <div class="col-lg-2 col-6" style="text-align:right">
-            Begin :
+            Begin:
         </div>
         <div class="col-lg-3 col-6" style="text-align:left">
             <input type="date" id="dtBegin" name="dtBegin" />
         </div>
         <div class="col-lg-2 col-6" style="text-align:right">
-            End :
+            End:
         </div>
         <div class="col-lg-3 col-6" style="text-align:left">
             <input type="date" id="dtEnd" name="dtEnd" />
         </div>
-        <div class="col-lg-2 col-12" style="text-align:center">
+
+    </div>
+
+    <div class="row">
+        <div class="col-lg-2 col-6" style="text-align:right">
+            Lote:
+        </div>
+        <div class="col-lg-2 col-6" style="text-align:right">
+            <input type="number" id="numLote" name="numLote" placeholder="Lote" />
+        </div>
+        <div class="col-lg-2 col-6" style="text-align:right">
+            Beam:
+        </div>
+        <div class="col-lg-2 col-6" style="text-align:right">
+            <input type="number" id="numBeam" name="numBeam" placeholder="Beam" />
+        </div>
+        <div class="col-lg-2 col-6" style="text-align:right">
+            Loom:
+        </div>
+        <div class="col-lg-2 col-6" style="text-align:right">
+            <input type="number" id="numLoom" name="numLoom" placeholder="Loom" />
+        </div>
+        <div class="col-lg-2 col-6" style="text-align:right">
+            Piece:
+        </div>
+        <div class="col-lg-2 col-6" style="text-align:right">
+            <input type="number" id="numPiece" name="numPiece" placeholder="Piece" />
+        </div>
+        <div class="col-lg-2 col-6" style="text-align:right">
+            Style:
+        </div>
+        <div class="col-lg-2 col-6" style="text-align:right">
+            <input type="text" id="txtStyle" name="txtStyle" placeholder="Style" list="items" />
+            <datalist id="items">
+                @foreach (var item in styleList)
+                {
+                    <option value="@item"></option>
+                }
+            </datalist>
+        </div>
+        <div class="col-lg-2 col-6" style="text-align:right">
+            Test Result:
+        </div>
+        <div class="col-lg-2 col-6" style="text-align:right">
+            <select id="numTestResult" asp-items="@ViewBag.TestResultList"></select>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-12 col-md-12 col-lg-12" style="text-align:right">
             <input type="submit" value="Filter" class="btn btn-outline-info" />
         </div>
     </div>
-
-
-
-   
 
 </form>
 
@@ -66,7 +113,9 @@
             <th>
                 @Html.DisplayNameFor(model => model.ExitLength)
             </th>
-
+            <th>
+                Processes
+            </th>
 
             <th></th>
         </tr>
@@ -98,6 +147,31 @@
                 </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.ExitLength)
+                </td>
+
+                <td>
+                    <div>
+                        @if (User.IsInRole("RuloProcessShow") || User.IsInRole("AdminFull") || User.IsInRole("RuloProcessFull"))
+                        {
+                            <a asp-controller="RuloProcess" asp-action="Index" asp-route-ruloid="@item.RuloID" class="btn btn-sm btn-info">
+                                GET PROCESS
+                            </a>
+                        }
+
+                        @if (User.IsInRole("TestResultAdd") || User.IsInRole("TestResultFull") || User.IsInRole("AdminFull"))
+                        {
+                            @if (item.TestResultID == null || item.TestResultID == 0)
+                            {
+                                @Html.Raw(" | ")
+                                <a onclick="testResult(@item.RuloID)" class="btn btn-sm btn-danger"><i class="lni lni-flag"></i> Test Result</a>
+                            }
+                        }
+
+                        @Html.Raw(" | ")
+                        <a onclick="PrintLabel(@item.RuloID)" class="btn btn-sm btn-danger"><i class="lni lni-printer"></i> Print</a>
+
+                    </div>
+
                 </td>
 
                 <td>
@@ -135,5 +209,56 @@
 
     document.getElementById("dtBegin").value = '@ViewBag.dtBegin.ToString()';
     document.getElementById("dtEnd").value = '@ViewBag.dtEnd.ToString()';
+
+    document.getElementById("numLote").value = '@ViewBag.numLote';
+    document.getElementById("numBeam").value = '@ViewBag.numBeam';
+    document.getElementById("numLoom").value = '@ViewBag.numLoom';
+    document.getElementById("numPiece").value = '@ViewBag.numPiece';
+    document.getElementById("txtStyle").value = '@ViewBag.txtStyle';
+    //document.getElementById("numTestResult").value = '@ViewBag.numTestRsult';
+
+    function testResult(ruloId) {
+        var description = prompt("Please enter description Test Result");
+        if (description == 'undefine' || description == '') return;
+        if (confirm("Are you sure Test Result")) {
+            testResultFinish(ruloId, description);
+        }
+    }
+
+    function testResultFinish(ruloId, description) {
+        $.ajax({
+            url: "/Rulo/TestResultFinish",
+            type: "POST",
+            data:
+            {
+                RuloId: ruloId,
+                Description: description
+            },
+            success: function (data) {
+                location.reload();
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                alert("404 Not found!");
+            }
+        });
+    }
+
+        function PrintLabel(ruloId) {
+            $.ajax({
+                url: "/Rulo/Print",
+                type: "POST",
+                data:
+                {
+                    RuloId: ruloId
+                },
+                success: function (data) {
+                    location.reload();
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+                    alert("404 Not found!");
+                }
+            });
+        }
+
 
 </script>

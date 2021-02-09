@@ -1,0 +1,90 @@
+﻿@model GD.FinishingSystem.Entities.DefinationProcess
+
+@{
+
+}
+
+<div class="alert alert-info">
+    <h1 class="mt-4">
+        @if (Model.DefinationProcessID == 0)
+        {
+            @Html.Raw("Create")
+            ViewData["Title"] = "Create Definition Information";
+        }
+        else
+        {
+            @Html.Raw("Edit")
+            ViewData["Title"] = "Edit Definition Information";
+        }
+    </h1>
+
+    <h4>Defination Process</h4>
+    <hr />
+
+    @*@if (Model.DefinationProcessID != 0) //Show butons when rulo exist
+    {
+        @if (User.IsInRole("MachineAdd") || User.IsInRole("MachineFull") || User.IsInRole("AdminFull"))
+        {
+            <a asp-controller="Machine" asp-action="Index" asp-route-reldefinationprocessid="@Model.DefinationProcessID" class="btn btn-sm btn-outline-light border-dark btn-dark">
+                <i class="lni lni-slice"></i> Machines
+            </a>
+        }
+
+    }*@
+
+</div>
+
+<div class="alert alert-success">
+    <form asp-action="Save">
+        @Html.HiddenFor(o => o.DefinationProcessID)
+        @Html.AntiForgeryToken()
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+        <div class="row">
+            <div class="col-lg-3 col-md-4 col-ms-12">
+                <div class="form-group">
+                    <label asp-for="ProcessCode" class="control-label"></label>
+                    <input asp-for="ProcessCode" class="form-control" />
+                    <span asp-validation-for="ProcessCode" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-4 col-ms-12">
+                <div class="form-group">
+                    <label asp-for="Name" class="control-label"></label>
+                    <input asp-for="Name" class="form-control" />
+                    <span asp-validation-for="Name" class="text-danger"></span>
+                </div>
+            </div>
+            @if ((bool)ViewBag.Error)
+            {
+                <hr />
+                <div class="alert alert-danger">
+                    @Html.Raw(ViewBag.ErrorMessage)
+                </div>
+            }
+
+            <div class="col-12">
+                <div class="form-group">
+                    @if (Model.DefinationProcessID == 0)
+                    {
+                        <button type="submit" class="btn btn-primary"><i class="lni lni-circle-plus"></i> Create</button>
+                    }
+                    else
+                    {
+                        <button type="submit" class="btn btn-success"><i class="lni lni-save"></i> Save Changes</button>
+                    }
+                </div>
+            </div>
+        </div>
+
+    </form>
+</div>
+
+
+<div>
+    <a asp-action="Index" class="btn btn-sm btn-secondary"><i class="lni lni-chevron-left-circle"></i> Back to List</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

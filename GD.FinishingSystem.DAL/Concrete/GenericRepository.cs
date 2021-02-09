@@ -40,11 +40,14 @@ namespace GD.FinishingSystem.DAL.Concrete
 
         async Task IAsyncRepository<T>.Add(T entity, int UserRef)
         {
-            if (entity is BaseEntity b)
+            if (UserRef != 0)
             {
-                b.CreatorID = b.LastUpdaterID = UserRef;
-                b.CreatedDate = b.LastUpdateDate = DateTime.Now;
-                b.IsDeleted = false;
+                if (entity is BaseEntity b)
+                {
+                    b.CreatorID = b.LastUpdaterID = UserRef;
+                    b.CreatedDate = b.LastUpdateDate = DateTime.Now;
+                    b.IsDeleted = false;
+                }
             }
 
             await table.AddAsync(entity);
@@ -53,11 +56,15 @@ namespace GD.FinishingSystem.DAL.Concrete
 
         public async Task Update(T entity, int userRef)
         {
-            if (entity is BaseEntity b)
+            if (userRef != 0)
             {
-                b.LastUpdaterID = userRef;
-                b.LastUpdateDate = DateTime.Now;
+                if (entity is BaseEntity b)
+                {
+                    b.LastUpdaterID = userRef;
+                    b.LastUpdateDate = DateTime.Now;
+                }
             }
+
             table.Attach(entity);
             _context.Entry(entity).State = EntityState.Modified;
             await SaveChanges();
@@ -66,12 +73,15 @@ namespace GD.FinishingSystem.DAL.Concrete
         public async Task Remove(int entityID, int userRef)
         {
             T existing = await table.FindAsync(entityID);
-            if (existing is BaseEntity b)
+            if (userRef != 0)
             {
-                b.DeleterID = userRef;
-                b.IsDeleted = true;
-                b.DeletedDate = DateTime.Now;
+                if (existing is BaseEntity b)
+                {
+                    b.DeleterID = userRef;
+                    b.IsDeleted = true;
+                    b.DeletedDate = DateTime.Now;
 
+                }
             }
             await SaveChanges();
         }
@@ -104,6 +114,16 @@ namespace GD.FinishingSystem.DAL.Concrete
         {
             var res = await table.Where(predicate).ToListAsync();
             return res;
+        }
+
+        public IQueryable<T> GetQueryable(Expression<Func<T, bool>> predicate = null)
+        {
+            IQueryable<T> query = table;
+
+            if (predicate != null)
+                query = query.Where(predicate);
+
+            return query;
         }
 
         public async Task<IEnumerable<T>> GetWhereWithNoTrack(Expression<Func<T, bool>> predicate)

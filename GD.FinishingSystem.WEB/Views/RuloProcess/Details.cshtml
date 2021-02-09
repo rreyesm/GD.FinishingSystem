@@ -1,0 +1,61 @@
+﻿@model GD.FinishingSystem.Entities.RuloProcess
+
+@{
+    ViewData["Title"] = "Details";
+}
+
+<h1>Details</h1>
+
+<div>
+    <h4>Rulo Process Information</h4>
+    <hr />
+    <dl class="row">
+        <dt class = "col-sm-2">
+            <i class="lni lni-line-dashed"></i>
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.RuloProcessID)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.RuloID)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.RuloID)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.DefinationProcessID)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.DefinationProcessID)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.BeginningDate)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.BeginningDate)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.EndDate)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.EndDate)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.FinishMeter)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.FinishMeter)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.IsFinished)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.IsFinished)
+        </dd>
+        
+    </dl>
+</div>
+<div>
+    <a asp-action="Edit" class="btn btn-sm btn-success" asp-route-definationprocessid="@Model.DefinationProcessID"><i class="lni lni-slice"></i> Edit</a> |
+    <a asp-action="Index" asp-route-ruloid="@Model.RuloID"  class="btn btn-sm btn-secondary"><i class="lni lni-chevron-left-circle"></i> Back to List</a>
+</div>

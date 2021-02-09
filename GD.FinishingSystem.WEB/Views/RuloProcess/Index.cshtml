@@ -1,0 +1,141 @@
+﻿@model IEnumerable<GD.FinishingSystem.Entities.RuloProcess>
+
+@{
+    ViewData["Title"] = "Index";
+    int relRuloId = ViewBag.RelRuloId;
+}
+
+<h1 class="mt-4">Rulo Processes</h1>
+
+@if (User.IsInRole("RuloProcessAdd") || User.IsInRole("RuloProcessFull") || User.IsInRole("AdminFull"))
+{
+    if (relRuloId != 0)
+    {
+        <p>
+            <a asp-action="Create" asp-route-relruloid="@relRuloId" class="btn btn-sm btn-outline-light border-dark btn-dark">
+                <i class="lni lni-circle-plus"></i> Add New
+            </a>
+        </p>
+    }
+
+}
+
+
+<table class="table table-hover table-responsive-md">
+    <thead>
+        <tr>
+            <th colspan="8">Rulo Process List</th>
+        </tr>
+        <tr>
+            <th>
+                <i class="lni lni-line-dashed"></i>
+            </th>
+
+            <th>
+                Defination Process
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.BeginningDate)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.EndDate)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.FinishMeter)
+            </th>
+
+
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.RuloProcessID)
+                </td>
+
+                <td>
+                    @Html.DisplayFor(modelItem => item.DefinationProcess.Name)
+                </td>
+                <td>
+                    @Html.Raw(item.BeginningDate.ToString("yyyy-MM-dd HH:mm"))
+                </td>
+                @if (item.IsFinished)
+                {
+                    <td>
+                       @Html.Raw(item.EndDate.Value.ToString("yyyy-MM-dd HH:mm"))
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.FinishMeter)
+                    </td>
+                }
+                else
+                {
+                    <td colspan="2">
+                        <a onclick="finish(@item.RuloProcessID)" class="btn btn-sm btn-danger"> <i class="lni lni-flag"></i> Finish This</a>
+                    </td>
+                }
+
+
+
+
+                <td>
+                    <div style="display:block;width:80px;">
+                        @if (User.IsInRole("RuloProcessUp") || User.IsInRole("RuloProcessFull") || User.IsInRole("AdminFull"))
+                        {
+                            <a asp-action="Edit" asp-route-ruloprocessid="@item.RuloProcessID">
+                                <i class="lni lni-slice"></i>
+                            </a>
+                            @Html.Raw(" | ");
+                        }
+                        @if (User.IsInRole("RuloProcessShow") || User.IsInRole("RuloProcessFull") || User.IsInRole("AdminFull"))
+                        {
+                            <a asp-action="Details" asp-route-ruloprocessid="@item.RuloProcessID">
+                                <i class="lni lni-question-circle"></i>
+                            </a>
+                            @Html.Raw(" | ");
+                        }
+                        @if (User.IsInRole("RuloProcessDel") || User.IsInRole("RuloProcessFull") || User.IsInRole("AdminFull"))
+                        {
+                            <a asp-action="Delete" asp-route-ruloprocessid="@item.RuloProcessID">
+                                <i class="lni lni-circle-minus"></i>
+                            </a>
+                        }
+                    </div>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+<script>
+
+    function finish(rpid) {
+        var meter = parseInt(prompt("Please enter how many meter exit this process", "0"));
+        if (isNaN(meter) || meter <= 0) return;
+        if (confirm('Are you sure you want to finish this process?')) {
+            finishprocess(rpid, meter);
+        }
+    }
+
+    function finishprocess(rpid, meter) {
+        $.ajax({
+            url: "/RuloProcess/FinishProcess",
+            type: "POST",
+            data:
+            {
+                RuloProcessID: rpid,
+                Meter: meter
+
+            },
+            success: function (data) {
+                location.reload();
+            }, error: function (xhr, ajaxOptions, thrownError) {
+                alert("404 Not found!");
+            }
+
+        });
+    }
+
+</script>

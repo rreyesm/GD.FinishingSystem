@@ -1,4 +1,5 @@
 ﻿using GD.FinishingSystem.Entities;
+using GD.FinishingSystem.Entities.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -18,9 +19,11 @@ namespace GD.FinishingSystem.Bussines.Abstract
         public abstract Task UpdateRuloProcess(RuloProcess ruloProcess, int updaterRef);
         public abstract Task DeleteRuloProcess(RuloProcess ruloProcess, int deleterRef);
         public abstract Task<IEnumerable<RuloProcess>> GetRuloProcessesFromRuloID(int RuloID);
+        public abstract Task<IEnumerable<RuloProcess>> GetRuloProcessListFromBetweenDate(DateTime begin, DateTime end);
         public abstract Task<RuloProcess> GetRuloProcessFromRuloProcessID(int RuloProcessID);
-        public abstract Task SetTestResult(int RuloID, int TestResultID, int setter);
-        
+        public abstract Task SetTestResult(int RuloID, int TestResultID, int? authorizer, int setter);
 
+        public abstract Task<IEnumerable<String>> GetRuloStyleList();
+        public abstract Task<IEnumerable<Rulo>> GetRuloListFromFilters(VMRuloFilters ruloFilters);
     }
 }

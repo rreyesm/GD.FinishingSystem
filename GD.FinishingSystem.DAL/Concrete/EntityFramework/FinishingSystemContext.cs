@@ -17,8 +17,8 @@ namespace GD.FinishingSystem.DAL.Concrete.EntityFramework
         #region Definations
         static string DatabaseName = "dbFinishingSystem";
         public string ConnectionStringProp { private get; set; }
-        string LocalSqlServer = $"Server=.;Database={DatabaseName};User Id=SA;Password=0545696s;";
-        string LocalSqlite = $"Data Source=C://{DatabaseName}.db";
+        string LocalSqlServer = $"Server=.;Database={DatabaseName};User Id=SA;Password=0545696sS*;";
+        string LocalSqlite = $"Data Source=C://Users//Sistemas//{DatabaseName}.db";
         DatabaseSystem dbSysem;
         #endregion
 
@@ -31,6 +31,8 @@ namespace GD.FinishingSystem.DAL.Concrete.EntityFramework
         {
             ConnectionStringProp = LocalSqlite;
             dbSysem = DatabaseSystem.Sqlite;
+            //ConnectionStringProp = LocalSqlServer;
+            //dbSysem = DatabaseSystem.SqlServer;
         }
 
         /// <summary>
@@ -80,6 +82,7 @@ namespace GD.FinishingSystem.DAL.Concrete.EntityFramework
         public DbSet<Machine> Machines { get; set; }
         public DbSet<DefinationProcess> DefinationProcesses { get; set; }
         public DbSet<RuloProcess> RuloProcesses { get; set; }
+        public DbSet<Floor> Floors { get; set; }
 
         #endregion
 

@@ -39,9 +39,17 @@ namespace GD.FinishingSystem.Bussines
         {
             Users = new UserManager(context);
             Rulos = new RuloManager(context);
+            DefinationProcesses = new DefinationProcessManager(context);
+            Machines = new MachineManager(context);
+            TestResults = new TestResultManager(context);
         }
 
         public AbstractUserService Users { get; set; }
         public AbstractRuloService Rulos { get; set; }
+
+        public AbstractDefinationProcessService DefinationProcesses { get; set; }
+        public AbstractMachineService Machines { get; set; }
+        public AbstractTestResultService TestResults { get; set; }
+
     }
 }
