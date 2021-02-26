@@ -1,0 +1,75 @@
+﻿@model IEnumerable<GD.FinishingSystem.Entities.TestResult>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1 class="mt-4">Test Results</h1>
+
+@*@if (User.IsInRole("TestResultShow") || User.IsInRole("TestResultFull") || User.IsInRole("AdminFull"))
+{
+    <p>
+        <a asp-action="Create" class="btn btn-sm btn-outline-light border-dark btn-dark">
+            <i class="lni lni-circle-plus"></i> Create New
+        </a>
+    </p>
+}*@
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                <i class="lni lni-line-dashed"></i>
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Details)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.CanContinue)
+            </th>
+
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.TestResultID)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Details)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.CanContinue)
+                </td>
+                
+                <td>
+                    @if (User.IsInRole("TestResultUp") || User.IsInRole("TestResultFull") || User.IsInRole("AdminFull"))
+                    {
+                        <a asp-controller="TestResult" asp-action="Edit" asp-route-testresultid="@item.TestResultID">
+                            <i class="lni lni-slice"></i>
+                        </a>
+                        @Html.Raw(" | ");
+                    }
+                    @if (User.IsInRole("TestResultShow") || User.IsInRole("TestResultFull") || User.IsInRole("AdminFull"))
+                    {
+                        <a asp-controller="TestResult" asp-action="Details" asp-route-testresultid="@item.TestResultID">
+                            <i class="lni lni-question-circle"></i>
+                        </a>
+                        @Html.Raw(" | ");
+                    }
+                    @if (User.IsInRole("TestResultDel") || User.IsInRole("TestResultFull") || User.IsInRole("AdminFull"))
+                    {
+                        <a asp-controller="TestResult" asp-action="Delete" asp-route-testresultid="@item.TestResultID">
+                            <i class="lni lni-circle-minus"></i>
+                        </a>
+                    }
+
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
