@@ -16,8 +16,11 @@
     </p>
 }
 
-<table class="table">
+<table class="table table-sm table-hover table-responsive-md">
     <thead>
+        <tr>
+            <th colspan="5">Definition List</th>
+        </tr>
         <tr>
             <th>
                 <i class="lni lni-line-dashed"></i>
@@ -54,7 +57,7 @@
                         @if (User.IsInRole("MachineAdd") || User.IsInRole("MachineFull") || User.IsInRole("AdminFull"))
                         {
                             <a asp-controller="Machine" asp-action="Index" asp-route-reldefinationprocessid="@item.DefinationProcessID" class="btn btn-sm btn-info">
-                                <i class="lni lni-list "></i> MACHINES
+                                <i class="lni lni-list "></i> Machines
                             </a>
                         }
 
@@ -62,25 +65,31 @@
                 </td>
 
                 <td>
-                    <div style="display:block;width:80px;">
-                        @if (User.IsInRole("DefinationProcessUp") || User.IsInRole("AdminFull") || User.IsInRole("DefinationProcessFull"))
+                    <div style="display:block;width:107px;">
+                        @if (User.IsInRole("DefinitionProcessUp") || User.IsInRole("AdminFull") || User.IsInRole("DefinitionProcessFull"))
                         {
                             <a asp-controller="DefinationProcess" asp-action="Edit" asp-route-definationprocessid="@item.DefinationProcessID">
                                 <i class="lni lni-slice"></i>
                             </a>
                             @Html.Raw(" | ");
                         }
-                        @if (User.IsInRole("DefinationProcessShow") || User.IsInRole("AdminFull") || User.IsInRole("DefinationProcessFull"))
+                        @if (User.IsInRole("DefinitionProcessShow") || User.IsInRole("AdminFull") || User.IsInRole("DefinitionProcessFull"))
                         {
                             <a asp-controller="DefinationProcess" asp-action="Details" asp-route-definationprocessid="@item.DefinationProcessID">
                                 <i class="lni lni-question-circle"></i>
                             </a>
                             @Html.Raw(" | ");
                         }
-                        @if (User.IsInRole("DefinationProcessDel") || User.IsInRole("AdminFull") || User.IsInRole("DefinationProcessFull"))
+                        @if (User.IsInRole("DefinitionProcessDel") || User.IsInRole("AdminFull") || User.IsInRole("DefinitionProcessFull"))
                         {
                             <a asp-controller="DefinationProcess" asp-action="Delete" asp-route-definationprocessid="@item.DefinationProcessID">
                                 <i class="lni lni-circle-minus"></i>
+                            </a>
+                        }
+                        @if (User.IsInRole("DefinitionProcess", AuthType.Show))
+                        {
+                            <a alt="Machines" onclick="showMachines(@item.DefinationProcessID);" href="#" data-toggle="modal" data-target="#modalDialogMachines">
+                                <i class="lni lni-direction-alt"></i>
                             </a>
                         }
                     </div>
@@ -91,3 +100,39 @@
     </tbody>
 </table>
 
+<div class="modal fade" id="modalDialogMachines" tabindex="-1" role="dialog" width="350px" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Machines List</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div id="machinesDef"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function showMachines(DefinationProcessID) {
+        $.ajax({
+            url: "/DefinationProcess/GetMachines",
+            type: "GET",
+            data: {
+                DefinationProcessID: DefinationProcessID
+            },
+            success: function (data) {
+                document.getElementById("machinesDef").innerHTML = data;
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                alert("Something went wrong!");
+            }
+        });
+    }
+</script>

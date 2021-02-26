@@ -1,4 +1,4 @@
-﻿@model IEnumerable<GD.FinishingSystem.Entities.Rulo>
+﻿@model IEnumerable<GD.FinishingSystem.Entities.ViewModels.VMRulo>
 
 @{
     ViewData["Title"] = "Index";
@@ -7,6 +7,15 @@
     var styleList = ViewBag.StyleList;
 }
 
+<style>
+    .input-xs {
+        height: 22px;
+        padding: 2px 5px;
+        font-size: 12px;
+        line-height: 1.5; /* If Placeholder of the input is moved up, rem/modify this. */
+        border-radius: 3px;
+    }
+</style>
 <h1 class="mt-4">Rulos</h1>
 
 @if (User.IsInRole("RuloAdd") || User.IsInRole("AdminFull") || User.IsInRole("RuloFull"))
@@ -19,79 +28,81 @@
 }
 
 <form asp-action="Index">
+
+
     <div class="row">
-        <div class="col-lg-2 col-6" style="text-align:right">
-            Begin:
+        <div class="col-md-3">
+            <div class="form-group">
+                <label for="dtBegin">Begin</label><br>
+                <input type="date" style="width:100% !important;" id="dtBegin" name="dtBegin">
+            </div>
         </div>
-        <div class="col-lg-3 col-6" style="text-align:left">
-            <input type="date" id="dtBegin" name="dtBegin" />
+        <div class="col-md-3">
+            <div class="form-group">
+                <label for="dtEnd">End</label><br>
+                <input type="date" style="width:100% !important;" id="dtEnd" name="dtEnd">
+            </div>
         </div>
-        <div class="col-lg-2 col-6" style="text-align:right">
-            End:
+        <div class="col-md-3">
+            <div class="form-group">
+                <label for="numLote">Lote</label><br>
+                <input type="number"  onfocusout="controlForSmallerThanZero('numLote')"  min="0" style="width:100% !important;" id="numLote" name="numLote">
+            </div>
         </div>
-        <div class="col-lg-3 col-6" style="text-align:left">
-            <input type="date" id="dtEnd" name="dtEnd" />
+        <div class="col-md-3">
+            <div class="form-group">
+                <label for="numLoom">Loom</label><br>
+                <input type="number"  onfocusout="controlForSmallerThanZero('numLoom')"  min="0" style="width:100% !important;" id="numLoom" name="numLoom">
+            </div>
         </div>
 
     </div>
 
+    @*SECOND ROW*@
+
     <div class="row">
-        <div class="col-lg-2 col-6" style="text-align:right">
-            Lote:
+        <div class="col-md-3">
+            <div class="form-group">
+                <label for="numPiece">Piece</label><br>
+                <input type="number" onfocusout="controlForSmallerThanZero('numPiece')"  min="0" style="width:100% !important;" id="numPiece" name="numPiece">
+            </div>
         </div>
-        <div class="col-lg-2 col-6" style="text-align:right">
-            <input type="number" id="numLote" name="numLote" placeholder="Lote" />
+
+        <div class="col-md-3">
+            <div class="form-group">
+                <label for="numPiece">Style</label><br>
+                <input type="text" style="width:100% !important;" id="txtStyle" name="txtStyle" list="styleList">
+                <datalist id="styleList">
+                    @foreach (var item in styleList)
+                    {
+                        <option value="@item"></option>
+                    }
+                </datalist>
+            </div>
         </div>
-        <div class="col-lg-2 col-6" style="text-align:right">
-            Beam:
+
+        <div class="col-md-3">
+            <div class="form-group">
+                <label for="numPiece">Test Result</label><br>
+                <select style="width:100% !important;" id="numTestCategory" name="numTestCategory" asp-items="@ViewBag.TestCategorytList"></select>
+            </div>
         </div>
-        <div class="col-lg-2 col-6" style="text-align:right">
-            <input type="number" id="numBeam" name="numBeam" placeholder="Beam" />
-        </div>
-        <div class="col-lg-2 col-6" style="text-align:right">
-            Loom:
-        </div>
-        <div class="col-lg-2 col-6" style="text-align:right">
-            <input type="number" id="numLoom" name="numLoom" placeholder="Loom" />
-        </div>
-        <div class="col-lg-2 col-6" style="text-align:right">
-            Piece:
-        </div>
-        <div class="col-lg-2 col-6" style="text-align:right">
-            <input type="number" id="numPiece" name="numPiece" placeholder="Piece" />
-        </div>
-        <div class="col-lg-2 col-6" style="text-align:right">
-            Style:
-        </div>
-        <div class="col-lg-2 col-6" style="text-align:right">
-            <input type="text" id="txtStyle" name="txtStyle" placeholder="Style" list="items" />
-            <datalist id="items">
-                @foreach (var item in styleList)
-                {
-                    <option value="@item"></option>
-                }
-            </datalist>
-        </div>
-        <div class="col-lg-2 col-6" style="text-align:right">
-            Test Result:
-        </div>
-        <div class="col-lg-2 col-6" style="text-align:right">
-            <select id="numTestResult" asp-items="@ViewBag.TestResultList"></select>
-        </div>
+
     </div>
+
+
+
     <div class="row">
         <div class="col-sm-12 col-md-12 col-lg-12" style="text-align:right">
             <input type="submit" value="Filter" class="btn btn-outline-info" />
         </div>
     </div>
-
 </form>
 
-
-<table class="table table-hover table-responsive-md">
+<table class="table table-sm table-hover table-responsive-lg">
     <thead>
         <tr>
-            <th colspan="8">Rulo List</th>
+            <th colspan="9">Rulo List</th>
         </tr>
         <tr>
             <th>
@@ -114,6 +125,9 @@
                 @Html.DisplayNameFor(model => model.ExitLength)
             </th>
             <th>
+                Test Result
+            </th>
+            <th>
                 Processes
             </th>
 
@@ -123,24 +137,37 @@
     <tbody>
         @foreach (var item in Model)
         {
-            <tr>
+            var color = "bgcolor=transparent";
+            if (item.CanContinue)
+                color = "bgcolor=66ff66";
+            else if (item.TestCategoryID == 2 || item.TestCategoryID == 4) //Ok X or Fail X
+                color = "bgcolor=ff6666";
+
+            <tr @color>
                 <td>
                     @Html.DisplayFor(modelItem => item.RuloID)
                 </td>
                 <td>
-                    @Html.DisplayFor(modelItem => item.Lote)
-                    -
-                    @Html.DisplayFor(modelItem => item.Beam)
-                    -
-                    @Html.DisplayFor(modelItem => item.Loom)
-                    -
-                    @Html.DisplayFor(modelItem => item.Piece)
+                    <div style="display:block;width:200px;">
+
+                        @Html.DisplayFor(modelItem => item.Lote)
+                        -
+                        @Html.DisplayFor(modelItem => item.Beam)
+                        -
+                        @Html.DisplayFor(modelItem => item.Loom)
+                        -
+                        @Html.DisplayFor(modelItem => item.Piece)
+                    </div>
                 </td>
                 <td>
-                    @Html.DisplayFor(modelItem => item.Style)
+                    <div style="display:block;width:95px;">
+                        @Html.DisplayFor(modelItem => item.Style)
+                    </div>
                 </td>
                 <td>
-                    @Html.DisplayFor(modelItem => item.StyleName)
+                    <div style="display:block;width:260px;">
+                        @Html.DisplayFor(modelItem => item.StyleName)
+                    </div>
                 </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.EntranceLength)
@@ -148,52 +175,66 @@
                 <td>
                     @Html.DisplayFor(modelItem => item.ExitLength)
                 </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.TestCategoryCode)
+                </td>
 
                 <td>
-                    <div>
+                    <div style="display:block;width:300px;">
                         @if (User.IsInRole("RuloProcessShow") || User.IsInRole("AdminFull") || User.IsInRole("RuloProcessFull"))
                         {
-                            <a asp-controller="RuloProcess" asp-action="Index" asp-route-ruloid="@item.RuloID" class="btn btn-sm btn-info">
-                                GET PROCESS
+                            <a asp-controller="RuloProcess" asp-action="Index" asp-route-ruloid="@item.RuloID" class="btn input-xs btn-info">
+                                <i class="lni lni-list "></i> Process
                             </a>
+                            @Html.Raw(" | ")
                         }
 
-                        @if (User.IsInRole("TestResultAdd") || User.IsInRole("TestResultFull") || User.IsInRole("AdminFull"))
+                        <a onclick="PrintLabel(@item.RuloID)" class="btn  input-xs btn-danger"><i class="lni lni-printer"></i> Print</a>
+
+                        @if (User.IsInRole("TestResult", AuthType.Add))
                         {
-                            @if (item.TestResultID == null || item.TestResultID == 0)
+                            @if (item.TestResultID == null || item.TestResultID == 0 || item.IsWaitingAnswerFromTest)
                             {
                                 @Html.Raw(" | ")
-                                <a onclick="testResult(@item.RuloID)" class="btn btn-sm btn-danger"><i class="lni lni-flag"></i> Test Result</a>
+                                <a onclick="testResult(@item.RuloID)" class="btn  input-xs btn-danger" data-toggle="modal" data-target="#modalDialog"><i class="lni lni-flag"></i> Test Result</a>
                             }
                         }
 
-                        @Html.Raw(" | ")
-                        <a onclick="PrintLabel(@item.RuloID)" class="btn btn-sm btn-danger"><i class="lni lni-printer"></i> Print</a>
 
                     </div>
 
                 </td>
 
                 <td>
-                    <div style="display:block;width:80px;">
-                        @if (User.IsInRole("RuloUp") || User.IsInRole("AdminFull") || User.IsInRole("RuloFull"))
+                    <div style="display:block;width:107px;">
+                        @if (User.IsInRole("Rulo", AuthType.Update))
                         {
                             <a asp-controller="Rulo" asp-action="Edit" asp-route-ruloid="@item.RuloID">
                                 <i class="lni lni-slice"></i>
                             </a>
                             @Html.Raw(" | ");
                         }
-                        @if (User.IsInRole("RuloShow") || User.IsInRole("AdminFull") || User.IsInRole("RuloFull"))
+
+                        @if (User.IsInRole("Rulo", AuthType.Show))
                         {
+
                             <a asp-controller="Rulo" asp-action="Details" asp-route-ruloid="@item.RuloID">
                                 <i class="lni lni-question-circle"></i>
                             </a>
                             @Html.Raw(" | ");
                         }
-                        @if (User.IsInRole("RuloDel") || User.IsInRole("AdminFull") || User.IsInRole("RuloFull"))
+
+                        @if (User.IsInRole("Rulo", AuthType.Delete))
                         {
                             <a asp-controller="Rulo" asp-action="Delete" asp-route-ruloid="@item.RuloID">
                                 <i class="lni lni-circle-minus"></i>
+                            </a>
+                            @Html.Raw(" | ");
+                        }
+                        @if (User.IsInRole("Rulo", AuthType.Show))
+                        {
+                            <a alt="Processes" onclick="showProcesses(@item.RuloID);" href="#" data-toggle="modal" data-target="#modalDialogprocesses">
+                                <i class="lni lni-direction-alt"></i>
                             </a>
                         }
                     </div>
@@ -204,6 +245,47 @@
     </tbody>
 </table>
 
+<!-- Modal -->
+<div class="modal fade" id="modalDialog" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Test Result</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div id="objModal"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" onclick="Finish();">Save changes</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="modal fade" id="modalDialogprocesses" tabindex="-1" role="dialog" width="350px" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Rulo Processes List</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div id="processesDef"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
 
 <script>
 
@@ -215,23 +297,80 @@
     document.getElementById("numLoom").value = '@ViewBag.numLoom';
     document.getElementById("numPiece").value = '@ViewBag.numPiece';
     document.getElementById("txtStyle").value = '@ViewBag.txtStyle';
-    //document.getElementById("numTestResult").value = '@ViewBag.numTestRsult';
+    document.getElementById("numTestCategory").value = '@ViewBag.numTestCategory';
 
     function testResult(ruloId) {
-        var description = prompt("Please enter description Test Result");
-        if (description == 'undefine' || description == '') return;
-        if (confirm("Are you sure Test Result")) {
-            testResultFinish(ruloId, description);
+
+        var testCategory = @Html.Raw(ViewBag.ModalTestResultList);
+        var sel = "Select Test Result: <Select id='ddlTestResults'>";
+
+        $.each(testCategory, function (index, value) {
+            sel += "<option value='" + value.Value + "'>" + value.Text + "</option>";
+            console.log('The value at arr[' + value.Value + '] is: ' + value.Text);
+        })
+
+        sel += "</select>";
+        sel += "<input type=hidden id='ruloId' name='ruloId' value = " + ruloId + "></input>";
+
+        document.getElementById('objModal').innerHTML = sel;
+    }
+
+    function PrintLabel(ruloId) {
+        if (confirm('Are you sure you want to print this label?')) {
+
+            $.ajax({
+                url: "/Rulo/Print",
+                type: "POST",
+                data:
+                {
+                    RuloId: ruloId
+                },
+                success: function (data) {
+                    alert("Listo!");
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+                    alert("404 Not found!");
+                }
+            });
         }
     }
 
-    function testResultFinish(ruloId, description) {
+    function controlForSmallerThanZero(controlID) {
+        try {
+            var value = document.getElementById(controlID).value;
+            var a = parseInt(value);
+            if (!(a > 0)) document.getElementById(controlID).value = "0";
+        }
+        catch (err) {
+            document.getElementById(controlID).value = "0";
+        }
+    }
+
+    function Finish() {
+        var description = $("#ddlTestResults :selected").text();
+        if (description == 'All') {
+            alert('Please select an option');
+            return;
+        }
+
+        if (confirm('Are you sure you want to finish this Test Result')) {
+            TestResultFinish();
+        }
+    }
+
+    function TestResultFinish() {
+
+        var ruloId = $("#ruloId").val();
+        var testCategoryId = $("#ddlTestResults :selected").val();
+        var description = $("#ddlTestResults :selected").text();
+
         $.ajax({
             url: "/Rulo/TestResultFinish",
             type: "POST",
             data:
             {
                 RuloId: ruloId,
+                TestCategoryId: testCategoryId,
                 Description: description
             },
             success: function (data) {
@@ -243,22 +382,30 @@
         });
     }
 
-        function PrintLabel(ruloId) {
-            $.ajax({
-                url: "/Rulo/Print",
-                type: "POST",
-                data:
-                {
-                    RuloId: ruloId
-                },
-                success: function (data) {
-                    location.reload();
-                },
-                error: function (xhr, ajaxOptions, thrownError) {
-                    alert("404 Not found!");
-                }
-            });
-        }
 
+
+    function showProcesses(RuloID) {
+
+        $.ajax({
+            url: "/Rulo/GetProcesses",
+            type: "GET",
+            data:
+            {
+                RuloId: RuloID
+            },
+            success: function (data) {
+                document.getElementById('processesDef').innerHTML = data;
+
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                alert("Something went wrong!");
+            }
+        });
+
+
+
+
+
+    }
 
 </script>

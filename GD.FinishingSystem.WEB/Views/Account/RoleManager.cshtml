@@ -1,6 +1,6 @@
 ﻿@model List<string>
 @{
-    string[] FormList = new string[] { "Rulo", "RuloProcess", "DefinationProcess", "TestResult", "Machine" };
+    string[] FormList = new string[] { "Rulo", "RuloProcess", "DefinitionProcess", "TestResult", "Machine" };
 
     ViewData["Title"] = "Authorize  ";
     Layout = "~/Views/Shared/_Layout.cshtml";
@@ -71,7 +71,7 @@
         @foreach (var formName in FormList)
         {
             <tr>
-                <td>@formName</td>
+                <td>@System.Text.RegularExpressions.Regex.Replace(formName, "([A-Z])", " $1", System.Text.RegularExpressions.RegexOptions.Compiled).Trim()</td>
                 <td>
                     <input onchange="changedRole(this.id);" data-formname='@formName' data-authtype="1" type="checkbox" id='@Html.Raw(formName+"Show")' class="form-check-input" @Html.Raw(Model.Exists(o => o == formName + "Show") ? "checked='checked'" : "") />
                     <label class="form-check-label" for='@Html.Raw(formName+"Show")'>

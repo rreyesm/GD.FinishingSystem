@@ -88,7 +88,7 @@ namespace GD.FinishingSystem.WEB.Classes
                     }
                     else
                     {
-                        if (nameFieldText.Equals(nameFieldText, StringComparison.InvariantCultureIgnoreCase))
+                        if (propInfo.Name.Equals(nameFieldText, StringComparison.InvariantCultureIgnoreCase))
                         {
                             var value = propInfo.GetValue(item, null) ?? DBNull.Value;
                             fieldName = value.ToString();

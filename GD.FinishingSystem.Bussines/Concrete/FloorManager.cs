@@ -16,34 +16,39 @@ namespace GD.FinishingSystem.Bussines.Concrete
         public FloorManager(DbContext context)
         {
             this.repository = new GenericRepository<Floor>(context);
-        }
-        public override async Task Add(Floor floorInformation)
-        {
-            await repository.Add(floorInformation, 0);
-        }
 
-        public override async Task Delete(Floor floorInformation)
+        }
+        public override async Task Add(Floor floor, int adderRef)
         {
-            await repository.Remove(floorInformation.FloorID, 0);
+            await repository.Add(floor, adderRef);
         }
 
-        public override async Task<Floor> GetRuloFromRuloID(int floorID)
+        public override async Task Delete(Floor floor, int deleterRef)
         {
-           var result = await repository.GetByPrimaryKey(floorID);
-
-            return result;
+            await repository.Remove(floor.FloorID, deleterRef);
         }
 
-        public override async Task<IEnumerable<Floor>> GetRuloList()
+        public override async Task<Floor> GetFloorFromFloorID(int FloorID)
         {
-            var result = await repository.GetWhere(x=>x.FloorID != 0);
-
-            return result;
+            var floor = await repository.GetByPrimaryKey(FloorID);
+            return floor;
         }
 
-        public override async Task Update(Floor floorInformation)
+        public override async Task<IEnumerable<Floor>> GetFloorList()
         {
-            await repository.Update(floorInformation, 0);
+            var floor = await repository.GetWhere(o => !o.IsDeleted);
+            return floor;
+        }
+
+        public override async Task Update(Floor floor, int updaterRef)
+        {
+            if (floor != null && floor.FloorID > 0 && !string.IsNullOrWhiteSpace(floor.FloorName))
+            {
+                var newUpdate = await repository.GetByPrimaryKey(floor.FloorID);
+                newUpdate.FloorName = floor.FloorName;
+                await repository.Update(newUpdate, updaterRef);
+            }
+
         }
     }
 }

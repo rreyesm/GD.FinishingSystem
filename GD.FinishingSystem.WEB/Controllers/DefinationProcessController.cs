@@ -1,6 +1,5 @@
 ﻿using GD.FinishingSystem.Bussines;
 using GD.FinishingSystem.Entities;
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -18,7 +17,7 @@ namespace GD.FinishingSystem.WEB.Controllers
         }
 
         [HttpGet]
-        [Authorize(AuthenticationSchemes = SystemStatics.DefaultScheme, Roles = "DefinationProcessShow, DefinationProcessFull, AdminFull")]
+        [Authorize(AuthenticationSchemes = SystemStatics.DefaultScheme, Roles = "DefinitionProcessShow, DefinitionProcessFull, AdminFull")]
         public async Task<IActionResult> Index()
         {
             DateTime dtBegin = DateTime.Today.AddMonths(-1);
@@ -31,7 +30,7 @@ namespace GD.FinishingSystem.WEB.Controllers
         }
 
         [HttpPost]
-        [Authorize(AuthenticationSchemes = SystemStatics.DefaultScheme, Roles = "DefinationProcessShow, DefinationProcessFull,AdminFull")]
+        [Authorize(AuthenticationSchemes = SystemStatics.DefaultScheme, Roles = "DefinitionProcessShow, DefinitionProcessFull,AdminFull")]
         public async Task<IActionResult> Index(DateTime dtBegin, DateTime dtEnd)
         {
             dtEnd = dtEnd.AddDays(1).AddMilliseconds(-1);
@@ -47,7 +46,7 @@ namespace GD.FinishingSystem.WEB.Controllers
         }
 
         [HttpGet]
-        [Authorize(AuthenticationSchemes = SystemStatics.DefaultScheme, Roles = "DefinationProcessAdd, DefinationProcessFull, AdminFull")]
+        [Authorize(AuthenticationSchemes = SystemStatics.DefaultScheme, Roles = "DefinitionProcessAdd, DefinitionProcessFull, AdminFull")]
         public IActionResult Create()
         {
             ViewBag.Error = false;
@@ -57,7 +56,7 @@ namespace GD.FinishingSystem.WEB.Controllers
         }
 
         [HttpGet]
-        [Authorize(AuthenticationSchemes = SystemStatics.DefaultScheme, Roles = "DefinationProcessUp, DefinationProcessFull, AdminFull")]
+        [Authorize(AuthenticationSchemes = SystemStatics.DefaultScheme, Roles = "DefinitionProcessUp, DefinitionProcessFull, AdminFull")]
         public async Task<IActionResult> Edit(int DefinationProcessId)
         {
             ViewBag.Error = false;
@@ -74,14 +73,14 @@ namespace GD.FinishingSystem.WEB.Controllers
             ViewBag.Error = true;
             if (definationProcess.DefinationProcessID == 0)
             {
-                if (!(User.IsInRole("DefinationProcessAdd") || User.IsInRole("AdminFull") || User.IsInRole("DefinationProcessFull")))
+                if (!(User.IsInRole("DefinitionProcessAdd") || User.IsInRole("AdminFull") || User.IsInRole("DefinitionProcessFull")))
                     return Unauthorized();
 
                 await factory.DefinationProcesses.Add(definationProcess, int.Parse(User.Identity.Name));
             }
             else
             {
-                if (!(User.IsInRole("DefinationProcessUp") || User.IsInRole("AdminFull") || User.IsInRole("DefinationProcessFull")))
+                if (!(User.IsInRole("DefinitionProcessUp") || User.IsInRole("AdminFull") || User.IsInRole("DefinitionProcessFull")))
                     return Unauthorized();
 
                 var foundDefinationProcess = await factory.DefinationProcesses.GetDefinationProcessFromDefinationProcessID(definationProcess.DefinationProcessID);
@@ -96,7 +95,7 @@ namespace GD.FinishingSystem.WEB.Controllers
         }
 
         [HttpGet]
-        [Authorize(AuthenticationSchemes = SystemStatics.DefaultScheme, Roles = "DefinationProcessShow, AdminFull, DefinationProcessFull")]
+        [Authorize(AuthenticationSchemes = SystemStatics.DefaultScheme, Roles = "DefinitionProcessShow, AdminFull, DefinitionProcessFull")]
         public async Task<IActionResult> Details(int definationProcessId)
         {
             var definationProcess = await factory.DefinationProcesses.GetDefinationProcessFromDefinationProcessID(definationProcessId);
@@ -109,7 +108,7 @@ namespace GD.FinishingSystem.WEB.Controllers
         }
 
         [HttpGet]
-        [Authorize(AuthenticationSchemes = SystemStatics.DefaultScheme, Roles = "DefinationProcessDel, AdminFull, DefinationProcessFull")]
+        [Authorize(AuthenticationSchemes = SystemStatics.DefaultScheme, Roles = "DefinitionProcessDel, AdminFull, DefinitionProcessFull")]
         public async Task<IActionResult> Delete(int definationProcessId)
         {
             var definationProcess = await factory.DefinationProcesses.GetDefinationProcessFromDefinationProcessID(definationProcessId);
@@ -126,7 +125,7 @@ namespace GD.FinishingSystem.WEB.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int definationProcessId)
         {
-            if (!(User.IsInRole("DefinationProcessDel") || User.IsInRole("AdminFull") || User.IsInRole("DefinationProcessFull")))
+            if (!(User.IsInRole("DefinitionProcessDel") || User.IsInRole("AdminFull") || User.IsInRole("DefinitionProcessFull")))
                 return Unauthorized();
 
             var definationProcess = await factory.DefinationProcesses.GetDefinationProcessFromDefinationProcessID(definationProcessId);
@@ -136,6 +135,21 @@ namespace GD.FinishingSystem.WEB.Controllers
             return Redirect("Index");
         }
 
+        [HttpGet]
+        [Authorize(AuthenticationSchemes = SystemStatics.DefaultScheme, Roles = "MachineShow, MachineFull, AdminFull")]
+        public async Task<IActionResult> GetMachines(int DefinationProcessId)
+        {
+            if (!User.IsInRole("RuloProcess", AuthType.Show)) return Unauthorized();
+
+            var foundDefProcess = await factory.DefinationProcesses.GetDefinationProcessFromDefinationProcessID(DefinationProcessId);
+            if (foundDefProcess == null) return NotFound();
+
+            var machines = await factory.Machines.GetVMMachinesFromDefinationProcessID(DefinationProcessId);
+
+            return PartialView(machines);
+
+
+        }
 
     }
 }

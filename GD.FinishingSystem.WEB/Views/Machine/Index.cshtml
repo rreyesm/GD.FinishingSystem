@@ -18,13 +18,11 @@
         </p>
     }
 }
-</ hr>
 
-
-<table class="table table-hover table-responsive-lg">
+<table class="table table-sm table-hover table-responsive-lg">
     <thead>
         <tr>
-            <th colspan="5">Machine List</th>
+            <th colspan="6">Machine List</th>
         </tr>
         <tr>
             <th>
@@ -32,13 +30,16 @@
             </th>
 
             <th>
-                Machine Code
+                @Html.DisplayNameFor(model => model.MachineCode)
             </th>
             <th>
-                Machine Name
+                @Html.DisplayNameFor(model => model.MachineName)
             </th>
             <th>
-                Process
+                @Html.DisplayNameFor(model => model.processName)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.FloorName)
             </th>
             <th></th>
         </tr>
@@ -59,6 +60,9 @@
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.processName)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.FloorName)
             </td>
             <td>
                 @if (User.IsInRole("MachineUp") || User.IsInRole("MachineFull") || User.IsInRole("AdminFull"))

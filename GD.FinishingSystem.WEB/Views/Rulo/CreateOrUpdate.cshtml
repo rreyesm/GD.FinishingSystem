@@ -99,6 +99,22 @@
                 </div>
             </div>
 
+            <div class="col-lg-3 col-md-4 col-sm-12">
+                <div class="form-group">
+                    <label asp-for="OriginID" class="control-label"></label>
+                    <select asp-for="OriginID" asp-items="@ViewBag.OriginList" class="form-control"></select>
+                    <span asp-validation-for="OriginID" class="text-danger"></span>
+                </div>
+            </div>
+
+            <div class="col-lg-3 col-md-4 col-sm-12">
+                <div class="form-group">
+                    <label asp-for="Observations" class="control-label"></label>
+                    <textarea asp-for="Observations" rows="3" class="form-control"></textarea>
+                    <span asp-validation-for="Observations" class="text-danger"></span>
+                </div>
+            </div>
+
             @if ((bool)ViewBag.Error)
             {
                 <hr />

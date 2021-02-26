@@ -31,19 +31,19 @@
 
         <div class="row">
             @*<div class="col-lg-3 col-md-4 col-ms-12">
-                    <div class="form-group">
-                        <label asp-for="MachineID" class="control-label"></label>
-                        <input asp-for="MachineID" class="form-control" />
-                        <span asp-validation-for="MachineID" class="text-danger"></span>
-                    </div>
-                </div>*@
+            <div class="form-group">
+                <label asp-for="MachineID" class="control-label"></label>
+                <input asp-for="MachineID" class="form-control" />
+                <span asp-validation-for="MachineID" class="text-danger"></span>
+            </div>
+        </div>*@
             @*<div class="col-lg-3 col-md-4 col-ms-12">
-                <div class="form-group">
-                    <label asp-for="DefinationProcessID" class="control-label"></label>
-                    <input asp-for="DefinationProcessID" class="form-control" />
-                    <span asp-validation-for="DefinationProcessID" class="text-danger"></span>
-                </div>
-            </div>*@
+            <div class="form-group">
+                <label asp-for="DefinationProcessID" class="control-label"></label>
+                <input asp-for="DefinationProcessID" class="form-control" />
+                <span asp-validation-for="DefinationProcessID" class="text-danger"></span>
+            </div>
+        </div>*@
             <div class="col-lg-3 col-md-4 col-ms-12">
                 <div class="form-group">
                     <label asp-for="MachineCode" class="control-label"></label>
@@ -58,7 +58,15 @@
                     <span asp-validation-for="MachineName" class="text-danger"></span>
                 </div>
             </div>
+            <div class="col-lg-3 col-md-4 col-ms-12">
+                <div class="form-group">
+                    <label asp-for="FloorID" class="control-label"></label>
+                    <select asp-for="FloorID" asp-items="@ViewBag.FloorList" class="form-control"></select>
+                    <span asp-validation-for="FloorID" class="text-danger"></span>
+                </div>
+            </div>
 
+        </div>
             @if ((bool)ViewBag.Error)
             {
                 <hr />
@@ -81,7 +89,6 @@
                 </div>
             </div>
 
-        </div>
     </form>
 </div>
 

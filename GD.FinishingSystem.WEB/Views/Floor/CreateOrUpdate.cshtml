@@ -1,0 +1,72 @@
+﻿@model GD.FinishingSystem.Entities.Floor
+
+@{
+    ViewData["Title"] = "Create";
+}
+
+<div class="alert alert-info">
+    <h1 class="mt-4">
+        @if (Model.FloorID == 0)
+        {
+            @Html.Raw("Create")
+            ViewData["Title"] = "Create Definition Information";
+        }
+        else
+        {
+            @Html.Raw("Edit")
+            ViewData["Title"] = "Edit Definition Information";
+        }
+    </h1>
+
+    <h4>Floor</h4>
+    <hr />
+</div>
+
+<div class="alert alert-success">
+
+    <form asp-action="Save">
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+        @Html.HiddenFor(model => model.FloorID)
+        <div class="row">
+            <div class="col-lg-3 col-md-4 col-ms-12">
+
+                <div class="form-group">
+                    <label asp-for="FloorName" class="control-label"></label>
+                    <input asp-for="FloorName" class="form-control" />
+                    <span asp-validation-for="FloorName" class="text-danger"></span>
+                </div>
+
+            </div>
+
+            @if ((bool)ViewBag.Error)
+            {
+                <hr />
+                <div class="alert alert-danger">
+                    @Html.Raw(ViewBag.ErrorMessage)
+                </div>
+            }
+
+            <div class="col-12">
+                <div class="form-group">
+                    @if (Model.FloorID == 0)
+                    {
+                        <button type="submit" class="btn btn-primary"><i class="lni lni-circle-plus"></i> Create</button>
+                    }
+                    else
+                    {
+                        <button type="submit" class="btn btn-success"><i class="lni lni-save"></i> Save Changes</button>
+                    }
+                </div>
+            </div>
+        </div>
+    </form>
+
+</div>
+
+<div>
+    <a asp-action="Index" class="btn btn-sm btn-secondary"><i class="lni lni-chevron-left-circle"></i> Back to List</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

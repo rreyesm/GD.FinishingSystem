@@ -42,6 +42,9 @@ namespace GD.FinishingSystem.Bussines
             DefinationProcesses = new DefinationProcessManager(context);
             Machines = new MachineManager(context);
             TestResults = new TestResultManager(context);
+            Floors = new FloorManager(context);
+            OriginCategories = new OriginCategoryManager(context);
+            TestCategories = new TestCategoryManager(context);
         }
 
         public AbstractUserService Users { get; set; }
@@ -50,6 +53,9 @@ namespace GD.FinishingSystem.Bussines
         public AbstractDefinationProcessService DefinationProcesses { get; set; }
         public AbstractMachineService Machines { get; set; }
         public AbstractTestResultService TestResults { get; set; }
+        public AbstractFloorService Floors { get; set; }
+        public AbstractOriginCategoryService OriginCategories { get; set; }
+        public AbstractTestCategoryService TestCategories { get; set; }
 
     }
 }

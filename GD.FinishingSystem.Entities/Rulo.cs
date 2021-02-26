@@ -33,8 +33,9 @@ namespace GD.FinishingSystem.Entities
         public TestResult TestResult { get; set; }
         public int? TestResultID { get; set; }
         public int? TestResultAuthorizer { get; set; }
-
-
+        [ForeignKey("OriginID")]
+        public int OriginID { get; set; }
+        public string Observations { get; set; }
 
     }
 }

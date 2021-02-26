@@ -1,0 +1,50 @@
+﻿@model IEnumerable<GD.FinishingSystem.Entities.ViewModels.VMMachine>
+
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                <i class="lni lni-line-dashed"></i>
+            </th>
+
+            <th>
+                @Html.DisplayNameFor(model => model.MachineCode)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.MachineName)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.processName)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.FloorName)
+            </th>
+
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.ID)
+                </td>
+
+                <td>
+                    @Html.DisplayFor(modelItem => item.MachineCode)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.MachineName)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.processName)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.FloorName)
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+

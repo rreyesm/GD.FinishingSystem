@@ -9,9 +9,11 @@ namespace GD.FinishingSystem.Entities
         [Key]
         [Display(Name = "Defination Process ID")]
         public int DefinationProcessID { get; set; }
-        [MaxLength(10)]
-        [Display(Name = "Process Code")]
+
+
+        [MaxLength(10), Required, Display(Name = "Process Code")]
         public string ProcessCode { get; set; }
+        [Required]
         public string Name { get; set; }
 
     }

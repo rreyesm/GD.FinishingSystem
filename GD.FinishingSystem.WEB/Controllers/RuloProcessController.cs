@@ -43,7 +43,7 @@ namespace GD.FinishingSystem.WEB.Controllers
             ViewBag.Error = false;
             ViewBag.ErrorMessage = "";
 
-            await SetVieBagForDefinationProcess();
+            await SetViewBagForDefinationProcess();
 
             RuloProcess newRuloProcess = new RuloProcess();
             newRuloProcess.RuloID = relRuloId;
@@ -60,7 +60,7 @@ namespace GD.FinishingSystem.WEB.Controllers
             ViewBag.Error = false;
             ViewBag.ErrorMessage = "";
 
-            await SetVieBagForDefinationProcess();
+            await SetViewBagForDefinationProcess();
 
             RuloProcess existRuloProcess = await factory.Rulos.GetRuloProcessFromRuloProcessID(ruloProcessID);
             if (existRuloProcess == null)
@@ -68,7 +68,7 @@ namespace GD.FinishingSystem.WEB.Controllers
             return View("CreateOrUpdate", existRuloProcess);
         }
 
-        private async Task SetVieBagForDefinationProcess()
+        private async Task SetViewBagForDefinationProcess()
         {
             var definationProcessList = await factory.DefinationProcesses.GetDefinationProcessList();
             ViewBag.DefinationProcessList = WebUtilities.Create<DefinationProcess>(definationProcessList, "DefinationProcessID", "Name", true);
@@ -79,7 +79,7 @@ namespace GD.FinishingSystem.WEB.Controllers
         {
             ViewBag.Error = true;
             string errorMessage = string.Empty;
-            await SetVieBagForDefinationProcess();
+            await SetViewBagForDefinationProcess();
 
             if (!ModelState.IsValid)
             {
@@ -158,18 +158,20 @@ namespace GD.FinishingSystem.WEB.Controllers
             return View(ruloProcess);
         }
 
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int ruloId)
+
+        [ValidateAntiForgeryToken, HttpPost, ActionName("Delete")]
+
+        public async Task<IActionResult> DeleteConfirmed(int RuloProcessID)
         {
             if (!(User.IsInRole("RuloProcess", AuthType.Delete)))
                 return Unauthorized();
 
-            var ruloProcess = await factory.Rulos.GetRuloProcessFromRuloProcessID(ruloId);
+            var ruloProcess = await factory.Rulos.GetRuloProcessFromRuloProcessID(RuloProcessID);
+            if (ruloProcess == null) return NotFound();
 
-            await factory.Rulos.DeleteRuloProcess(ruloProcess, int.Parse(User.Identity.Name));
+            await factory.Rulos.DeleteRuloProcessFromRuloProcessID(RuloProcessID, int.Parse(User.Identity.Name));
 
-            return Redirect("Index");
+            return RedirectToAction("Index", new { RuloID = ruloProcess.RuloID });
         }
 
         [HttpPost]

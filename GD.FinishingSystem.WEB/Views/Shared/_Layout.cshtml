@@ -11,6 +11,7 @@
     <link href="~/css/styles.css" rel="stylesheet" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/js/all.min.js" crossorigin="anonymous"></script>
     <link href="~/css/LineIcons.css" rel="stylesheet" />
+
 </head>
 <body class="sb-nav-fixed">
     @{
@@ -72,7 +73,7 @@
                     </div>
                     <div class="nav">
                         <div class="sb-sidenav-menu-heading">Definitions</div>
-                        @if (User.IsInRole("DefinationProcessFull") || User.IsInRole("DefinationProcessShow") || User.IsInRole("AdminFull"))
+                        @if (User.IsInRole("DefinitionProcessFull") || User.IsInRole("DefinitionProcessShow") || User.IsInRole("AdminFull"))
                         {
                             <a class="nav-link" asp-controller="DefinationProcess" asp-action="Index">
                                 <div class="sb-nav-link-icon">
@@ -83,15 +84,35 @@
                             </a>
                         }
 
-                        @*@if (User.IsInRole("TestResultFull") || User.IsInRole("TestResultShow") || User.IsInRole("AdminFull"))
+                        @if (User.IsInRole("AdminFull"))
                         {
-                            <a class="nav-link" asp-controller="TestResult" asp-action="Index">
+                            <a class="nav-link" asp-controller="Floor" asp-action="Index">
                                 <div class="sb-nav-link-icon">
-                                    <i class="lni lni-sm lni-chevron-right"></i>
+                                    <i class="lni lni-sm lni-grid-alt"></i>
                                 </div>
-                                Test Result
+                                Floor
                             </a>
-                        }*@
+                        }
+
+                        @if (User.IsInRole("AdminFull"))
+                        {
+                            <a class="nav-link" asp-controller="TestCategory" asp-action="Index">
+                                <div class="sb-nav-link-icon">
+                                    <i class="lni lni-sm lni-eye"></i>
+                                </div>
+                                Test Definition
+                            </a>
+                        }
+
+                        @if (User.IsInRole("AdminFull"))
+                        {
+                            <a class="nav-link" asp-controller="OriginCategory" asp-action="Index">
+                                <div class="sb-nav-link-icon">
+                                    <i class="lni lni-sm lni-dropbox-original"></i>
+                                </div>
+                                Origin Definition
+                            </a>
+                        }
 
                     </div>
 
@@ -117,6 +138,7 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
     <script src="~/js/scripts.js"></script>
+
     @RenderSection("Scripts", required: false)
 </body>
 

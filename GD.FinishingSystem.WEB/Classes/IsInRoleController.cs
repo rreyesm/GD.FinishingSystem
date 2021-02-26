@@ -2,8 +2,7 @@
 using System;
 
 
-namespace GD.FinishingSystem.WEB.Classes
-{
+
 
 
     public static class IIR
@@ -29,4 +28,3 @@ namespace GD.FinishingSystem.WEB.Classes
         }
     }
 
-}

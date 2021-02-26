@@ -26,6 +26,7 @@ namespace GD.FinishingSystem.Entities
         public DefinationProcess DefinationProcess { get; set; }
         [Display(Name = "Definition Process")]
         [Required]
+        [RegularExpression(@"^[1-9][0-9]*$", ErrorMessage = "Please select a definition process")]
         public int DefinationProcessID { get; set; }
 
         [Display(Name = "Beginning Date")]

@@ -47,7 +47,7 @@ namespace GD.FinishingSystem.WEB.Classes
             DOCINFOA di = new DOCINFOA();
             bool bSuccess = false; // Assume failure unless you specifically succeed.
 
-            di.pDocName = "Bale Label";
+            di.pDocName = "Rulo Label";
             di.pDataType = "RAW";
 
             // Open the printer.

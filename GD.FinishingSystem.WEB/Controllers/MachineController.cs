@@ -1,6 +1,7 @@
 ﻿using GD.FinishingSystem.Bussines;
 using GD.FinishingSystem.Entities;
 using GD.FinishingSystem.Entities.ViewModels;
+using GD.FinishingSystem.WEB.Classes;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -28,7 +29,7 @@ namespace GD.FinishingSystem.WEB.Controllers
 
             IEnumerable<VMMachine> result = null;
             if (relDefinationProcessId != 0)
-                result = await factory.Machines.GetMachinesFromDefinationProcessID(relDefinationProcessId);
+                result = await factory.Machines.GetVMMachinesFromDefinationProcessID(relDefinationProcessId);
 
             return View(result);
         }
@@ -36,14 +37,22 @@ namespace GD.FinishingSystem.WEB.Controllers
 
         [HttpGet]
         [Authorize(AuthenticationSchemes = SystemStatics.DefaultScheme, Roles = "MachineAdd, MachineFull, AdminFull")]
-        public IActionResult Create(int relDefinationProcessId)
+        public async Task<IActionResult> Create(int relDefinationProcessId)
         {
             ViewBag.Error = false;
             ViewBag.ErrorMessage = "";
+            await SetViewBag();
+
             Machine newMachine = new Machine();
             newMachine.DefinationProcessID = relDefinationProcessId;
 
             return View("CreateOrUpdate", newMachine);
+        }
+
+        private async Task SetViewBag()
+        {
+            var result = await factory.Floors.GetFloorList();
+            ViewBag.FloorList = WebUtilities.Create<Floor>(result, "FloorID", "FloorName", true);
         }
 
         [HttpGet]
@@ -52,6 +61,8 @@ namespace GD.FinishingSystem.WEB.Controllers
         {
             ViewBag.Error = false;
             ViewBag.ErrorMessage = "";
+            await SetViewBag();
+
             Machine machine = await factory.Machines.GetMachineFromMachineID(machineId);
             if (machine == null)
                 return RedirectToAction("Error", "Home");
@@ -67,6 +78,15 @@ namespace GD.FinishingSystem.WEB.Controllers
             {
                 if (!(User.IsInRole("MachineAdd") || User.IsInRole("MachineFull") || User.IsInRole("AdminFull")))
                     return Unauthorized();
+
+                //Validate machine code
+                var foundMachine = await factory.Machines.GetMachineFromMachineCode(machine.MachineCode);
+
+                if (foundMachine != null)
+                {
+                    ViewBag.ErrorMessage = "Machine code already exist";
+                    return View("CreateOrUpdate", machine);
+                }
 
                 await factory.Machines.Add(machine, int.Parse(User.Identity.Name));
 
@@ -84,15 +104,15 @@ namespace GD.FinishingSystem.WEB.Controllers
                 await factory.Machines.Update(foundMachine, int.Parse(User.Identity.Name));
 
             }
-            return Redirect("Index");
-            //return RedirectToAction("Index", new { relDefinationProcessId = machine.DefinationProcessID });
+            //return Redirect("Index");
+            return RedirectToAction("Index", new { relDefinationProcessId = machine.DefinationProcessID });
         }
 
         [HttpGet]
         [Authorize(AuthenticationSchemes = SystemStatics.DefaultScheme, Roles = "MachineShow, MachineFull, AdminFull")]
         public async Task<IActionResult> Details(int machineId)
         {
-            var machine = await factory.Machines.GetMachineFromMachineID(machineId);
+            var machine = await factory.Machines.GetVMMachineFromVMMachineID(machineId);
             if (machine == null)
             {
                 return RedirectToAction("Error", "Home");
@@ -105,7 +125,7 @@ namespace GD.FinishingSystem.WEB.Controllers
         [Authorize(AuthenticationSchemes = SystemStatics.DefaultScheme, Roles = "MachineDel, MachineFull, AdminFull")]
         public async Task<IActionResult> Delete(int machineId)
         {
-            var machine = await factory.Machines.GetMachineFromMachineID(machineId);
+            var machine = await factory.Machines.GetVMMachineFromVMMachineID(machineId);
             if (machine == null)
             {
                 return RedirectToAction("Error", "Home");
@@ -116,16 +136,17 @@ namespace GD.FinishingSystem.WEB.Controllers
 
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int machineId)
+        public async Task<IActionResult> DeleteConfirmed(int ID)
         {
-            if (!(User.IsInRole("TestResultDel") || User.IsInRole("TestResultFull") || User.IsInRole("AdminFull")))
+            if (!(User.IsInRole("MachineDel") || User.IsInRole("MachineFull") || User.IsInRole("AdminFull")))
                 return Unauthorized();
 
-            var machine = await factory.Machines.GetMachineFromMachineID(machineId);
+            var machine = await factory.Machines.GetMachineFromMachineID(ID);
 
             await factory.Machines.Delete(machine, int.Parse(User.Identity.Name));
 
-            return Redirect("Index");
+            return RedirectToAction("Index", new { relDefinationProcessId = machine.DefinationProcessID });
         }
+
     }
 }

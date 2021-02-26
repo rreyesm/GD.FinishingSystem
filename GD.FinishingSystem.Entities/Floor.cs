@@ -7,10 +7,11 @@ using System.Text;
 namespace GD.FinishingSystem.Entities
 {
     [Table(name: "tblFloors")]
-    public class Floor
+    public class Floor : BaseEntity
     {
         [Key]
         public int FloorID { get; set; }
+        [Required, Display(Name = "Floor Name")]
         public string FloorName { get; set; }
     }
 }

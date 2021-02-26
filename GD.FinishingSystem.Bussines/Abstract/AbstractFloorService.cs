@@ -8,10 +8,10 @@ namespace GD.FinishingSystem.Bussines.Abstract
 {
     public abstract class AbstractFloorService
     {
-        public abstract Task<IEnumerable<Floor>> GetRuloList();
-        public abstract Task<Floor> GetRuloFromRuloID(int floorID);
-        public abstract Task Add(Floor floorInformation);
-        public abstract Task Update(Floor floorInformation);
-        public abstract Task Delete(Floor floorInformation);
+        public abstract Task<IEnumerable<Floor>> GetFloorList();
+        public abstract Task<Floor> GetFloorFromFloorID(int FloorID);
+        public abstract Task Add(Floor floor, int adderRef);
+        public abstract Task Update(Floor floor, int updaterRef);
+        public abstract Task Delete(Floor floor, int deleterRef);
     }
 }

@@ -1,0 +1,58 @@
+﻿@model IEnumerable<GD.FinishingSystem.Entities.RuloProcess>
+
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                <i class="lni lni-line-dashed"></i>
+            </th>
+            <th>
+                Process
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.BeginningDate)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.EndDate)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.FinishMeter)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.IsFinished)
+            </th>
+
+
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.RuloProcessID)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.DefinationProcess.Name)
+                </td>
+                <td>
+                    @item.BeginningDate.ToString("yyyy/MM/dd HH:mm")
+                </td>
+                <td>
+                    @if (item.EndDate.HasValue)
+                    {
+                        @item.EndDate.Value.ToString("yyyy/MM/dd HH:mm")
+                    }
+
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.FinishMeter)
+                </td>
+                <td>
+                    @Html.Raw(item.IsFinished ? "YES" : "NO")
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

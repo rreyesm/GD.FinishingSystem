@@ -14,14 +14,22 @@ namespace GD.FinishingSystem.Bussines.Concrete
 {
     public class RuloManager : AbstractRuloService
     {
+        private IAsyncRepository<TestResult> testResultRepository = null;
         private IAsyncRepository<Rulo> repository = null;
         private IAsyncRepository<RuloProcess> ruloProcessRepository = null;
-        private IAsyncRepository<DefinationProcess> definationProcess = null;
+        private IAsyncRepository<DefinationProcess> definationProcessRepository = null;
+        private IAsyncRepository<OriginCategory> originCategoryRepository = null;
+        private IAsyncRepository<TestCategory> testCategoryRepository = null;
+        private IAsyncRepository<User> userRepository = null;
         public RuloManager(DbContext context)
         {
             this.repository = new GenericRepository<Rulo>(context);
             this.ruloProcessRepository = new GenericRepository<RuloProcess>(context);
-            this.definationProcess = new GenericRepository<DefinationProcess>(context);
+            this.definationProcessRepository = new GenericRepository<DefinationProcess>(context);
+            this.testResultRepository = new GenericRepository<TestResult>(context);
+            this.originCategoryRepository = new GenericRepository<OriginCategory>(context);
+            this.testCategoryRepository = new GenericRepository<TestCategory>(context);
+            this.userRepository = new GenericRepository<User>(context);
         }
 
         public override async Task Add(Rulo RuloInformation, int adderRef)
@@ -50,15 +58,114 @@ namespace GD.FinishingSystem.Bussines.Concrete
             return result;
         }
 
-        public override async Task<IEnumerable<Rulo>> GetRuloList()
+        public override async Task<VMRulo> GetVMRuloFromVMRuloID(int RuloID)
         {
-            var result = await repository.GetWhere(o => !o.IsDeleted);
+            var rulo = await repository.GetByPrimaryKey(RuloID);
+            var testResults = await testResultRepository.GetWhere(x => !x.IsDeleted && x.TestResultID == rulo.TestResultID);
+            var testResult = testResults.FirstOrDefault();
+            TestCategory testCategory = null;
+            if (testResult != null)
+            {
+                var testCategories = await testCategoryRepository.GetWhere(x => x.TestCategoryID == testResult.TestCategoryID);
+                testCategory = testCategories.FirstOrDefault();
+            }
+
+            var originCategory = await originCategoryRepository.GetWhere(x => x.OriginCategoryID == rulo.OriginID);
+            var user = await userRepository.GetWhere(x => x.UserID == rulo.TestResultAuthorizer);
+
+            var vwRulo = new VMRulo()
+            {
+                RuloID = rulo.RuloID,
+                Lote = rulo.Lote,
+                Beam = rulo.Beam,
+                Loom = rulo.Loom,
+                Piece = rulo.Piece,
+                Style = rulo.Style,
+                StyleName = rulo.StyleName,
+                Width = rulo.Width,
+                EntranceLength = rulo.EntranceLength,
+                ExitLength = rulo.ExitLength,
+                IsWaitingAnswerFromTest = rulo.IsWaitingAnswerFromTest,
+                TestResultID = rulo.TestResultID,
+                CanContinue = testResults.FirstOrDefault()?.CanContinue ?? false,
+                TestCategoryID = testCategory?.TestCategoryID ?? 0,
+                TestCategoryCode = testCategory?.TestCode ?? string.Empty,
+
+                OriginID = originCategory.FirstOrDefault()?.OriginCode ?? string.Empty,
+                Observations = rulo.Observations,
+                TestResultAuthorizer = user?.FirstOrDefault()?.UserName ?? string.Empty
+            };
+
+            return vwRulo;
+        }
+
+        public override async Task<IEnumerable<VMRulo>> GetRuloList()
+        {
+            var rulos = await repository.GetWhere(o => !o.IsDeleted);
+            var testResults = await testResultRepository.GetWhere(x => !x.IsDeleted);
+            var testCategories = await testCategoryRepository.GetWhere(x => x.TestCategoryID != 0);
+
+            var result = (from r in rulos.ToList()
+                          join tr in testResults.ToList() on r.TestResultID equals tr.TestResultID
+                          into ljTR
+                          from subTR in ljTR.DefaultIfEmpty()
+                          join tc in testCategories.ToList() on subTR?.TestCategoryID equals tc.TestCategoryID
+                          into ljTC
+                          from subTC in ljTC.DefaultIfEmpty()
+                          select new VMRulo
+                          {
+                              RuloID = r.RuloID,
+                              Lote = r.Lote,
+                              Beam = r.Beam,
+                              Loom = r.Loom,
+                              Piece = r.Piece,
+                              Style = r.Style,
+                              StyleName = r.StyleName,
+                              Width = r.Width,
+                              EntranceLength = r.EntranceLength,
+                              ExitLength = r.ExitLength,
+                              IsWaitingAnswerFromTest = r.IsWaitingAnswerFromTest,
+                              TestResultID = r.TestResultID,
+                              CanContinue = subTR?.CanContinue ?? false,
+                              TestCategoryID = subTC?.TestCategoryID ?? 0,
+                              TestCategoryCode = subTC?.TestCode ?? string.Empty
+                          }).ToList();
+
             return result;
         }
 
-        public override async Task<IEnumerable<Rulo>> GetRuloListFromBetweenDate(DateTime begin, DateTime end)
+        public override async Task<IEnumerable<VMRulo>> GetRuloListFromBetweenDate(DateTime begin, DateTime end)
         {
-            var result = await repository.GetWhere(o => !o.IsDeleted && (o.CreatedDate <= end && o.CreatedDate >= begin) || (o.CreatedDate <= begin && o.CreatedDate >= end));
+            var rulos = await repository.GetWhere(o => !o.IsDeleted && (o.CreatedDate <= end && o.CreatedDate >= begin) || (o.CreatedDate <= begin && o.CreatedDate >= end));
+            var testResults = await testResultRepository.GetWhere(x => !x.IsDeleted);
+            var testCategories = await testCategoryRepository.GetWhere(x => x.TestCategoryID != 0);
+
+            var result = (from r in rulos.ToList()
+                          join tr in testResults.ToList() on r.TestResultID equals tr.TestResultID
+                          into ljTR
+                          from subTR in ljTR.DefaultIfEmpty()
+                          join tc in testCategories.ToList() on subTR?.TestCategoryID equals tc.TestCategoryID
+                          into ljTC
+                          from subTC in ljTC.DefaultIfEmpty()
+                          select new VMRulo
+                          {
+                              RuloID = r.RuloID,
+                              Lote = r.Lote,
+                              Beam = r.Beam,
+                              Loom = r.Loom,
+                              Piece = r.Piece,
+                              Style = r.Style,
+                              StyleName = r.StyleName,
+                              Width = r.Width,
+                              EntranceLength = r.EntranceLength,
+                              ExitLength = r.ExitLength,
+                              IsWaitingAnswerFromTest = r.IsWaitingAnswerFromTest,
+                              TestResultID = r.TestResultID,
+                              CanContinue = subTR?.CanContinue ?? false,
+                              TestCategoryID = subTC?.TestCategoryID ?? 0,
+                              TestCategoryCode = subTC?.TestCode ?? string.Empty
+                          }).ToList();
+
             return result;
         }
 
@@ -66,7 +173,7 @@ namespace GD.FinishingSystem.Bussines.Concrete
         {
             var result = await ruloProcessRepository.GetWhere(o => !o.IsDeleted && o.RuloID == RuloID);
 
-            var definationResult = await definationProcess.GetAll();
+            var definationResult = await definationProcessRepository.GetAll();
             foreach (var item in result)
                 item.DefinationProcess = definationResult.Where(x => x.DefinationProcessID == item.DefinationProcessID).FirstOrDefault();
 
@@ -77,7 +184,7 @@ namespace GD.FinishingSystem.Bussines.Concrete
         {
             var result = await ruloProcessRepository.GetWhere(o => !o.IsDeleted && (o.CreatedDate <= end && o.CreatedDate >= begin) || (o.CreatedDate <= begin && o.CreatedDate >= end));
 
-            var definationResult = await definationProcess.GetAll();
+            var definationResult = await definationProcessRepository.GetAll();
             foreach (var item in result)
                 item.DefinationProcess = definationResult.Where(x => x.DefinationProcessID == item.DefinationProcessID).FirstOrDefault();
 
@@ -88,15 +195,16 @@ namespace GD.FinishingSystem.Bussines.Concrete
         {
             var result = await ruloProcessRepository.GetByPrimaryKey(RuloProcessID);
 
-            var definationResult = await definationProcess.GetByPrimaryKey(result.DefinationProcessID);
+            var definationResult = await definationProcessRepository.GetByPrimaryKey(result.DefinationProcessID);
             result.DefinationProcess = definationResult;
 
             return result;
         }
 
-        public override async Task SetTestResult(int RuloID, int TestResultID, int? authorizer, int setter)
+        public override async Task SetTestResult(int RuloID, int TestResultID, bool isWaitingForTestResult, int? authorizer, int setter)
         {
             var result = await repository.GetByPrimaryKey(RuloID);
+            result.IsWaitingAnswerFromTest = isWaitingForTestResult;
             result.TestResultID = TestResultID;
             result.TestResultAuthorizer = authorizer;
             await repository.Update(result, setter);
@@ -120,26 +228,77 @@ namespace GD.FinishingSystem.Bussines.Concrete
             return styleList;
         }
 
-        public override async Task<IEnumerable<Rulo>> GetRuloListFromFilters(VMRuloFilters ruloFilters)
+        public override async Task<IEnumerable<VMRulo>> GetRuloListFromFilters(VMRuloFilters ruloFilters)
         {
             var query = repository.GetQueryable(x => !x.IsDeleted && (x.CreatedDate <= ruloFilters.dtEnd && x.CreatedDate >= ruloFilters.dtBegin) || (x.CreatedDate <= ruloFilters.dtBegin && x.CreatedDate >= ruloFilters.dtEnd));
 
-            if (ruloFilters.numLote != 0)
-                query = query.Where(x => x.Lote.Contains(ruloFilters.numLote.ToString()));
-            if (ruloFilters.numBeam != 0)
-                query = query.Where(x => x.Beam == ruloFilters.numBeam);
-            if (ruloFilters.numLoom != 0)
-                query = query.Where(x => x.Loom == ruloFilters.numLoom);
-            if (ruloFilters.numPiece != 0)
-                query = query.Where(x => x.Piece == ruloFilters.numPiece);
-            if (!string.IsNullOrWhiteSpace(ruloFilters.txtStyle))
-                query = query.Where(x => x.Style.Contains(ruloFilters.txtStyle));
+            var rulos = (
+                from r in query
+                where
+                (!(ruloFilters.numLote > 0) || r.Lote == ruloFilters.numLote.ToString()) &&
+                (!(ruloFilters.numBeam > 0) || r.Beam == ruloFilters.numBeam) &&
+                (!(ruloFilters.numLoom > 0) || r.Loom == ruloFilters.numLoom) &&
+                (!(ruloFilters.numPiece > 0) || r.Piece == ruloFilters.numPiece) &&
+                 ((string.IsNullOrWhiteSpace(ruloFilters.txtStyle)) || r.Style.Contains(ruloFilters.txtStyle))
 
-            var result = await query.ToListAsync();
+                select r
+
+                ).ToList();
+
+            //if (ruloFilters.numLote > 0)
+            //    query = query.Where(x => x.Lote.Contains(ruloFilters.numLote.ToString()));
+            //if (ruloFilters.numBeam > 0)
+            //    query = query.Where(x => x.Beam == ruloFilters.numBeam);
+            //if (ruloFilters.numLoom > 0)
+            //    query = query.Where(x => x.Loom == ruloFilters.numLoom);
+            //if (ruloFilters.numPiece > 0)
+            //    query = query.Where(x => x.Piece == ruloFilters.numPiece);
+            //if (!string.IsNullOrWhiteSpace(ruloFilters.txtStyle))
+            //    query = query.Where(x => x.Style.Contains(ruloFilters.txtStyle));
+
+            //var rulos = await query.ToListAsync();
+            var testResults = await testResultRepository.GetWhere(x => !x.IsDeleted);
+            var testCategories = await testCategoryRepository.GetWhere(x => x.TestCategoryID != 0);
+
+            var result = (from r in rulos
+                          join tr in testResults.ToList() on r.TestResultID equals tr.TestResultID
+                          into ljTR
+                          from subTR in ljTR.DefaultIfEmpty()
+                          join tc in testCategories.ToList() on subTR?.TestCategoryID equals tc.TestCategoryID
+                          into ljTC
+                          from subTC in ljTC.DefaultIfEmpty()
+                          select new VMRulo
+                          {
+                              RuloID = r.RuloID,
+                              Lote = r.Lote,
+                              Beam = r.Beam,
+                              Loom = r.Loom,
+                              Piece = r.Piece,
+                              Style = r.Style,
+                              StyleName = r.StyleName,
+                              Width = r.Width,
+                              EntranceLength = r.EntranceLength,
+                              ExitLength = r.ExitLength,
+                              IsWaitingAnswerFromTest = r.IsWaitingAnswerFromTest,
+                              TestResultID = r.TestResultID,
+                              CanContinue = subTR?.CanContinue ?? false,
+                              TestCategoryID = subTC?.TestCategoryID ?? 0,
+                              TestCategoryCode = subTC?.TestCode ?? string.Empty
+                          }).ToList();
+
+            if (ruloFilters.numTestCategory != 0)
+            {
+                result = result.Where(x => x.TestCategoryID == ruloFilters.numTestCategory).ToList();
+            }
 
             var sql = query.ToQueryString();
 
             return result;
+        }
+
+        public override async Task DeleteRuloProcessFromRuloProcessID(int RuloProcessID, int deleterRef)
+        {
+            await ruloProcessRepository.Remove(RuloProcessID, deleterRef);
         }
     }
 }

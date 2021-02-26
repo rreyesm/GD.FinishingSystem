@@ -44,9 +44,11 @@ namespace GD.FinishingSystem.DAL.Migrations
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("Name")
+                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<string>("ProcessCode")
+                        .IsRequired()
                         .HasMaxLength(10)
                         .HasColumnType("TEXT");
 
@@ -61,8 +63,30 @@ namespace GD.FinishingSystem.DAL.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
-                    b.Property<string>("FloorName")
+                    b.Property<DateTime>("CreatedDate")
                         .HasColumnType("TEXT");
+
+                    b.Property<int>("CreatorID")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime?>("DeletedDate")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int?>("DeleterID")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("FloorName")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("LastUpdateDate")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("LastUpdaterID")
+                        .HasColumnType("INTEGER");
 
                     b.HasKey("FloorID");
 
@@ -90,6 +114,9 @@ namespace GD.FinishingSystem.DAL.Migrations
                     b.Property<int?>("DeleterID")
                         .HasColumnType("INTEGER");
 
+                    b.Property<int>("FloorID")
+                        .HasColumnType("INTEGER");
+
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("INTEGER");
 
@@ -100,10 +127,12 @@ namespace GD.FinishingSystem.DAL.Migrations
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("MachineCode")
+                        .IsRequired()
                         .HasMaxLength(10)
                         .HasColumnType("TEXT");
 
                     b.Property<string>("MachineName")
+                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.HasKey("MachineID");
@@ -111,6 +140,47 @@ namespace GD.FinishingSystem.DAL.Migrations
                     b.HasIndex("DefinationProcessID");
 
                     b.ToTable("tblMachines");
+                });
+
+            modelBuilder.Entity("GD.FinishingSystem.Entities.OriginCategory", b =>
+                {
+                    b.Property<int>("OriginCategoryID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("CreatorID")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime?>("DeletedDate")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int?>("DeleterID")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("LastUpdateDate")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("LastUpdaterID")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("OriginCode")
+                        .IsRequired()
+                        .HasMaxLength(5)
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("OriginCategoryID");
+
+                    b.ToTable("tblOriginCategories");
                 });
 
             modelBuilder.Entity("GD.FinishingSystem.Entities.Rulo", b =>
@@ -157,6 +227,12 @@ namespace GD.FinishingSystem.DAL.Migrations
 
                     b.Property<string>("Lote")
                         .HasColumnType("TEXT");
+
+                    b.Property<string>("Observations")
+                        .HasColumnType("TEXT");
+
+                    b.Property<byte>("OriginID")
+                        .HasColumnType("INTEGER");
 
                     b.Property<int>("Piece")
                         .HasColumnType("INTEGER");
@@ -237,6 +313,46 @@ namespace GD.FinishingSystem.DAL.Migrations
                     b.ToTable("tblRuloProcesses");
                 });
 
+            modelBuilder.Entity("GD.FinishingSystem.Entities.TestCategory", b =>
+                {
+                    b.Property<int>("TestCategoryID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("CreatorID")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime?>("DeletedDate")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int?>("DeleterID")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("LastUpdateDate")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("LastUpdaterID")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("TestCode")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("TestCategoryID");
+
+                    b.ToTable("tblTestCategories");
+                });
+
             modelBuilder.Entity("GD.FinishingSystem.Entities.TestResult", b =>
                 {
                     b.Property<int>("TestResultID")
@@ -268,6 +384,9 @@ namespace GD.FinishingSystem.DAL.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<int>("LastUpdaterID")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("TestCategoryID")
                         .HasColumnType("INTEGER");
 
                     b.HasKey("TestResultID");

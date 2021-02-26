@@ -88,52 +88,52 @@ namespace GD.FinishingSystem.WEB.Controllers
             return View("CreateOrUpdate", testResult);
         }
 
-        [HttpPost, ValidateAntiForgeryToken]
-        public async Task<IActionResult> Save(TestResult testResult)
-        {
-            ViewBag.Error = false;
-            ViewBag.ErrorMessage = string.Empty;
-            ViewBag.RuloId = testResult.RelRuloId;
+        //[HttpPost, ValidateAntiForgeryToken]
+        //public async Task<IActionResult> Save(TestResult testResult)
+        //{
+        //    //ViewBag.Error = false;
+        //    //ViewBag.ErrorMessage = string.Empty;
+        //    //ViewBag.RuloId = testResult.RelRuloId;
 
-            if (testResult.TestResultID == 0)
-            {
-                if (!(User.IsInRole("TestResultAdd") || User.IsInRole("TestResultFull") || User.IsInRole("AdminFull")))
-                    return Unauthorized();
+        //    //if (testResult.TestResultID == 0)
+        //    //{
+        //    //    if (!(User.IsInRole("TestResultAdd") || User.IsInRole("TestResultFull") || User.IsInRole("AdminFull")))
+        //    //        return Unauthorized();
 
-                //Validation rule exist
-                var rulo = await factory.Rulos.GetRuloFromRuloID(testResult.RelRuloId);
-                if (rulo != null && rulo.TestResultID != null)
-                {
-                    ViewBag.Error = true;
-                    ViewBag.ErrorMessage = "There is already a related test for this rulo. Edit the existing test.";
+        //    //    //Validation rule exist
+        //    //    var rulo = await factory.Rulos.GetRuloFromRuloID(testResult.RelRuloId);
+        //    //    if (rulo != null && rulo.TestResultID != null)
+        //    //    {
+        //    //        ViewBag.Error = true;
+        //    //        ViewBag.ErrorMessage = "There is already a related test for this rulo. Edit the existing test.";
 
-                    return View("CreateOrUpdate", testResult);
-                }
+        //    //        return View("CreateOrUpdate", testResult);
+        //    //    }
 
-                await factory.TestResults.Add(testResult, int.Parse(User.Identity.Name));
-            }
-            else
-            {
-                if (!(User.IsInRole("TestResultUp") || User.IsInRole("TestResultFull") || User.IsInRole("AdminFull")))
-                    return Unauthorized();
+        //    //    await factory.TestResults.Add(testResult, int.Parse(User.Identity.Name));
+        //    //}
+        //    //else
+        //    //{
+        //    //    if (!(User.IsInRole("TestResultUp") || User.IsInRole("TestResultFull") || User.IsInRole("AdminFull")))
+        //    //        return Unauthorized();
 
-                var foundTestResult = await factory.TestResults.GetTestResultFromTestResultID(testResult.TestResultID);
+        //    //    var foundTestResult = await factory.TestResults.GetTestResultFromTestResultID(testResult.TestResultID);
 
-                foundTestResult.Details = testResult.Details;
-                foundTestResult.CanContinue = testResult.CanContinue;
+        //    //    foundTestResult.Details = testResult.Details;
+        //    //    foundTestResult.CanContinue = testResult.CanContinue;
 
-                await factory.TestResults.Update(foundTestResult, int.Parse(User.Identity.Name));
-            }
+        //    //    await factory.TestResults.Update(foundTestResult, int.Parse(User.Identity.Name));
+        //    //}
 
-            var intUser = int.Parse(User.Identity.Name);
-            if (testResult.CanContinue)
-                await factory.Rulos.SetTestResult(testResult.RelRuloId, testResult.TestResultID, intUser, intUser);
-            else
-                await factory.Rulos.SetTestResult(testResult.RelRuloId, testResult.TestResultID, null, intUser);
+        //    //var intUser = int.Parse(User.Identity.Name);
+        //    //if (testResult.CanContinue)
+        //    //    await factory.Rulos.SetTestResult(testResult.RelRuloId, testResult.TestResultID, intUser, intUser);
+        //    //else
+        //    //    await factory.Rulos.SetTestResult(testResult.RelRuloId, testResult.TestResultID, null, intUser);
 
 
-            return RedirectToAction("Index", "Rulo");
-        }
+        //    return RedirectToAction("Index", "Rulo");
+        //}
 
         [HttpGet]
         [Authorize(AuthenticationSchemes = SystemStatics.DefaultScheme, Roles = "TestResultShow, TestResultFull, AdminFull")]
