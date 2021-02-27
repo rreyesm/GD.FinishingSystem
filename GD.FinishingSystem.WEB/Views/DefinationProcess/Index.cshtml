@@ -7,7 +7,7 @@
 
 <h1 class="mt-4">Definition Processes</h1>
 
-@if (User.IsInRole("DefinationProcessAdd") || User.IsInRole("DefinationProcessFull"))
+@if (User.IsInRole("DefinitionProcessAdd") || User.IsInRole("DefinitionProcessFull") || User.IsInRole("AdminFull"))
 {
     <p>
         <a asp-action="Create" class="btn btn-sm btn-outline-light boder-dark btn-dark">
