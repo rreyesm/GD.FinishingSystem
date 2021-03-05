@@ -46,7 +46,13 @@
                     <span asp-validation-for="Beam" class="text-danger"></span>
                 </div>
             </div>
-
+            <div class="col-lg-3 col-md-4 col-sm-12">
+                <div class="form-group">
+                    <label asp-for="BeamStop" class="control-label"></label>
+                    <input asp-for="BeamStop" class="form-control" />
+                    <span asp-validation-for="BeamStop" class="text-danger"></span>
+                </div>
+            </div>
             <div class="col-lg-3 col-md-4 col-sm-12">
                 <div class="form-group">
                     <label asp-for="Loom" class="control-label"></label>
@@ -56,13 +62,25 @@
             </div>
             <div class="col-lg-3 col-md-4 col-sm-12">
                 <div class="form-group">
+                    <label asp-for="LoomLetter" class="control-label"></label>
+                    <input asp-for="LoomLetter" class="form-control" />
+                    <span asp-validation-for="LoomLetter" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-4 col-sm-12">
+                <div class="form-group">
                     <label asp-for="Piece" class="control-label"></label>
                     <input asp-for="Piece" class="form-control" type="number" />
                     <span asp-validation-for="Piece" class="text-danger"></span>
                 </div>
             </div>
-
-
+            <div class="col-lg-3 col-md-4 col-sm-12">
+                <div class="form-group">
+                    <label asp-for="PieceLetter" class="control-label"></label>
+                    <input asp-for="PieceLetter" class="form-control" />
+                    <span asp-validation-for="PieceLetter" class="text-danger"></span>
+                </div>
+            </div>
             <div class="col-lg-3 col-md-4 col-sm-12">
                 <div class="form-group">
                     <label asp-for="Style" class="control-label"></label>
@@ -93,12 +111,11 @@
             </div>
             <div class="col-lg-3 col-md-4 col-sm-12">
                 <div class="form-group">
-                    <label asp-for="ExitLength" class="control-label"></label>
-                    <input asp-for="ExitLength" class="form-control" type="number" />
-                    <span asp-validation-for="ExitLength" class="text-danger"></span>
+                    <label asp-for="Shift" class="control-label"></label>
+                    <input asp-for="Shift" class="form-control" type="number" />
+                    <span asp-validation-for="Shift" class="text-danger"></span>
                 </div>
             </div>
-
             <div class="col-lg-3 col-md-4 col-sm-12">
                 <div class="form-group">
                     <label asp-for="OriginID" class="control-label"></label>
@@ -112,6 +129,13 @@
                     <label asp-for="Observations" class="control-label"></label>
                     <textarea asp-for="Observations" rows="3" class="form-control"></textarea>
                     <span asp-validation-for="Observations" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-4 col-sm-12">
+                <div class="form-group">
+                    <label asp-for="FolioNumber" class="control-label"></label>
+                    <input asp-for="FolioNumber" class="form-control" type="number" />
+                    <span asp-validation-for="FolioNumber" class="text-danger"></span>
                 </div>
             </div>
 

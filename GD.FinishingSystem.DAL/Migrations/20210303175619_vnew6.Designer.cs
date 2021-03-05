@@ -3,14 +3,16 @@ using System;
 using GD.FinishingSystem.DAL.Concrete.EntityFramework;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace GD.FinishingSystem.DAL.Migrations
 {
     [DbContext(typeof(FinishingSystemContext))]
-    partial class FinishingSystemContextModelSnapshot : ModelSnapshot
+    [Migration("20210303175619_vnew6")]
+    partial class vnew6
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -207,17 +209,11 @@ namespace GD.FinishingSystem.DAL.Migrations
                     b.Property<int?>("DeleterID")
                         .HasColumnType("INTEGER");
 
-                    b.Property<DateTime?>("DeliveryDate")
-                        .HasColumnType("TEXT");
-
                     b.Property<decimal>("EntranceLength")
                         .HasColumnType("TEXT");
 
                     b.Property<decimal>("ExitLength")
                         .HasColumnType("TEXT");
-
-                    b.Property<int>("FolioNumber")
-                        .HasColumnType("INTEGER");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("INTEGER");
@@ -249,8 +245,8 @@ namespace GD.FinishingSystem.DAL.Migrations
                     b.Property<int>("Piece")
                         .HasColumnType("INTEGER");
 
-                    b.Property<string>("PieceLetter")
-                        .HasColumnType("TEXT");
+                    b.Property<int>("PieceLetter")
+                        .HasColumnType("INTEGER");
 
                     b.Property<int>("Shift")
                         .HasColumnType("INTEGER");

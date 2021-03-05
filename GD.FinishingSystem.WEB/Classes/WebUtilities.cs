@@ -44,7 +44,7 @@ namespace GD.FinishingSystem.WEB.Classes
             return result;
         }
 
-        public static List<SelectListItem> Create<T>(IEnumerable<T> list, string nameFieldValue = "Id", string nameFieldText = "Name", bool includeEmptyOption = false, int selectedValue = 0)
+        public static List<SelectListItem> Create<T>(IEnumerable<T> list, string nameFieldValue = "Id", string nameFieldText = "Name", bool includeEmptyOption = false, string textEmptyOption = "--Select an item--", int selectedValue = 0)
         {
             List<SelectListItem> result = new List<SelectListItem>();
             Type elementType = typeof(T);
@@ -111,7 +111,10 @@ namespace GD.FinishingSystem.WEB.Classes
             if (includeEmptyOption)
             {
                 //Insert the empty option at the beginning
-                result.Insert(0, new SelectListItem("--Select an item--", "0"));
+                if (selectedValue == 0)
+                    result.Insert(0, new SelectListItem(textEmptyOption, "0", true));
+                else
+                    result.Insert(0, new SelectListItem(textEmptyOption, "0"));
             }
 
             return result;

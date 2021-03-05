@@ -19,7 +19,7 @@ namespace GD.FinishingSystem.Bussines.Abstract
         public abstract Task AddRuloProcess(RuloProcess ruloProcess, int adderRef);
         public abstract Task UpdateRuloProcess(RuloProcess ruloProcess, int updaterRef);
         public abstract Task DeleteRuloProcess(RuloProcess ruloProcess, int deleterRef);
-        public abstract Task<IEnumerable<RuloProcess>> GetRuloProcessesFromRuloID(int RuloID);
+        public abstract Task<IEnumerable<VMRuloProcess>> GetVMRuloProcessesFromRuloID(int RuloID);
         public abstract Task<IEnumerable<RuloProcess>> GetRuloProcessListFromBetweenDate(DateTime begin, DateTime end);
         public abstract Task<RuloProcess> GetRuloProcessFromRuloProcessID(int RuloProcessID);
         public abstract Task SetTestResult(int RuloID, int TestResultID, bool isWaitingForTestResult, int? authorizer, int setter);

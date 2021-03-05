@@ -17,6 +17,8 @@ namespace GD.FinishingSystem.Entities.ViewModels
         public string txtStyle { get; set; }
         public int numTestCategory { get; set; }
         public string TestResult { get; set; }
+        public int numDefinitionProcess { get; set; }
+        public int FolioNumber { get; set; }
 
     }
 

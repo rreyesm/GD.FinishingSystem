@@ -15,5 +15,6 @@ namespace GD.FinishingSystem.Bussines.Abstract
         public abstract Task Add(DefinationProcess DefinationProcessInformation, int adderRef);
         public abstract Task Update(DefinationProcess DefinationProcessInformation, int updaterRef);
         public abstract Task Delete(DefinationProcess DefinationProcessInformation, int deleterRef);
+        public abstract Task<DefinationProcess> GetDefinitionProcessFromDefinitionProcessCode(string processCode);
     }
 }

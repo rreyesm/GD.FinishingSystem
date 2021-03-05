@@ -3,14 +3,16 @@ using System;
 using GD.FinishingSystem.DAL.Concrete.EntityFramework;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace GD.FinishingSystem.DAL.Migrations
 {
     [DbContext(typeof(FinishingSystemContext))]
-    partial class FinishingSystemContextModelSnapshot : ModelSnapshot
+    [Migration("20210301232540_vnew4")]
+    partial class vnew4
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -192,9 +194,6 @@ namespace GD.FinishingSystem.DAL.Migrations
                     b.Property<int>("Beam")
                         .HasColumnType("INTEGER");
 
-                    b.Property<string>("BeamStop")
-                        .HasColumnType("TEXT");
-
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("TEXT");
 
@@ -207,16 +206,10 @@ namespace GD.FinishingSystem.DAL.Migrations
                     b.Property<int?>("DeleterID")
                         .HasColumnType("INTEGER");
 
-                    b.Property<DateTime?>("DeliveryDate")
-                        .HasColumnType("TEXT");
+                    b.Property<int>("EntranceLength")
+                        .HasColumnType("INTEGER");
 
-                    b.Property<decimal>("EntranceLength")
-                        .HasColumnType("TEXT");
-
-                    b.Property<decimal>("ExitLength")
-                        .HasColumnType("TEXT");
-
-                    b.Property<int>("FolioNumber")
+                    b.Property<int>("ExitLength")
                         .HasColumnType("INTEGER");
 
                     b.Property<bool>("IsDeleted")
@@ -234,9 +227,6 @@ namespace GD.FinishingSystem.DAL.Migrations
                     b.Property<int>("Loom")
                         .HasColumnType("INTEGER");
 
-                    b.Property<string>("LoomLetter")
-                        .HasColumnType("TEXT");
-
                     b.Property<string>("Lote")
                         .HasColumnType("TEXT");
 
@@ -247,12 +237,6 @@ namespace GD.FinishingSystem.DAL.Migrations
                         .HasColumnType("INTEGER");
 
                     b.Property<int>("Piece")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("PieceLetter")
-                        .HasColumnType("TEXT");
-
-                    b.Property<int>("Shift")
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("Style")
@@ -267,8 +251,8 @@ namespace GD.FinishingSystem.DAL.Migrations
                     b.Property<int?>("TestResultID")
                         .HasColumnType("INTEGER");
 
-                    b.Property<decimal>("Width")
-                        .HasColumnType("TEXT");
+                    b.Property<int>("Width")
+                        .HasColumnType("INTEGER");
 
                     b.HasKey("RuloID");
 
@@ -369,8 +353,8 @@ namespace GD.FinishingSystem.DAL.Migrations
                     b.Property<int>("LastUpdaterID")
                         .HasColumnType("INTEGER");
 
-                    b.Property<decimal>("Meter")
-                        .HasColumnType("TEXT");
+                    b.Property<float>("Meter")
+                        .HasColumnType("REAL");
 
                     b.Property<int>("RuloID")
                         .HasColumnType("INTEGER");
@@ -416,8 +400,8 @@ namespace GD.FinishingSystem.DAL.Migrations
                     b.Property<int>("LastUpdaterID")
                         .HasColumnType("INTEGER");
 
-                    b.Property<decimal>("Meter")
-                        .HasColumnType("TEXT");
+                    b.Property<float>("Meter")
+                        .HasColumnType("REAL");
 
                     b.Property<int>("RuloID")
                         .HasColumnType("INTEGER");

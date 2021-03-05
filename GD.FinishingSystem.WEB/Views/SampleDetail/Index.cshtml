@@ -1,0 +1,94 @@
+﻿@model IEnumerable<GD.FinishingSystem.Entities.SampleDetail>
+
+@{
+    int ruloId = ViewBag.RuloId;
+    int sampleID = ViewBag.SampleId;
+}
+
+<h1 class="mt-4">Sample Details</h1>
+
+@if (User.IsInRole("SampleAdd") || User.IsInRole("SampleFull") || User.IsInRole("AdminFull"))
+{
+    <a asp-action="Create" asp-route-sampleid="@sampleID" class="btn btn-sm btn-outline-light border-dark btn-dark">
+        <i class="lni lni-circle-plus"></i> Create New
+    </a>
+}
+
+@if (User.IsInRole("SampleA", AuthType.Add))
+    @Html.Raw(" | ")
+<a asp-action="Index" asp-controller="RuloProcess" asp-route-ruloid="@ruloId" class="btn btn-sm btn-secondary"><i class="lni lni-chevron-left-circle"></i> Back to Processes</a>
+<br />
+<br />
+
+<table class="table table-sm table-hover table-responsive-md">
+    <thead>
+        <tr>
+            <th colspan="5">Sample Details List</th>
+        </tr>
+        <tr>
+            <th>
+                <i class="lni lni-line-dashed"></i>
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Meter)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.DateTime)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Details)
+            </th>
+
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.SampleDetailID)
+                </td>
+
+                <td>
+                    @Html.DisplayFor(modelItem => item.Meter)
+                </td>
+                <td>
+                    @Html.Raw(item.DateTime.ToString("yyyy-MM-dd HH:mm"))
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Details)
+                </td>
+
+                <td>
+                    @if (User.IsInRole("SampleUp") || User.IsInRole("SampleFull") || User.IsInRole("AdminFull"))
+                    {
+                        <a asp-action="Edit" asp-route-sampledetailid="@item.SampleDetailID">
+                            <i class="lni lni-slice"></i>
+                        </a>
+                    }
+
+                    @if (User.IsInRole("SampleShow") || User.IsInRole("SampleFull") || User.IsInRole("AdminFull"))
+                    {
+                        if (User.IsInRole("Sample", AuthType.Update))
+                            @Html.Raw(" | ")
+
+                            <a asp-action="Details" asp-route-sampledetailid="@item.SampleDetailID">
+                                <i class="lni lni-question-circle"></i>
+                            </a>
+                        }
+
+                    @if (User.IsInRole("SampleDel") || User.IsInRole("SampleFull") || User.IsInRole("AdminFull"))
+                    {
+                        if (User.IsInRole("Sample", AuthType.Update) || User.IsInRole("Sample", AuthType.Show))
+                            @Html.Raw(" | ")
+                            <a asp-action="Delete" asp-route-sampledetailid="@item.SampleDetailID">
+                                <i class="lni lni-circle-minus"></i>
+                            </a>
+                        }
+
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

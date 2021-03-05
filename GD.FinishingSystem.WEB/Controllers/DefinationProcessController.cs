@@ -76,6 +76,15 @@ namespace GD.FinishingSystem.WEB.Controllers
                 if (!(User.IsInRole("DefinitionProcessAdd") || User.IsInRole("AdminFull") || User.IsInRole("DefinitionProcessFull")))
                     return Unauthorized();
 
+                //Validate code
+                var foundDefinationProcess = await factory.DefinationProcesses.GetDefinitionProcessFromDefinitionProcessCode(definationProcess.ProcessCode);
+
+                if (foundDefinationProcess != null)
+                {
+                    ViewBag.ErrorMessage = "Definition code already exist";
+                    return View("CreateOrUpdate", foundDefinationProcess);
+                }
+
                 await factory.DefinationProcesses.Add(definationProcess, int.Parse(User.Identity.Name));
             }
             else

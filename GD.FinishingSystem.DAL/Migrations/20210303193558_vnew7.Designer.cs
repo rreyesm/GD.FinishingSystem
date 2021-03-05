@@ -3,14 +3,16 @@ using System;
 using GD.FinishingSystem.DAL.Concrete.EntityFramework;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace GD.FinishingSystem.DAL.Migrations
 {
     [DbContext(typeof(FinishingSystemContext))]
-    partial class FinishingSystemContextModelSnapshot : ModelSnapshot
+    [Migration("20210303193558_vnew7")]
+    partial class vnew7
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -206,9 +208,6 @@ namespace GD.FinishingSystem.DAL.Migrations
 
                     b.Property<int?>("DeleterID")
                         .HasColumnType("INTEGER");
-
-                    b.Property<DateTime?>("DeliveryDate")
-                        .HasColumnType("TEXT");
 
                     b.Property<decimal>("EntranceLength")
                         .HasColumnType("TEXT");

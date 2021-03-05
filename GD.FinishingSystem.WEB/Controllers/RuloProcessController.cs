@@ -1,5 +1,6 @@
 ﻿using GD.FinishingSystem.Bussines;
 using GD.FinishingSystem.Entities;
+using GD.FinishingSystem.Entities.ViewModels;
 using GD.FinishingSystem.WEB.Classes;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -26,9 +27,9 @@ namespace GD.FinishingSystem.WEB.Controllers
 
             if (ruloid == null || ruloid.Value <= 0) return NotFound();
 
-            IEnumerable<RuloProcess> result = null;
+            IEnumerable<VMRuloProcess> result = null;
 
-            result = await factory.Rulos.GetRuloProcessesFromRuloID(ruloid.Value);
+            result = await factory.Rulos.GetVMRuloProcessesFromRuloID(ruloid.Value);
             if (result == null) return NotFound();
             ViewBag.relRuloID = ruloid;
 
@@ -48,7 +49,6 @@ namespace GD.FinishingSystem.WEB.Controllers
             RuloProcess newRuloProcess = new RuloProcess();
             newRuloProcess.RuloID = relRuloId;
             newRuloProcess.BeginningDate = DateTime.Now;
-            newRuloProcess.EndDate = DateTime.Today.AddDays(1).AddMilliseconds(-1);
 
             return View("CreateOrUpdate", newRuloProcess);
         }
@@ -186,7 +186,56 @@ namespace GD.FinishingSystem.WEB.Controllers
             foundRuloProcess.IsFinished = true;
             foundRuloProcess.EndDate = DateTime.Now;
             await factory.Rulos.UpdateRuloProcess(foundRuloProcess, int.Parse(User.Identity.Name));
+
+            var rulo = await factory.Rulos.GetRuloFromRuloID(foundRuloProcess.RuloID);
+            rulo.ExitLength = Meter;
+
+            await factory.Rulos.Update(rulo, int.Parse(User.Identity.Name));
             return Ok();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Sample(int SampleID, int RuloID, int RuloProcessID, decimal Meter)
+        {
+            if (!User.IsInRole("Sample", AuthType.Update)) return Unauthorized();
+
+            var foundRuloProcess = await factory.Rulos.GetRuloProcessFromRuloProcessID(RuloProcessID);
+            if (foundRuloProcess == null) return NotFound();
+
+            if (SampleID == 0)
+            {
+                Sample sample = new Sample();
+                sample.RuloID = RuloID;
+                sample.RuloProcessID = RuloProcessID;
+                sample.Meter = Meter;
+                sample.DateTime = DateTime.Now;
+
+                await factory.Samples.Add(sample, int.Parse(User.Identity.Name));
+
+                foundRuloProcess.SampleID = sample.SampleID;
+                await factory.Rulos.UpdateRuloProcess(foundRuloProcess, int.Parse(User.Identity.Name));
+            }
+            else
+            {
+                var sample = await factory.Samples.GetSampleFromSampleID(SampleID);
+                sample.Meter = Meter;
+                sample.DateTime = DateTime.Now;
+                await factory.Samples.Update(sample, int.Parse(User.Identity.Name));
+            }
+
+            return Ok();
+        }
+
+        [HttpGet]
+        [Authorize(AuthenticationSchemes = SystemStatics.DefaultScheme, Roles = "RuloProcessShow, RuloProcessFull, AdminFull")]
+        public async Task<IActionResult> GetRulo(int ruloId)
+        {
+            if (!User.IsInRole("RuloProcess", AuthType.Show)) return Unauthorized();
+
+            var foundRulo = await factory.Rulos.GetVMRuloFromVMRuloID(ruloId);
+            if (foundRulo == null) NotFound();
+
+            return PartialView(foundRulo);
         }
 
     }

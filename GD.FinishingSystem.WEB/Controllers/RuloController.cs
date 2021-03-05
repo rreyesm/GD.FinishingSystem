@@ -6,7 +6,9 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.Extensions.Options;
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace GD.FinishingSystem.WEB.Controllers
@@ -16,10 +18,12 @@ namespace GD.FinishingSystem.WEB.Controllers
     public class RuloController : Controller
     {
         private readonly IWebHostEnvironment webHostEnvironment = null;
+        private AppSettings appSettings;
         FinishingSystemFactory factory;
-        public RuloController(IWebHostEnvironment webHostEnvironment)
+        public RuloController(IWebHostEnvironment webHostEnvironment, IOptions<AppSettings> appSettings)
         {
             this.webHostEnvironment = webHostEnvironment;
+            this.appSettings = appSettings.Value;
             factory = new FinishingSystemFactory();
         }
         [HttpGet]
@@ -55,10 +59,15 @@ namespace GD.FinishingSystem.WEB.Controllers
             ViewBag.dtEnd = ruloFilters.dtEnd.ToString("yyyy-MM-dd");
 
             var testCategoryList = await factory.TestCategories.GetTestCategoryList();
-            var list = WebUtilities.Create<TestCategory>(testCategoryList, "TestCategoryID", "TestCode");
-            list.Insert(0, new SelectListItem("All", "0"));
-            ViewBag.TestCategorytList = list;
-            ViewBag.ModalTestResultList = System.Text.Json.JsonSerializer.Serialize(list);
+            var testCategorylist2 = WebUtilities.Create<TestCategory>(testCategoryList, "TestCategoryID", "TestCode", true, "All");
+
+            var definitionProcessList = await factory.DefinationProcesses.GetDefinationProcessList();
+            var definitionProcessList2 = WebUtilities.Create<DefinationProcess>(definitionProcessList, "DefinationProcessID", "Name", true, "All");
+
+            ViewBag.TestCategorytList = testCategorylist2;
+            ViewBag.DefinitionProcessList = definitionProcessList2;
+
+            ViewBag.ModalTestResultList = System.Text.Json.JsonSerializer.Serialize(testCategorylist2);
 
             ViewBag.numLote = ruloFilters.numLote;
             ViewBag.numBeam = ruloFilters.numBeam;
@@ -66,6 +75,8 @@ namespace GD.FinishingSystem.WEB.Controllers
             ViewBag.numPiece = ruloFilters.numPiece;
             ViewBag.txtStyle = ruloFilters.txtStyle;
             ViewBag.numTestCategory = ruloFilters.numTestCategory;
+            ViewBag.numDefinitionProcess = ruloFilters.numDefinitionProcess;
+            ViewBag.folioNumber = ruloFilters.FolioNumber;
 
             //Style list
             var styleList = await factory.Rulos.GetRuloStyleList();
@@ -126,13 +137,23 @@ namespace GD.FinishingSystem.WEB.Controllers
 
                 var foundRulo = await factory.Rulos.GetRuloFromRuloID(rulo.RuloID);
 
+                foundRulo.Lote = rulo.Lote;
+                foundRulo.Beam = rulo.Beam;
+                foundRulo.BeamStop = rulo.BeamStop;
+                foundRulo.Loom = rulo.Loom;
+                foundRulo.LoomLetter = rulo.LoomLetter;
+                foundRulo.Piece = rulo.Piece;
+                foundRulo.PieceLetter = rulo.PieceLetter;
                 foundRulo.Style = rulo.Style;
                 foundRulo.StyleName = rulo.StyleName;
                 foundRulo.Width = rulo.Width;
                 foundRulo.EntranceLength = rulo.EntranceLength;
-                foundRulo.ExitLength = rulo.ExitLength;
+                foundRulo.Shift = rulo.Shift;
                 foundRulo.OriginID = rulo.OriginID;
                 foundRulo.Observations = rulo.Observations;
+                if (foundRulo.FolioNumber == 0)
+                    foundRulo.DeliveryDate = DateTime.Now;
+                foundRulo.FolioNumber = rulo.FolioNumber;
 
                 await factory.Rulos.Update(foundRulo, int.Parse(User.Identity.Name));
 
@@ -187,9 +208,21 @@ namespace GD.FinishingSystem.WEB.Controllers
 
             var rulo = await factory.Rulos.GetRuloFromRuloID(ruloId);
 
-            string zpl = "";
-            // await RawPrinterHelper.PrintToZPLByIP("192.168.7.200", zpl);
+            string ZPLString = string.Empty;
+            ZPLString = System.IO.File.ReadAllText(System.IO.Path.Combine(webHostEnvironment.WebRootPath, "..\\Reports\\RuloLabel.prn"));
+            ZPLString = ZPLString.Replace("ReplaceRuloID", rulo.RuloID.ToString());
+            ZPLString = ZPLString.Replace("ReplaceStyle", rulo.Style);
+            ZPLString = ZPLString.Replace("ReplaceLote", rulo.Lote);
+            ZPLString = ZPLString.Replace("ReplaceBeam", rulo.Beam.ToString());
+            ZPLString = ZPLString.Replace("ReplaceLoom", rulo.Loom.ToString());
+            ZPLString = ZPLString.Replace("ReplaceMeters", rulo.ExitLength.ToString("#,##0.00"));
+            ZPLString = ZPLString.Replace("ReplaceDate", DateTime.Now.ToString("yyyy-MM-dd HH:mm"));
 
+            var result = await RawPrinterHelper.PrintToZPLByIP(appSettings.PrinterIP, ZPLString);
+
+            if (!result)
+                return new JsonResult(new { errorMessage = "Error to the print label!" });
+            
             return Ok();
         }
 
@@ -261,12 +294,30 @@ namespace GD.FinishingSystem.WEB.Controllers
             var foundRulo = await factory.Rulos.GetRuloFromRuloID(RuloId);
             if (foundRulo == null) return NotFound();
 
-            var processes = await factory.Rulos.GetRuloProcessesFromRuloID(RuloId);
+            var processes = await factory.Rulos.GetVMRuloProcessesFromRuloID(RuloId);
 
 
             return PartialView(processes);
 
 
+        }
+
+        [HttpPost]
+        [Authorize(AuthenticationSchemes = SystemStatics.DefaultScheme, Roles = "RuloShow,RuloFull,AdminFull")]
+        public async Task<IActionResult> ExportToExcel(VMRuloFilters ruloFilters)
+        {
+
+            ruloFilters.dtEnd = ruloFilters.dtEnd.AddDays(1).AddMilliseconds(-1);
+            var result = await factory.Rulos.GetRuloListFromFilters(ruloFilters);
+
+            ExportToExcel export = new ExportToExcel();
+            string reportName = "Finishing Report";
+            string fileName = $"Finishing Report_{DateTime.Today.Year}_{DateTime.Today.Month.ToString().PadLeft(2, '0')}_{DateTime.Today.Day.ToString().PadLeft(2, '0')}.xlsx";
+            var fileResult = await export.Export<VMRulo>("Global Denim S.A. de C.V.", "Finishing", reportName, fileName, result.ToList());
+
+            if (!fileResult.Item1) return NotFound();
+
+            return fileResult.Item2;
         }
 
     }

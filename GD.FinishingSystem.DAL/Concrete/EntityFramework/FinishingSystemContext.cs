@@ -85,6 +85,8 @@ namespace GD.FinishingSystem.DAL.Concrete.EntityFramework
         public DbSet<Floor> Floors { get; set; }
         public DbSet<OriginCategory> OriginCategories { get; set; }
         public DbSet<TestCategory> TestCategories { get; set; }
+        public DbSet<Sample> Samples { get; set; }
+        public DbSet<SampleDetail> SampleDetails { get; set; }
 
         #endregion
 

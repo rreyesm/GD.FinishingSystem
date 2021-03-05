@@ -5,6 +5,7 @@ using GD.FinishingSystem.Entities;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -43,6 +44,13 @@ namespace GD.FinishingSystem.Bussines.Concrete
         {
             var result = await repository.GetWhere(o => !o.IsDeleted && (o.CreatedDate <= end && o.CreatedDate >= begin) || (o.CreatedDate <= begin && o.CreatedDate >= end));
             return result;
+        }
+
+        public override async Task<DefinationProcess> GetDefinitionProcessFromDefinitionProcessCode(string processCode)
+        {
+            var result = await repository.GetWhere(x => !x.IsDeleted && x.ProcessCode.Equals(processCode));
+
+            return result.ToList().FirstOrDefault();
         }
 
         public override async Task Update(DefinationProcess DefinationProcessInformation, int updaterRef)

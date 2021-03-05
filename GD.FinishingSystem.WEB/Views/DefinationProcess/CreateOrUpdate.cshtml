@@ -20,18 +20,6 @@
 
     <h4>Defination Process</h4>
     <hr />
-
-    @*@if (Model.DefinationProcessID != 0) //Show butons when rulo exist
-    {
-        @if (User.IsInRole("MachineAdd") || User.IsInRole("MachineFull") || User.IsInRole("AdminFull"))
-        {
-            <a asp-controller="Machine" asp-action="Index" asp-route-reldefinationprocessid="@Model.DefinationProcessID" class="btn btn-sm btn-outline-light border-dark btn-dark">
-                <i class="lni lni-slice"></i> Machines
-            </a>
-        }
-
-    }*@
-
 </div>
 
 <div class="alert alert-success">
