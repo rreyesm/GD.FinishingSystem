@@ -8,7 +8,7 @@ namespace GD.FinishingSystem.WEB.Classes
 {
     public class WebUtilities
     {
-        public static List<SelectListItem> Create<TEnum>(bool includeEmptyOption = false)
+        public static List<SelectListItem> Create<TEnum>(bool includeEmptyOption = false, string textEmptyOption = "--Select an item--", int selectedValue = 0)
         {
             var type = typeof(TEnum);
             if (!type.IsEnum)
@@ -19,32 +19,30 @@ namespace GD.FinishingSystem.WEB.Classes
                 );
             }
 
-            var result =
-                Enum
-                    .GetValues(type)
-                    .Cast<TEnum>()
-                    .Select(v =>
-                        new SelectListItem(
-                        v.ToString(),
-                        v.ToString()
-                        )
-                    )
-                    .ToList();
+            var result =  Enum.
+                GetValues(type).
+                Cast<IFormattable>()
+                .Select(v => new SelectListItem
+                {
+                    Text = v.ToString(),
+                    Value = v.ToString("d", null),
+                    Selected = v.ToString("d", null) == selectedValue.ToString()
+                }).ToList();
 
             if (includeEmptyOption)
             {
                 // Insert the empty option
                 // at the beginning
-                result.Insert(
-                    0,
-                    new SelectListItem("--Select an item--", "")
-                );
+                if (selectedValue == 0)
+                    result.Insert(0, new SelectListItem(textEmptyOption, "0", true));
+                else
+                    result.Insert(0, new SelectListItem(textEmptyOption, "0"));
             }
 
             return result;
         }
 
-        public static List<SelectListItem> Create<T>(IEnumerable<T> list, string nameFieldValue = "Id", string nameFieldText = "Name", bool includeEmptyOption = false, int selectedValue = 0)
+        public static List<SelectListItem> Create<T>(IEnumerable<T> list, string nameFieldValue = "Id", string nameFieldText = "Name", bool includeEmptyOption = false, string textEmptyOption = "--Select an item--", int selectedValue = 0)
         {
             List<SelectListItem> result = new List<SelectListItem>();
             Type elementType = typeof(T);
@@ -111,7 +109,10 @@ namespace GD.FinishingSystem.WEB.Classes
             if (includeEmptyOption)
             {
                 //Insert the empty option at the beginning
-                result.Insert(0, new SelectListItem("--Select an item--", "0"));
+                if (selectedValue == 0)
+                    result.Insert(0, new SelectListItem(textEmptyOption, "0", true));
+                else
+                    result.Insert(0, new SelectListItem(textEmptyOption, "0"));
             }
 
             return result;

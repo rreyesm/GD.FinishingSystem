@@ -43,8 +43,8 @@ namespace GD.FinishingSystem.Bussines
             Machines = new MachineManager(context);
             TestResults = new TestResultManager(context);
             Floors = new FloorManager(context);
-            OriginCategories = new OriginCategoryManager(context);
             TestCategories = new TestCategoryManager(context);
+            Samples = new SampleManager(context);
         }
 
         public AbstractUserService Users { get; set; }
@@ -54,8 +54,8 @@ namespace GD.FinishingSystem.Bussines
         public AbstractMachineService Machines { get; set; }
         public AbstractTestResultService TestResults { get; set; }
         public AbstractFloorService Floors { get; set; }
-        public AbstractOriginCategoryService OriginCategories { get; set; }
         public AbstractTestCategoryService TestCategories { get; set; }
+        public AbstractSampleService Samples { get; set; }
 
     }
 }

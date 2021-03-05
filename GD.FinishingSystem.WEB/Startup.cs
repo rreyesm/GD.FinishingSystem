@@ -1,3 +1,4 @@
+using GD.FinishingSystem.WEB.Classes;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -24,6 +25,7 @@ namespace GD.FinishingSystem.WEB
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.Configure<AppSettings>(Configuration.GetSection("AppSettings"));
             services.AddControllersWithViews();
             services.AddAuthentication(SystemStatics.DefaultScheme)
                  .AddCookie(SystemStatics.DefaultScheme, options =>

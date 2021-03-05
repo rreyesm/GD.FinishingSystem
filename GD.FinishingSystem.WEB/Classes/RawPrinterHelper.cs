@@ -117,9 +117,9 @@ namespace GD.FinishingSystem.WEB.Classes
             return true;
         }
 
-        public static async Task PrintToZPLByIP(string printIP, string zplString)
+        public static async Task<bool> PrintToZPLByIP(string printIP, string zplString)
         {
-            int port = 9100;
+            int port = 9100; //6101
             try
             {
                 // Open connection
@@ -135,9 +135,12 @@ namespace GD.FinishingSystem.WEB.Classes
                 // Close Connection
                 writer.Close();
                 client.Close();
+
+                return true;
             }
             catch
             {
+                return false;
                 // Catch Exception
             }
         }

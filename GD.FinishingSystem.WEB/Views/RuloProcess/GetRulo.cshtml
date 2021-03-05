@@ -1,0 +1,143 @@
+﻿@model GD.FinishingSystem.Entities.ViewModels.VMRulo
+
+<div>
+    <h4>Rulo information</h4>
+    <hr />
+    <dl class="row">
+        <dt class="col-sm-4">
+            <i class="lni lni-line-dashed"></i>
+        </dt>
+        <dd class="col-sm-6">
+            @Html.DisplayFor(model => model.RuloID)
+        </dd>
+        <dt class="col-sm-4">
+            @Html.DisplayNameFor(model => model.Lote)
+        </dt>
+        <dd class="col-sm-6">
+            @Html.DisplayFor(model => model.Lote)
+        </dd>
+        <dt class="col-sm-4">
+            @Html.DisplayNameFor(model => model.Beam)
+        </dt>
+        <dd class="col-sm-6">
+            @Html.DisplayFor(model => model.Beam)
+        </dd>
+        <dt class="col-sm-4">
+            @Html.DisplayNameFor(model => model.BeamStop)
+        </dt>
+        <dd class="col-sm-6">
+            @Html.DisplayFor(model => model.BeamStop)
+        </dd>
+        <dt class="col-sm-4">
+            @Html.DisplayNameFor(model => model.Loom)
+        </dt>
+        <dd class="col-sm-6">
+            @Html.DisplayFor(model => model.Loom)
+        </dd>
+        <dt class="col-sm-4">
+            @Html.DisplayNameFor(model => model.LoomLetter)
+        </dt>
+        <dd class="col-sm-6">
+            @Html.DisplayFor(model => model.LoomLetter)
+        </dd>
+        <dt class="col-sm-4">
+            @Html.DisplayNameFor(model => model.Piece)
+        </dt>
+        <dd class="col-sm-6">
+            @Html.DisplayFor(model => model.Piece)
+        </dd>
+        <dt class="col-sm-4">
+            @Html.DisplayNameFor(model => model.PieceLetter)
+        </dt>
+        <dd class="col-sm-6">
+            @Html.DisplayFor(model => model.PieceLetter)
+        </dd>
+        <dt class="col-sm-4">
+            @Html.DisplayNameFor(model => model.Style)
+        </dt>
+        <dd class="col-sm-6">
+            @Html.DisplayFor(model => model.Style)
+        </dd>
+        <dt class="col-sm-4">
+            @Html.DisplayNameFor(model => model.StyleName)
+        </dt>
+        <dd class="col-sm-6">
+            @Html.DisplayFor(model => model.StyleName)
+        </dd>
+        <dt class="col-sm-4">
+            @Html.DisplayNameFor(model => model.Width)
+        </dt>
+        <dd class="col-sm-6">
+            @Html.DisplayFor(model => model.Width)
+        </dd>
+        <dt class="col-sm-4">
+            @Html.DisplayNameFor(model => model.EntranceLength)
+        </dt>
+        <dd class="col-sm-6">
+            @Html.DisplayFor(model => model.EntranceLength)
+        </dd>
+        <dt class="col-sm-4">
+            @Html.DisplayNameFor(model => model.ExitLength)
+        </dt>
+        <dd class="col-sm-6">
+            @Html.DisplayFor(model => model.ExitLength)
+        </dd>
+        <dt class="col-sm-4">
+            @Html.DisplayNameFor(model => model.Shift)
+        </dt>
+        <dd class="col-sm-6">
+            @Html.DisplayFor(model => model.Shift)
+        </dd>
+        <dt class="col-sm-4">
+            @Html.DisplayNameFor(model => model.IsWaitingAnswerFromTest)
+        </dt>
+        <dd class="col-sm-6">
+            @Html.Raw(Model.IsWaitingAnswerFromTest ? "YES" : "NO")
+        </dd>
+        <dt class="col-sm-4">
+            @Html.DisplayNameFor(model => model.TestResultID)
+        </dt>
+        <dd class="col-sm-6">
+            @Html.DisplayFor(model => model.TestResultID)
+        </dd>
+        <dt class="col-sm-4">
+            @Html.DisplayNameFor(model => model.CanContinue)
+        </dt>
+        <dd class="col-sm-6">
+            @Html.Raw(Model.CanContinue ? "YES" : "NO")
+        </dd>
+        <dt class="col-sm-4">
+            @Html.DisplayNameFor(model => model.TestCategoryCode)
+        </dt>
+        <dd class="col-sm-6">
+            @Html.DisplayFor(model => model.TestCategoryCode)
+        </dd>
+        <dt class="col-sm-4">
+            @Html.DisplayNameFor(model => model.OriginID)
+        </dt>
+        <dd class="col-sm-6">
+            @Html.DisplayFor(model => model.OriginID)
+        </dd>
+        <dt class="col-sm-4">
+            @Html.DisplayNameFor(model => model.Observations)
+        </dt>
+        <dd class="col-sm-6">
+            @Html.DisplayFor(model => model.Observations)
+        </dd>
+        <dt class="col-sm-4">
+            @Html.DisplayNameFor(model => model.FolioNumber)
+        </dt>
+        <dd class="col-sm-6">
+            <span style="color:red; font-weight:bold">
+                @Html.DisplayFor(model => model.FolioNumber)
+            </span>
+        </dd>
+        <dt class="col-sm-4">
+            @Html.DisplayNameFor(model => model.DeliveryDate)
+        </dt>
+        <dd class="col-sm-6">
+            @Html.Raw(Model.DeliveryDate?.ToString("yyyy-MM-dd HH:mm"))
+        </dd>
+
+    </dl>
+</div>

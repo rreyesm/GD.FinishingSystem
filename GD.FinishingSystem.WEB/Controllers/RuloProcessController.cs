@@ -1,5 +1,6 @@
 ﻿using GD.FinishingSystem.Bussines;
 using GD.FinishingSystem.Entities;
+using GD.FinishingSystem.Entities.ViewModels;
 using GD.FinishingSystem.WEB.Classes;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -26,9 +27,9 @@ namespace GD.FinishingSystem.WEB.Controllers
 
             if (ruloid == null || ruloid.Value <= 0) return NotFound();
 
-            IEnumerable<RuloProcess> result = null;
+            IEnumerable<VMRuloProcess> result = null;
 
-            result = await factory.Rulos.GetRuloProcessesFromRuloID(ruloid.Value);
+            result = await factory.Rulos.GetVMRuloProcessesFromRuloID(ruloid.Value);
             if (result == null) return NotFound();
             ViewBag.relRuloID = ruloid;
 
@@ -48,7 +49,6 @@ namespace GD.FinishingSystem.WEB.Controllers
             RuloProcess newRuloProcess = new RuloProcess();
             newRuloProcess.RuloID = relRuloId;
             newRuloProcess.BeginningDate = DateTime.Now;
-            newRuloProcess.EndDate = DateTime.Today.AddDays(1).AddMilliseconds(-1);
 
             return View("CreateOrUpdate", newRuloProcess);
         }
@@ -186,6 +186,108 @@ namespace GD.FinishingSystem.WEB.Controllers
             foundRuloProcess.IsFinished = true;
             foundRuloProcess.EndDate = DateTime.Now;
             await factory.Rulos.UpdateRuloProcess(foundRuloProcess, int.Parse(User.Identity.Name));
+
+            var rulo = await factory.Rulos.GetRuloFromRuloID(foundRuloProcess.RuloID);
+            rulo.ExitLength = Meter;
+
+            await factory.Rulos.Update(rulo, int.Parse(User.Identity.Name));
+            return Ok();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Sample(int SampleID, int RuloID, int RuloProcessID, decimal Meter)
+        {
+            if (!User.IsInRole("Sample", AuthType.Update)) return Unauthorized();
+
+            var foundRuloProcess = await factory.Rulos.GetRuloProcessFromRuloProcessID(RuloProcessID);
+            if (foundRuloProcess == null) return NotFound();
+
+            if (SampleID == 0)
+            {
+                Sample sample = new Sample();
+                sample.RuloProcessID = RuloProcessID;
+                sample.Meter = Meter;
+
+                await factory.Samples.Add(sample, int.Parse(User.Identity.Name));
+
+                foundRuloProcess.SampleID = sample.SampleID;
+                await factory.Rulos.UpdateRuloProcess(foundRuloProcess, int.Parse(User.Identity.Name));
+            }
+            else
+            {
+                var sample = await factory.Samples.GetSampleFromSampleID(SampleID);
+                sample.Meter = Meter;
+                await factory.Samples.Update(sample, int.Parse(User.Identity.Name));
+            }
+
+            return Ok();
+        }
+
+        [HttpGet]
+        [Authorize(AuthenticationSchemes = SystemStatics.DefaultScheme, Roles = "RuloProcessShow, RuloProcessFull, AdminFull")]
+        public async Task<IActionResult> GetRulo(int ruloId)
+        {
+            if (!User.IsInRole("RuloProcess", AuthType.Show)) return Unauthorized();
+
+            var foundRulo = await factory.Rulos.GetVMRuloFromVMRuloID(ruloId);
+            if (foundRulo == null) NotFound();
+
+            return PartialView(foundRulo);
+        }
+
+        [HttpGet]
+        [Authorize(AuthenticationSchemes = SystemStatics.DefaultScheme, Roles = "SampleShow, SampleFull, AdminFull")]
+        public async Task<IActionResult> GetSample(int ruloProcessId, int sampleId)
+        {
+            if (!User.IsInRole("Sample", AuthType.Show)) return Unauthorized();
+
+            ViewBag.Error = true;
+            ViewBag.ErrorMessage = string.Empty;
+
+            Sample sample = null;
+            if (sampleId == 0)
+            {
+                sample = new Sample();
+                sample.RuloProcessID = ruloProcessId;
+            }
+            else
+            {
+                sample = await factory.Samples.GetSampleFromSampleID(sampleId);
+            }
+
+            return PartialView(sample);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> SaveSample(Sample sample)
+        {
+            if (sample.SampleID == 0)
+            {
+                if (!(User.IsInRole("Sample", AuthType.Add)))
+                    return Unauthorized();
+
+                var ruloProcess = await factory.Rulos.GetRuloProcessFromRuloProcessID(sample.RuloProcessID);
+                if (ruloProcess == null) return NotFound();
+
+                await factory.Samples.Add(sample, int.Parse(User.Identity.Name));
+
+                ruloProcess.SampleID = sample.SampleID;
+                await factory.Rulos.UpdateRuloProcess(ruloProcess, int.Parse(User.Identity.Name));
+            }
+            else
+            {
+                if (!(User.IsInRole("Sample", AuthType.Update)))
+                    return Unauthorized();
+
+                var foundSample = await factory.Samples.GetSampleFromSampleID(sample.SampleID);
+
+                foundSample.Meter = sample.Meter;
+                foundSample.CutterPerson = sample.CutterPerson;
+                foundSample.Details = sample.Details;
+
+                await factory.Samples.Update(foundSample, int.Parse(User.Identity.Name));
+            }
+
             return Ok();
         }
 

@@ -1,0 +1,30 @@
+﻿@model GD.FinishingSystem.Entities.Sample
+
+<div>
+    <input type=hidden id="ddlSampleID" name="ddlSampleID" value="@Model.SampleID" />
+    <input type=hidden id="ddlRuloProcessID" name="ddlRuloProcessID" value="@Model.RuloProcessID" />
+    <div class="row">
+        <div class="col-lg-4 col-md-4 col-sm-12">
+            <div class="form-group">
+                <label asp-for="Meter" class="control-label"></label>
+                <input type="number" id="ddlMeter" asp-for="Meter" class="form-control" />
+            </div>
+        </div>
+        <div class="col-lg-4 col-md-4 col-sm-12">
+            <div class="form-group">
+                <label asp-for="CutterPerson" class="control-label"></label>
+                <input id="ddlCutterPerson" asp-for="CutterPerson" class="form-control" />
+            </div>
+        </div>
+        <div class="col-lg-4 col-md-4 col-sm-12">
+            <div class="form-group">
+                <label asp-for="Details" class="control-label"></label>
+                <textarea id="ddlDetails" asp-for="Details" class="form-control" rows="3"></textarea>
+            </div>
+        </div>
+
+    </div>
+
+
+</div>
+

@@ -31,16 +31,34 @@
             @Html.DisplayFor(model => model.Beam)
         </dd>
         <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.BeamStop)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.BeamStop)
+        </dd>
+        <dt class="col-sm-2">
             @Html.DisplayNameFor(model => model.Loom)
         </dt>
         <dd class="col-sm-10">
             @Html.DisplayFor(model => model.Loom)
         </dd>
         <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.LoomLetter)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.LoomLetter)
+        </dd>
+        <dt class="col-sm-2">
             @Html.DisplayNameFor(model => model.Piece)
         </dt>
         <dd class="col-sm-10">
             @Html.DisplayFor(model => model.Piece)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.PieceLetter)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.PieceLetter)
         </dd>
         <dt class="col-sm-2">
             @Html.DisplayNameFor(model => model.Style)
@@ -70,13 +88,19 @@
             @Html.DisplayNameFor(model => model.ExitLength)
         </dt>
         <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Shift)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Shift)
+        </dt>
+        <dd class="col-sm-10">
             @Html.DisplayFor(model => model.ExitLength)
         </dd>
         <dt class="col-sm-2">
             @Html.DisplayNameFor(model => model.IsWaitingAnswerFromTest)
         </dt>
         <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.IsWaitingAnswerFromTest)
+            @Html.Raw(Model.IsWaitingAnswerFromTest ? "YES" : "NO")
         </dd>
         <dt class="col-sm-2">
             @Html.DisplayNameFor(model => model.OriginID)
@@ -100,7 +124,7 @@
             @Html.DisplayNameFor(model => model.CanContinue)
         </dt>
         <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.CanContinue)
+            @Html.Raw(Model.CanContinue ? "YES" : "NO")
         </dd>
         <dt class="col-sm-2">
             @Html.DisplayNameFor(model => model.TestResultAuthorizer)
@@ -108,9 +132,23 @@
         <dd class="col-sm-10">
             @Html.DisplayFor(model => model.TestResultAuthorizer)
         </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.FolioNumber)
+        </dt>
+        <dd class="col-sm-10">
+            <span style="color:red; font-weight:bold">
+                @Html.DisplayFor(model => model.FolioNumber)
+            </span>
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.DeliveryDate)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.Raw(Model.DeliveryDate?.ToString("yyyy-MM-dd HH:mm"))
+        </dd>
 
     </dl>
-    
+
     <form asp-action="Delete">
         @Html.HiddenFor(model => model.RuloID)
         @Html.AntiForgeryToken()

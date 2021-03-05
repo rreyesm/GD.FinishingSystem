@@ -1,9 +1,19 @@
-﻿@model IEnumerable<GD.FinishingSystem.Entities.RuloProcess>
+﻿@model IEnumerable<GD.FinishingSystem.Entities.ViewModels.VMRuloProcess>
 
 @{
     ViewData["Title"] = "Index";
     int relRuloId = ViewBag.RelRuloId;
 }
+
+<style>
+    .input-xs {
+        height: 22px;
+        padding: 2px 5px;
+        font-size: 12px;
+        line-height: 1.5; /* If Placeholder of the input is moved up, rem/modify this. */
+        border-radius: 3px;
+    }
+</style>
 
 <h1 class="mt-4">Rulo Processes</h1>
 
@@ -11,15 +21,18 @@
 {
     if (relRuloId != 0)
     {
-        <p>
-            <a asp-action="Create" asp-route-relruloid="@relRuloId" class="btn btn-sm btn-outline-light border-dark btn-dark">
-                <i class="lni lni-circle-plus"></i> Create New
-            </a>
-        </p>
+        <a asp-action="Create" asp-route-relruloid="@relRuloId" class="btn btn-sm btn-outline-light border-dark btn-dark">
+            <i class="lni lni-circle-plus"></i> Create New
+        </a>
     }
 
 }
+@if (User.IsInRole("RuloProcess", AuthType.Add))
+    @Html.Raw(" | ")
 
+<a asp-action="Index" asp-controller="Rulo" class="btn btn-sm btn-secondary"><i class="lni lni-chevron-left-circle"></i> Back to Rulos</a>
+<br />
+<br />
 
 <table class="table table-sm table-hover table-responsive-md">
     <thead>
@@ -37,12 +50,21 @@
             <th>
                 @Html.DisplayNameFor(model => model.BeginningDate)
             </th>
+
             <th>
                 @Html.DisplayNameFor(model => model.EndDate)
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.FinishMeter)
             </th>
+
+            <th>
+                Sample Meter
+            </th>
+            <th>
+                Sample Date
+            </th>
+            <th></th>
 
 
             <th></th>
@@ -62,10 +84,11 @@
                 <td>
                     @Html.Raw(item.BeginningDate.ToString("yyyy-MM-dd HH:mm"))
                 </td>
+
                 @if (item.IsFinished)
                 {
                     <td>
-                       @Html.Raw(item.EndDate.Value.ToString("yyyy-MM-dd HH:mm"))
+                        @Html.Raw(item.EndDate.Value.ToString("yyyy-MM-dd HH:mm"))
                     </td>
                     <td>
                         @Html.DisplayFor(modelItem => item.FinishMeter)
@@ -74,42 +97,220 @@
                 else
                 {
                     <td colspan="2">
-                        <a onclick="finish(@item.RuloProcessID)" class="btn btn-sm btn-danger"> <i class="lni lni-flag"></i> Finish This</a>
+                        @if (item.Sample != null)
+                        {
+                            <a onclick="finish(@item.RuloProcessID)" class="btn input-xs btn-danger"> <i class="lni lni-flag"></i> Finish This</a>
+                        }
                     </td>
                 }
 
+                <td>
+                    @if (item.Sample != null)
+                        @Html.DisplayFor(modelItem => item.Sample.Meter)
+                </td>
+                <td>
+                    @if (item.Sample != null)
+                        @Html.Raw(item.Sample.CreatedDate.ToString("yyyy-MM-dd HH:mm"))
+                </td>
+                <td>
+                    @if (User.IsInRole("Sample", AuthType.Add) || User.IsInRole("Sample", AuthType.Update))
+                    {
+                        <div style="display:block;width:70px;">
+                            <a alt="Samples" onclick="showSample(@item.RuloProcessID,@(item.SampleID!=null?item.SampleID:0));" href="#" data-toggle="modal" data-target="#modalDialogSamples" class="btn input-xs btn-info">
+                                <i class="lni lni-cut"></i> Sample
+                            </a>
+                        </div>
+                    }
 
-
+                </td>
 
                 <td>
-                    <div style="display:block;width:80px;">
+                    <div style="display:block;width:107px;">
                         @if (User.IsInRole("RuloProcessUp") || User.IsInRole("RuloProcessFull") || User.IsInRole("AdminFull"))
                         {
                             <a asp-action="Edit" asp-route-ruloprocessid="@item.RuloProcessID">
                                 <i class="lni lni-slice"></i>
                             </a>
-                            @Html.Raw(" | ");
                         }
                         @if (User.IsInRole("RuloProcessShow") || User.IsInRole("RuloProcessFull") || User.IsInRole("AdminFull"))
                         {
-                            <a asp-action="Details" asp-route-ruloprocessid="@item.RuloProcessID">
-                                <i class="lni lni-question-circle"></i>
-                            </a>
-                            @Html.Raw(" | ");
-                        }
+                            if (User.IsInRole("RuloProcessUp", AuthType.Show))
+                                @Html.Raw(" | ")
+
+                                <a asp-action="Details" asp-route-ruloprocessid="@item.RuloProcessID">
+                                    <i class="lni lni-question-circle"></i>
+                                </a>
+                            }
                         @if (User.IsInRole("RuloProcessDel") || User.IsInRole("RuloProcessFull") || User.IsInRole("AdminFull"))
                         {
-                            <a asp-action="Delete" asp-route-ruloprocessid="@item.RuloProcessID">
-                                <i class="lni lni-circle-minus"></i>
-                            </a>
-                        }
+                            if (User.IsInRole("RuloProcessUp", AuthType.Show) || User.IsInRole("RuloProcess", AuthType.Update))
+                                @Html.Raw(" | ")
+
+                                <a asp-action="Delete" asp-route-ruloprocessid="@item.RuloProcessID">
+                                    <i class="lni lni-circle-minus"></i>
+                                </a>
+                            }
+                        @if (User.IsInRole("RuloProcess", AuthType.Show))
+                        {
+                            if (User.IsInRole("RuloProcess", AuthType.Show) || User.IsInRole("RuloProcess", AuthType.Update) || User.IsInRole("RuloProcess", AuthType.Delete))
+                                @Html.Raw(" | ")
+
+                                <a alt="Rulos" onclick="showRulo(@item.RuloID);" href="#" data-toggle="modal" data-target="#modalDialogRulos">
+                                    <i class="lni lni-direction-alt"></i>
+                                </a>
+                            }
+
                     </div>
                 </td>
             </tr>
         }
     </tbody>
 </table>
+
+<div class="modal fade" id="modalDialogRulos" tabindex="-1" role="dialog" width="350px" arial-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Rulo</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div id="ruloInfo"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalDialogSamples" tabindex="-1" role="dialog" width="350px" arial-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Sample</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div id="sampleInfo"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" onclick="SaveSample();">Save changes</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script>
+
+    function setSample(sampleID, ruloID, ruloProcessID) {
+        var meter = parseFloat(prompt("Please enter sample cut length", "0"))
+        if (isNaN(meter) || meter <= 0) return;
+
+        $.ajax({
+            url: "RuloProcess/Sample",
+            type: "POST",
+            data: {
+                SampleID: sampleID,
+                RuloID: ruloID,
+                RuloProcessID: ruloProcessID,
+                Meter: meter
+            },
+            success: function (data) {
+                if (data) {
+                    if (dat.status == 200) {
+                        document.getElementById("btnCloseDialogSample").click();
+                    }
+                }
+                location.reload();
+            },
+            error: function (xhk, ajaxOptions, thrownError) {
+                if (xhk.status == 401)
+                    alert("401 Unauthorized")
+                else
+                    alert("404 Not Found!");
+            }
+        });
+
+    }
+
+    function showSample(ruloProcessID, sampleId) {
+        $.ajax({
+            url: "/RuloProcess/GetSample",
+            type: "GET",
+            data:
+            {
+                RuloProcessID: ruloProcessID,
+                SampleId: sampleId
+            },
+            success: function (data) {
+                document.getElementById("sampleInfo").innerHTML = data;
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                alert("Something went wrong!");
+            }
+        });
+    }
+
+    function SaveSample() {
+        var sampleId = $("#ddlSampleID").val();
+        var ruloProcessId = $("#ddlRuloProcessID").val();
+        var ddlMeter = $("#ddlMeter").val();
+        var ddlCutterPerson = $("#ddlCutterPerson").val();
+        var ddlDetails = $("#ddlDetails").val();
+
+        var meter = parseFloat(ddlMeter);
+        if (isNaN(meter) || meter <= 0) {
+            alert('Please set Meter Sample');
+            return;
+        }
+
+        if (ddlCutterPerson.trim().length == 0) {
+            alert('Please set Cutter Person valid');
+            return;
+        }
+
+        $.ajax({
+            url: "/RuloProcess/SaveSample",
+            type: "POST",
+            data:
+            {
+                SampleId: sampleId,
+                RuloProcessId: ruloProcessId,
+                Meter: ddlMeter,
+                CutterPerson: ddlCutterPerson,
+                Details: ddlDetails
+            },
+            success: function (data) {
+                location.reload();
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                alert("404 Not found!");
+            }
+        });
+    }
+
+    function showRulo(ruloId) {
+        $.ajax({
+            url: "/RuloProcess/GetRulo",
+            type: "GET",
+            data:
+            {
+                RuloId: ruloId
+            },
+            success: function (data) {
+                document.getElementById("ruloInfo").innerHTML = data;
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                alert("Something went wrong!");
+            }
+        });
+    }
 
     function finish(rpid) {
         var meter = parseInt(prompt("Please enter how many meter exit this process", "0"));

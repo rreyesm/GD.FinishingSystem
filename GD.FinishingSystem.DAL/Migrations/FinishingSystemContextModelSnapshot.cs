@@ -142,47 +142,6 @@ namespace GD.FinishingSystem.DAL.Migrations
                     b.ToTable("tblMachines");
                 });
 
-            modelBuilder.Entity("GD.FinishingSystem.Entities.OriginCategory", b =>
-                {
-                    b.Property<int>("OriginCategoryID")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
-
-                    b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("TEXT");
-
-                    b.Property<int>("CreatorID")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<DateTime?>("DeletedDate")
-                        .HasColumnType("TEXT");
-
-                    b.Property<int?>("DeleterID")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<DateTime>("LastUpdateDate")
-                        .HasColumnType("TEXT");
-
-                    b.Property<int>("LastUpdaterID")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("OriginCode")
-                        .IsRequired()
-                        .HasMaxLength(5)
-                        .HasColumnType("TEXT");
-
-                    b.HasKey("OriginCategoryID");
-
-                    b.ToTable("tblOriginCategories");
-                });
-
             modelBuilder.Entity("GD.FinishingSystem.Entities.Rulo", b =>
                 {
                     b.Property<int>("RuloID")
@@ -192,6 +151,9 @@ namespace GD.FinishingSystem.DAL.Migrations
                     b.Property<int>("Beam")
                         .HasColumnType("INTEGER");
 
+                    b.Property<string>("BeamStop")
+                        .HasColumnType("TEXT");
+
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("TEXT");
 
@@ -204,10 +166,16 @@ namespace GD.FinishingSystem.DAL.Migrations
                     b.Property<int?>("DeleterID")
                         .HasColumnType("INTEGER");
 
-                    b.Property<int>("EntranceLength")
-                        .HasColumnType("INTEGER");
+                    b.Property<DateTime?>("DeliveryDate")
+                        .HasColumnType("TEXT");
 
-                    b.Property<int>("ExitLength")
+                    b.Property<decimal>("EntranceLength")
+                        .HasColumnType("TEXT");
+
+                    b.Property<decimal>("ExitLength")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("FolioNumber")
                         .HasColumnType("INTEGER");
 
                     b.Property<bool>("IsDeleted")
@@ -225,16 +193,25 @@ namespace GD.FinishingSystem.DAL.Migrations
                     b.Property<int>("Loom")
                         .HasColumnType("INTEGER");
 
+                    b.Property<string>("LoomLetter")
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("Lote")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Observations")
                         .HasColumnType("TEXT");
 
-                    b.Property<byte>("OriginID")
+                    b.Property<int>("OriginID")
                         .HasColumnType("INTEGER");
 
                     b.Property<int>("Piece")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("PieceLetter")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("Shift")
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("Style")
@@ -249,8 +226,8 @@ namespace GD.FinishingSystem.DAL.Migrations
                     b.Property<int?>("TestResultID")
                         .HasColumnType("INTEGER");
 
-                    b.Property<int>("Width")
-                        .HasColumnType("INTEGER");
+                    b.Property<decimal>("Width")
+                        .HasColumnType("TEXT");
 
                     b.HasKey("RuloID");
 
@@ -304,6 +281,9 @@ namespace GD.FinishingSystem.DAL.Migrations
                     b.Property<int>("RuloID")
                         .HasColumnType("INTEGER");
 
+                    b.Property<int?>("SampleID")
+                        .HasColumnType("INTEGER");
+
                     b.HasKey("RuloProcessID");
 
                     b.HasIndex("DefinationProcessID");
@@ -311,6 +291,50 @@ namespace GD.FinishingSystem.DAL.Migrations
                     b.HasIndex("RuloID");
 
                     b.ToTable("tblRuloProcesses");
+                });
+
+            modelBuilder.Entity("GD.FinishingSystem.Entities.Sample", b =>
+                {
+                    b.Property<int>("SampleID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("CreatorID")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("CutterPerson")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("DeletedDate")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int?>("DeleterID")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Details")
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("LastUpdateDate")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("LastUpdaterID")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<decimal>("Meter")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("RuloProcessID")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("SampleID");
+
+                    b.ToTable("tblSamples");
                 });
 
             modelBuilder.Entity("GD.FinishingSystem.Entities.TestCategory", b =>

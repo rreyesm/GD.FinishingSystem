@@ -1,4 +1,4 @@
-﻿@model IEnumerable<GD.FinishingSystem.Entities.RuloProcess>
+﻿@model IEnumerable<GD.FinishingSystem.Entities.ViewModels.VMRuloProcess>
 
 
 <table class="table">
@@ -22,37 +22,45 @@
             <th>
                 @Html.DisplayNameFor(model => model.IsFinished)
             </th>
-
+            <th>
+                Sample Meter
+            </th>
+            <th>
+                Sample Date
+            </th>
 
         </tr>
     </thead>
     <tbody>
         @foreach (var item in Model)
         {
-            <tr>
-                <td>
-                    @Html.DisplayFor(modelItem => item.RuloProcessID)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.DefinationProcess.Name)
-                </td>
-                <td>
-                    @item.BeginningDate.ToString("yyyy/MM/dd HH:mm")
-                </td>
-                <td>
-                    @if (item.EndDate.HasValue)
-                    {
-                        @item.EndDate.Value.ToString("yyyy/MM/dd HH:mm")
-                    }
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.RuloProcessID)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.DefinationProcess.Name)
+            </td>
+            <td>
+                @item.BeginningDate.ToString("yyyy/MM/dd HH:mm")
+            </td>
+            <td>
+                @if (item.EndDate.HasValue)
+                {
+                    @item.EndDate.Value.ToString("yyyy/MM/dd HH:mm")
+                }
 
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.FinishMeter)
-                </td>
-                <td>
-                    @Html.Raw(item.IsFinished ? "YES" : "NO")
-                </td>
-            </tr>
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.FinishMeter)
+            </td>
+            <td>
+                @Html.Raw(item.IsFinished ? "YES" : "NO")
+            </td>
+            <td>
+                @Html.Raw(item.Sample?.Meter.ToString("#,##0.00"))
+            </td>
+        </tr>
         }
     </tbody>
 </table>

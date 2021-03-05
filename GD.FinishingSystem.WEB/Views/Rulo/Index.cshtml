@@ -27,32 +27,44 @@
     </p>
 }
 
-<form asp-action="Index">
+<form asp-action="Index" method="post" id="formFilters">
 
 
     <div class="row">
-        <div class="col-md-3">
+        <div class="col-md-2">
             <div class="form-group">
                 <label for="dtBegin">Begin</label><br>
                 <input type="date" style="width:100% !important;" id="dtBegin" name="dtBegin">
             </div>
         </div>
-        <div class="col-md-3">
+        <div class="col-md-2">
             <div class="form-group">
                 <label for="dtEnd">End</label><br>
                 <input type="date" style="width:100% !important;" id="dtEnd" name="dtEnd">
             </div>
         </div>
-        <div class="col-md-3">
+        <div class="col-md-2">
             <div class="form-group">
                 <label for="numLote">Lote</label><br>
-                <input type="number"  onfocusout="controlForSmallerThanZero('numLote')"  min="0" style="width:100% !important;" id="numLote" name="numLote">
+                <input numLote type="number" onfocusout="controlForSmallerThanZero('numLote')" min="0" style="width:100% !important;" id="numLote" name="numLote">
             </div>
         </div>
-        <div class="col-md-3">
+        <div class="col-md-2">
+            <div class="form-group">
+                <label for="numBeam">Beam</label><br>
+                <input type="number" onfocusout="controlForSmallerThanZero('numBeam')" min="0" style="width:100% !important;" id="numBeam" name="numBeam">
+            </div>
+        </div>
+        <div class="col-md-2">
             <div class="form-group">
                 <label for="numLoom">Loom</label><br>
-                <input type="number"  onfocusout="controlForSmallerThanZero('numLoom')"  min="0" style="width:100% !important;" id="numLoom" name="numLoom">
+                <input type="number" onfocusout="controlForSmallerThanZero('numLoom')" min="0" style="width:100% !important;" id="numLoom" name="numLoom">
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="form-group">
+                <label for="numPiece">Piece</label><br>
+                <input type="number" onfocusout="controlForSmallerThanZero('numPiece')" min="0" style="width:100% !important;" id="numPiece" name="numPiece">
             </div>
         </div>
 
@@ -61,14 +73,9 @@
     @*SECOND ROW*@
 
     <div class="row">
-        <div class="col-md-3">
-            <div class="form-group">
-                <label for="numPiece">Piece</label><br>
-                <input type="number" onfocusout="controlForSmallerThanZero('numPiece')"  min="0" style="width:100% !important;" id="numPiece" name="numPiece">
-            </div>
-        </div>
 
-        <div class="col-md-3">
+
+        <div class="col-md-2">
             <div class="form-group">
                 <label for="numPiece">Style</label><br>
                 <input type="text" style="width:100% !important;" id="txtStyle" name="txtStyle" list="styleList">
@@ -81,20 +88,30 @@
             </div>
         </div>
 
-        <div class="col-md-3">
+        <div class="col-md-2">
             <div class="form-group">
-                <label for="numPiece">Test Result</label><br>
+                <label for="numTestCategory">Test Result</label><br>
                 <select style="width:100% !important;" id="numTestCategory" name="numTestCategory" asp-items="@ViewBag.TestCategorytList"></select>
             </div>
         </div>
-
+        <div class="col-md-2">
+            <div class="form-group">
+                <label for="numDefinitionProcess">Def. Process</label><br />
+                <select style="width:100% !important;" id="numDefinitionProcess" name="numDefinitionProcess" asp-items="@ViewBag.DefinitionProcessList"></select>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="form-group">
+                <label for="numDefinitionProcess">Folio Number</label><br />
+                <input type="number" onfocusout="controlForSmallerThanZero('folioNumber')" min="0" style="width:100% !important;" id="folioNumber" name="folioNumber">
+            </div>
+        </div>
     </div>
-
-
 
     <div class="row">
         <div class="col-sm-12 col-md-12 col-lg-12" style="text-align:right">
-            <input type="submit" value="Filter" class="btn btn-outline-info" />
+            <a onclick="setIndex();" class="btn btn-outline-info"><i class="lni lni-search"></i> Filter</a>
+            <a onclick="clearFilters();" class="btn btn-outline-info"><i class="lni lni-brush"></i> Clear Filters</a>
         </div>
     </div>
 </form>
@@ -102,7 +119,12 @@
 <table class="table table-sm table-hover table-responsive-lg">
     <thead>
         <tr>
-            <th colspan="9">Rulo List</th>
+            <th colspan="9">
+                <div>
+                    Rulo List
+                    <a onclick="exportToExcel();" class="btn btn-sm btn-success"><i class="lni lni-printer"></i> Export to Excel</a>
+                </div>
+            </th>
         </tr>
         <tr>
             <th>
@@ -148,15 +170,18 @@
                     @Html.DisplayFor(modelItem => item.RuloID)
                 </td>
                 <td>
-                    <div style="display:block;width:200px;">
+                    <div style="display:block;width:210px;">
 
                         @Html.DisplayFor(modelItem => item.Lote)
                         -
                         @Html.DisplayFor(modelItem => item.Beam)
+                        @Html.DisplayFor(modelItem => item.BeamStop)
                         -
                         @Html.DisplayFor(modelItem => item.Loom)
+                        @Html.DisplayFor(modelItem => item.LoomLetter)
                         -
                         @Html.DisplayFor(modelItem => item.Piece)
+                        @Html.DisplayFor(modelItem => item.PieceLetter)
                     </div>
                 </td>
                 <td>
@@ -186,8 +211,10 @@
                             <a asp-controller="RuloProcess" asp-action="Index" asp-route-ruloid="@item.RuloID" class="btn input-xs btn-info">
                                 <i class="lni lni-list "></i> Process
                             </a>
-                            @Html.Raw(" | ")
                         }
+
+                        @if (User.IsInRole("RuloProcess", AuthType.Show))
+                            @Html.Raw(" | ")
 
                         <a onclick="PrintLabel(@item.RuloID)" class="btn  input-xs btn-danger"><i class="lni lni-printer"></i> Print</a>
 
@@ -212,31 +239,35 @@
                             <a asp-controller="Rulo" asp-action="Edit" asp-route-ruloid="@item.RuloID">
                                 <i class="lni lni-slice"></i>
                             </a>
-                            @Html.Raw(" | ");
                         }
 
                         @if (User.IsInRole("Rulo", AuthType.Show))
                         {
+                            if (User.IsInRole("Rulo", AuthType.Update))
+                                @Html.Raw(" | ")
 
-                            <a asp-controller="Rulo" asp-action="Details" asp-route-ruloid="@item.RuloID">
-                                <i class="lni lni-question-circle"></i>
-                            </a>
-                            @Html.Raw(" | ");
-                        }
+                                <a asp-controller="Rulo" asp-action="Details" asp-route-ruloid="@item.RuloID">
+                                    <i class="lni lni-question-circle"></i>
+                                </a>
+                            }
 
                         @if (User.IsInRole("Rulo", AuthType.Delete))
                         {
-                            <a asp-controller="Rulo" asp-action="Delete" asp-route-ruloid="@item.RuloID">
-                                <i class="lni lni-circle-minus"></i>
-                            </a>
-                            @Html.Raw(" | ");
-                        }
+                            if (User.IsInRole("Rulo", AuthType.Update) || User.IsInRole("Rulo", AuthType.Show))
+                                @Html.Raw(" | ")
+                                <a asp-controller="Rulo" asp-action="Delete" asp-route-ruloid="@item.RuloID">
+                                    <i class="lni lni-circle-minus"></i>
+                                </a>
+                            }
                         @if (User.IsInRole("Rulo", AuthType.Show))
                         {
-                            <a alt="Processes" onclick="showProcesses(@item.RuloID);" href="#" data-toggle="modal" data-target="#modalDialogprocesses">
-                                <i class="lni lni-direction-alt"></i>
-                            </a>
-                        }
+                            if (User.IsInRole("Rulo", AuthType.Update) || User.IsInRole("Rulo", AuthType.Show) || User.IsInRole("Rulo", AuthType.Delete))
+                                @Html.Raw(" | ")
+
+                                <a alt="Processes" onclick="showProcesses(@item.RuloID);" href="#" data-toggle="modal" data-target="#modalDialogprocesses">
+                                    <i class="lni lni-direction-alt"></i>
+                                </a>
+                            }
                     </div>
 
                 </td>
@@ -298,6 +329,8 @@
     document.getElementById("numPiece").value = '@ViewBag.numPiece';
     document.getElementById("txtStyle").value = '@ViewBag.txtStyle';
     document.getElementById("numTestCategory").value = '@ViewBag.numTestCategory';
+    document.getElementById("numDefinitionProcess").value = '@ViewBag.numDefinitionProcess'
+    document.getElementById("folioNumber").value = '@ViewBag.FolioNumber'
 
     function testResult(ruloId) {
 
@@ -326,7 +359,14 @@
                     RuloId: ruloId
                 },
                 success: function (data) {
-                    alert("Listo!");
+                    if (data) {
+                        if (data.errorMessage)
+                            alert(data.errorMessage);
+                        else
+                            alert("Listo!");
+                    }
+                    else
+                        alert("Listo!");
                 },
                 error: function (xhr, ajaxOptions, thrownError) {
                     alert("404 Not found!");
@@ -402,10 +442,29 @@
             }
         });
 
+    }
 
+    function setIndex() {
+        document.getElementById("formFilters").action = "/Rulo";
+        document.getElementById("formFilters").submit();
+    }
 
+    function exportToExcel() {
 
+        document.getElementById("formFilters").action = "/Rulo/ExportToExcel";
+        document.getElementById("formFilters").submit();
+    }
 
+    function clearFilters() {
+        document.getElementById("numLote").value = 0;
+        document.getElementById("numBeam").value = 0;
+        document.getElementById("numLoom").value = 0;
+        document.getElementById("numPiece").value = 0;
+        document.getElementById("txtStyle").value = '';
+        document.getElementById("numTestCategory").value = 0;
+        document.getElementById("numDefinitionProcess").value = 0;
+        document.getElementById("folioNumber").value = 0;
+        document.getElementById("formFilters").submit();
     }
 
 </script>

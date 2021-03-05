@@ -83,8 +83,8 @@ namespace GD.FinishingSystem.DAL.Concrete.EntityFramework
         public DbSet<DefinationProcess> DefinationProcesses { get; set; }
         public DbSet<RuloProcess> RuloProcesses { get; set; }
         public DbSet<Floor> Floors { get; set; }
-        public DbSet<OriginCategory> OriginCategories { get; set; }
         public DbSet<TestCategory> TestCategories { get; set; }
+        public DbSet<Sample> Samples { get; set; }
 
         #endregion
 
