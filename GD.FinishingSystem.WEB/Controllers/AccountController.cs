@@ -37,43 +37,56 @@ namespace GD.FinishingSystem.WEB.Controllers
         [HttpPost, ValidateAntiForgeryToken]
         public async Task<ActionResult> Login(LoginUserViewModel login)
         {
-            CheckAdminUser();
-            var res = await factory.Users.CheckLoginUser(login.UserName, login.Password);
-            if (res.IsSuccess && res.resultType == 1)
+            try
             {
-                var loggedinUser = (User)res.Data;
+                await CheckAdminUser();
+                var res = await factory.Users.CheckLoginUser(login.UserName, login.Password);
+                if (res.IsSuccess && res.resultType == 1)
+                {
+                    var loggedinUser = (User)res.Data;
 
-                List<Claim> mainClaim = new List<Claim>()
+                    List<Claim> mainClaim = new List<Claim>()
                 {
                     new Claim(ClaimTypes.NameIdentifier, loggedinUser.GetName),
                     new Claim(ClaimTypes.Name, loggedinUser.UserID.ToString())
                 };
 
-                var authList = await factory.Users.GetAllRoles(loggedinUser.UserID);
+                    var authList = await factory.Users.GetAllRoles(loggedinUser.UserID);
 
-                foreach (var role in authList)
-                {
-                    var rl = new Claim(ClaimTypes.Role, role);
-                    mainClaim.Add(rl);
+                    foreach (var role in authList)
+                    {
+                        var rl = new Claim(ClaimTypes.Role, role);
+                        mainClaim.Add(rl);
+                    }
+
+                    ClaimsIdentity MainIdentity = new ClaimsIdentity(mainClaim, "EmyIdentity");
+
+                    ClaimsPrincipal userPrincipal = new ClaimsPrincipal(MainIdentity);
+
+                    await HttpContext.SignInAsync(
+                        SystemStatics.DefaultScheme,
+                        userPrincipal,
+                        new AuthenticationProperties { IsPersistent = login.RememberMe }
+                        );
+                    return RedirectToAction("Index", "Home");
                 }
-
-                ClaimsIdentity MainIdentity = new ClaimsIdentity(mainClaim, "EmyIdentity");
-
-                ClaimsPrincipal userPrincipal = new ClaimsPrincipal(MainIdentity);
-
-                await HttpContext.SignInAsync(
-                    SystemStatics.DefaultScheme,
-                    userPrincipal,
-                    new AuthenticationProperties { IsPersistent = login.RememberMe }
-                    );
-                return RedirectToAction("Index", "Home");
+                else
+                {
+                    ViewBag.ErrorMessage = res.Message;
+                    ViewBag.Error = true;
+                    return PartialView(login);
+                }
             }
-            else
+            catch(Exception ex)
             {
-                ViewBag.ErrorMessage = res.Message;
-                ViewBag.Error = true;
-                return PartialView(login);
+                ErrorViewModel err = new ErrorViewModel()
+                {
+                    RequestId = ex.Message
+                };
+                return PartialView("Error", err);
+
             }
+
 
 
         }
@@ -94,7 +107,7 @@ namespace GD.FinishingSystem.WEB.Controllers
             return RedirectToAction("Login");
         }
 
-        async void CheckAdminUser()
+        async Task CheckAdminUser()
         {
             string UserName = "EnesMY";
             string Password = "123456";

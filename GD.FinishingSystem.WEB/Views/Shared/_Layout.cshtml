@@ -9,8 +9,18 @@
     <title>Dashboard - @ViewData["Title"]</title>
 
     <link href="~/css/styles.css" rel="stylesheet" />
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/js/all.min.js" crossorigin="anonymous"></script>
+    <script src="~/lib/font-awesome/all.min.js" crossorigin="anonymous"></script>
     <link href="~/css/LineIcons.css" rel="stylesheet" />
+    
+    <style>
+        .input-xs {
+            height: 22px;
+            padding: 2px 5px;
+            font-size: 12px;
+            line-height: 1.5; /* If Placeholder of the input is moved up, rem/modify this. */
+            border-radius: 3px;
+        }
+    </style>
 
 </head>
 <body class="sb-nav-fixed">
@@ -73,6 +83,17 @@
                     </div>
                     <div class="nav">
                         <div class="sb-sidenav-menu-heading">Definitions</div>
+                        @if (User.IsInRole("PeriodAdd") || User.IsInRole("PeriodFull") || User.IsInRole("AdminFull"))
+                        {
+                            <a class="nav-link" asp-controller="Period" asp-action="Index">
+                                <div class="sb-nav-link-icon">
+                                    <i class="lni lni-sm lni-cogs"></i>
+
+                                </div>
+                                Period
+                            </a>
+                        }
+
                         @if (User.IsInRole("DefinitionProcessFull") || User.IsInRole("DefinitionProcessShow") || User.IsInRole("AdminFull"))
                         {
                             <a class="nav-link" asp-controller="DefinationProcess" asp-action="Index">
@@ -124,9 +145,8 @@
 
 
     </div>
-    <script src="https://code.jquery.com/jquery-3.5.1.min.js" crossorigin="anonymous"></script>
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.js"></script>
     <script src="~/js/scripts.js"></script>
 
     @RenderSection("Scripts", required: false)

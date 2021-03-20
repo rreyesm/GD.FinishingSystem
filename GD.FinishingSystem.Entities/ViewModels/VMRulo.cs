@@ -14,10 +14,8 @@ namespace GD.FinishingSystem.Entities.ViewModels
         public string BeamStop { get; set; }
         public int Loom { get; set; }
         [Display(Name = "Loom Letter")]
-        public string LoomLetter { get; set; }
-        public int Piece { get; set; }
-        [Display(Name = "Piece Letter")]
-        public string PieceLetter { get; set; }
+        public bool IsToyota { get; set; }
+        public int PieceCount { get; set; }
         public string Style { get; set; }
         [Display(Name = "Style Name")]
         public string StyleName { get; set; }
@@ -42,8 +40,11 @@ namespace GD.FinishingSystem.Entities.ViewModels
         public string TestResultAuthorizer { get; set; }
         [Display(Name = "Folio Number")]
         public int FolioNumber { get; set; }
-        [Display(Name = "Delivery Date")]
-        public DateTime? DeliveryDate { get; set; }
+        [Display(Name = "Sent Date")]
+        public DateTime? SentDate { get; set; }
+        public User Sender { get; set; }
+        public User SentAuthorizer { get; set; }
+        public int? SentAuthorizerID { get; set; }
 
     }
 }

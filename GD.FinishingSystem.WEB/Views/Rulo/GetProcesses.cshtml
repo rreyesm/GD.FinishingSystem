@@ -22,12 +22,6 @@
             <th>
                 @Html.DisplayNameFor(model => model.IsFinished)
             </th>
-            <th>
-                Sample Meter
-            </th>
-            <th>
-                Sample Date
-            </th>
 
         </tr>
     </thead>
@@ -56,9 +50,6 @@
             </td>
             <td>
                 @Html.Raw(item.IsFinished ? "YES" : "NO")
-            </td>
-            <td>
-                @Html.Raw(item.Sample?.Meter.ToString("#,##0.00"))
             </td>
         </tr>
         }

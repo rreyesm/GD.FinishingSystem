@@ -1,0 +1,110 @@
+﻿@model IEnumerable<GD.FinishingSystem.Entities.Period>
+
+@{ 
+}
+
+<h1 class="mt-4">Period</h1>
+
+<p>
+    <a onclick="showCreatePeriod()" class="btn btn-sm btn-outline-light border-dark btn-dark" role="button" data-backdrop="static" data-keyboard="false" href="#" data-toggle="modal" data-target="#modalDialogGeneral">
+        <i class="lni lni-circle-plus"></i> Change Period
+    </a>
+</p>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                <i class="lni lni-line-dashed"></i>
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Style)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.StartDate)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.FinishDate)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.ValidityLastPeriod)
+            </th>
+
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.PeriodID)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Style)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.StartDate)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.FinishDate)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.ValidityLastPeriod)
+            </td>
+
+        </tr>
+        }
+    </tbody>
+</table>
+
+
+@*Dialog General*@
+<div class="modal fade" id="modalDialogGeneral" tabindex="-1" role="dialog" width="350px" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel"></h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div id="generalInfo"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-success" onclick="createPeriod();" data-dismiss="modal">Ok</button>
+                <button type="button" class="btn btn-danger" data-dismiss="modal">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function showCreatePeriod() {
+        var html = "<label for='stylePeriod'>New Period Style:</label><br>";
+        html += " <input type='text' id='stylePeriod' name='stylePeriod'> <br>"
+
+        document.getElementById("generalInfo").innerHTML = html;
+    }
+
+    function createPeriod() {
+    var stylePeriod = $("#stylePeriod").val();
+        if (stylePeriod == '') {
+            alert("Style no valid!");
+        }
+
+        $.ajax({
+            url: "/Period/CreatePeriod",
+            type: "POST",
+            data: {
+                style: stylePeriod
+            },
+            success: function (data) {
+                location.reload();
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                alert("Something went wrong!");
+            }
+        });
+    }
+</script>

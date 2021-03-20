@@ -17,8 +17,17 @@ namespace GD.FinishingSystem.DAL.Concrete.EntityFramework
         #region Definations
         static string DatabaseName = "dbFinishingSystem";
         public string ConnectionStringProp { private get; set; }
+        //string LocalSqlServer = $"Server=192.168.7.242;Database={DatabaseName};User Id=EMY;Password=0545696s;";
+        //string LocalSqlServer = $"Server=.;Database={DatabaseName};User Id=SA;Password=0545696sS*;";
+
+#if DEBUG
         string LocalSqlServer = $"Server=.;Database={DatabaseName};User Id=SA;Password=0545696sS*;";
+#else
+    string LocalSqlServer = $"Server=192.168.7.242;Database={DatabaseName};User Id=EMY;Password=0545696s;";
+#endif
+
         string LocalSqlite = $"Data Source=C://Users//Sistemas//{DatabaseName}.db";
+        int TimeOutAuthorizeSec = 600;
         DatabaseSystem dbSysem;
         #endregion
 
@@ -29,10 +38,10 @@ namespace GD.FinishingSystem.DAL.Concrete.EntityFramework
         /// </summary>
         public FinishingSystemContext()
         {
-            ConnectionStringProp = LocalSqlite;
-            dbSysem = DatabaseSystem.Sqlite;
-            //ConnectionStringProp = LocalSqlServer;
-            //dbSysem = DatabaseSystem.SqlServer;
+            //ConnectionStringProp = LocalSqlite;
+            //dbSysem = DatabaseSystem.Sqlite;
+            ConnectionStringProp = LocalSqlServer;
+            dbSysem = DatabaseSystem.SqlServer;
         }
 
         /// <summary>
@@ -75,17 +84,19 @@ namespace GD.FinishingSystem.DAL.Concrete.EntityFramework
 
 
         #region dbSets
+        public DbSet<DefinationProcess> DefinationProcesses { get; set; }
+        public DbSet<Floor> Floors { get; set; }
+        public DbSet<Machine> Machines { get; set; }
+        public DbSet<Period> Periods { get; set; }
+        public DbSet<Piece> Pieces { get; set; }
+        public DbSet<Rulo> Rulos { get; set; }
+        public DbSet<RuloProcess> RuloProcesses { get; set; }
+        public DbSet<Sample> Samples { get; set; }
+        public DbSet<Shift> Shifts { get; set; }
+        public DbSet<TestCategory> TestCategories { get; set; }
+        public DbSet<TestResult> TestResults { get; set; }
         public DbSet<User> Users { get; set; }
         public DbSet<UserRole> UserRoles { get; set; }
-        public DbSet<TestResult> TestResults { get; set; }
-        public DbSet<Rulo> Rulos { get; set; }
-        public DbSet<Machine> Machines { get; set; }
-        public DbSet<DefinationProcess> DefinationProcesses { get; set; }
-        public DbSet<RuloProcess> RuloProcesses { get; set; }
-        public DbSet<Floor> Floors { get; set; }
-        public DbSet<TestCategory> TestCategories { get; set; }
-        public DbSet<Sample> Samples { get; set; }
-
         #endregion
 
         #region Settings
@@ -96,13 +107,13 @@ namespace GD.FinishingSystem.DAL.Concrete.EntityFramework
                 case DatabaseSystem.SqlServer:
                     optionsBuilder.UseSqlServer(ConnectionStringProp, builder =>
                     {
-                        builder.EnableRetryOnFailure(5, TimeSpan.FromSeconds(10), null);
+                        builder.EnableRetryOnFailure(5, TimeSpan.FromSeconds(TimeOutAuthorizeSec), null);
 
                     });
                     base.OnConfiguring(optionsBuilder);
                     break;
                 case DatabaseSystem.Sqlite:
-                    optionsBuilder.UseSqlite(ConnectionStringProp);
+                    optionsBuilder.UseSqlite(ConnectionStringProp); //, builder => builder.CommandTimeout((int?)TimeOutAuthorizeSec));
                     break;
                 default:
                     break;
@@ -112,9 +123,8 @@ namespace GD.FinishingSystem.DAL.Concrete.EntityFramework
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
 
-
         }
-        
+
 
         #endregion
 
@@ -133,6 +143,7 @@ namespace GD.FinishingSystem.DAL.Concrete.EntityFramework
                     if (Debugger.IsAttached)
                     {
                         Debug.Indent();
+
                         foreach (var valid in validationResults)
                         {
                             Debug.WriteLine(string.Join(",", valid.MemberNames) + " is not validated! Error:" + valid.ErrorMessage);

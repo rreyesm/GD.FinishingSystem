@@ -30,16 +30,28 @@
             @Html.DisplayFor(model => model.Beam)
         </dd>
         <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.BeamStop)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.BeamStop)
+        </dd>
+        <dt class="col-sm-2">
             @Html.DisplayNameFor(model => model.Loom)
         </dt>
         <dd class="col-sm-10">
             @Html.DisplayFor(model => model.Loom)
         </dd>
         <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.Piece)
+            @Html.DisplayNameFor(model => model.IsToyota)
         </dt>
         <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.Piece)
+            @Html.Raw(Model.IsToyota ? "YES" : "NO");
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.PieceCount)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.PieceCount)
         </dd>
         <dt class="col-sm-2">
             @Html.DisplayNameFor(model => model.Style)
@@ -116,10 +128,10 @@
             </span>
         </dd>
         <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.DeliveryDate)
+            @Html.DisplayNameFor(model => model.SentDate)
         </dt>
         <dd class="col-sm-10">
-            @Html.Raw(Model.DeliveryDate?.ToString("yyyy-MM-dd HH:mm"))
+            @Html.Raw(Model.SentDate?.ToString("yyyy-MM-dd HH:mm"))
         </dd>
 
     </dl>

@@ -1,0 +1,43 @@
+﻿@model IEnumerable<GD.FinishingSystem.Entities.Sample>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                <i class="lni lni-line-dashed"></i>
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Meter)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.CutterUser.Name)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Details)
+            </th>
+
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.SampleID)
+                </td>
+
+                <td>
+                    @Html.DisplayFor(modelItem => item.Meter)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.CutterUser.Name)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Details)
+                </td>
+
+            </tr>
+        }
+    </tbody>
+</table>
+

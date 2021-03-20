@@ -5,20 +5,23 @@
 }
 
 <div class="alert alert-info">
-    @if (Model.TestCategoryID == 0)
-    {
-        @Html.Raw("Create");
-        ViewData["Title"] = "Create Definition Information";
-    }
-    else
-    {
-        @Html.Raw("Edit")
-        ViewData["Title"] = "Edit Definition Information";
-    }
+    <h1 class="mt-4">
+        @if (Model.TestCategoryID == 0)
+        {
+            @Html.Raw("Create");
+            ViewData["Title"] = "Create Definition Information";
+        }
+        else
+        {
+            @Html.Raw("Edit")
+            ViewData["Title"] = "Edit Definition Information";
+        }
+    </h1>
+    <h4>Test Definition</h4>
+    <hr />
 </div>
 
-<h4>Test Definition</h4>
-<hr />
+
 
 <div class="alert alert-success">
     <form asp-action="Save">

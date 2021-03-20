@@ -22,7 +22,7 @@ namespace GD.FinishingSystem.Entities.ViewModels
         public decimal? FinishMeter { get; set; }
         [Display(Name = "Is Finished")]
         public bool IsFinished { get; set; }
-        public int? SampleID { get; set; }
-        public Sample Sample { get; set; }
+        public bool IsMustSample { get; set; }
+        public bool ExistSample { get; set; }
     }
 }

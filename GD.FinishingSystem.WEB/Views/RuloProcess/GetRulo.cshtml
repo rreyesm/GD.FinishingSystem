@@ -1,8 +1,6 @@
 ﻿@model GD.FinishingSystem.Entities.ViewModels.VMRulo
 
 <div>
-    <h4>Rulo information</h4>
-    <hr />
     <dl class="row">
         <dt class="col-sm-4">
             <i class="lni lni-line-dashed"></i>
@@ -35,22 +33,10 @@
             @Html.DisplayFor(model => model.Loom)
         </dd>
         <dt class="col-sm-4">
-            @Html.DisplayNameFor(model => model.LoomLetter)
+            @Html.DisplayNameFor(model => model.IsToyota)
         </dt>
         <dd class="col-sm-6">
-            @Html.DisplayFor(model => model.LoomLetter)
-        </dd>
-        <dt class="col-sm-4">
-            @Html.DisplayNameFor(model => model.Piece)
-        </dt>
-        <dd class="col-sm-6">
-            @Html.DisplayFor(model => model.Piece)
-        </dd>
-        <dt class="col-sm-4">
-            @Html.DisplayNameFor(model => model.PieceLetter)
-        </dt>
-        <dd class="col-sm-6">
-            @Html.DisplayFor(model => model.PieceLetter)
+            @Html.Raw(Model.IsToyota ? "YES" : "NO")
         </dd>
         <dt class="col-sm-4">
             @Html.DisplayNameFor(model => model.Style)
@@ -133,10 +119,10 @@
             </span>
         </dd>
         <dt class="col-sm-4">
-            @Html.DisplayNameFor(model => model.DeliveryDate)
+            @Html.DisplayNameFor(model => model.SentDate)
         </dt>
         <dd class="col-sm-6">
-            @Html.Raw(Model.DeliveryDate?.ToString("yyyy-MM-dd HH:mm"))
+            @Html.Raw(Model.SentDate?.ToString("yyyy-MM-dd HH:mm"))
         </dd>
 
     </dl>

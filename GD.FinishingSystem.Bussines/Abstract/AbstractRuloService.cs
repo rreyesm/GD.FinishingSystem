@@ -12,7 +12,8 @@ namespace GD.FinishingSystem.Bussines.Abstract
         public abstract Task<IEnumerable<VMRulo>> GetRuloList();
         public abstract Task<IEnumerable<VMRulo>> GetRuloListFromBetweenDate(DateTime begin, DateTime end);
         public abstract Task<Rulo> GetRuloFromRuloID(int RuloID);
-        public abstract Task<VMRulo> GetVMRuloFromVMRuloID(int RuloID);
+        public abstract Task<Rulo> GetRuloFromFolio(int folioNumber);
+        public abstract Task<VMRulo> GetVMRuloFromRuloID(int RuloID);
         public abstract Task Add(Rulo RuloInformation, int adderRef);
         public abstract Task Update(Rulo RuloInformation, int updaterRef);
         public abstract Task Delete(Rulo RuloInformation, int deleterRef);
@@ -26,6 +27,7 @@ namespace GD.FinishingSystem.Bussines.Abstract
 
         public abstract Task<IEnumerable<String>> GetRuloStyleList();
         public abstract Task<IEnumerable<VMRulo>> GetRuloListFromFilters(VMRuloFilters ruloFilters);
+        public abstract Task<IEnumerable<VMRuloReport>> GetRuloReportListFromFilters(VMRuloFilters ruloFilters);
 
         public abstract Task DeleteRuloProcessFromRuloProcessID(int ruloProcessID, int deleterRef);
  

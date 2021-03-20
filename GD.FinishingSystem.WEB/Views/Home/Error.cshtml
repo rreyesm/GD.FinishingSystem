@@ -1,4 +1,5 @@
-﻿<!DOCTYPE html>
+﻿@model ErrorViewModel
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8">
@@ -26,5 +27,12 @@
             <a href="#" onclick="window.history.back();">Go Back</a>
         </div>
     </div>
+
+    @if (Model.ShowRequestId)
+    {
+        <p>
+            <strong>Problem:</strong> <code>@Model.RequestId</code>
+        </p>
+    }
 </body>
 </html>

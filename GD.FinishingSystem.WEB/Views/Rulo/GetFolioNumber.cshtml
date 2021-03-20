@@ -1,0 +1,41 @@
+﻿@model GD.FinishingSystem.Entities.Rulo
+
+<h4>Rulo</h4>
+<hr />
+
+<div class="alert alert-success">
+    <form asp-action="GetFolioNumber">
+        @Html.HiddenFor(x => x.RuloID)
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+        <div class="row">
+            <div class="col-lg-6 col-md-6 col-sm-12">
+                <div class="form-group">
+                    <label asp-for="Shift" class="control-label"></label>
+                    <input id="Shift" asp-for="Shift" class="form-control" />
+                    <span asp-validation-for="Shift" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="col-lg-6 col-md-6 col-sm-12">
+                <div class="form-group">
+                    <label asp-for="FolioNumber" class="control-label"></label>
+                    <input id="FolioNumber" asp-for="FolioNumber" class="form-control" />
+                    <span asp-validation-for="FolioNumber" class="text-danger"></span>
+                </div>
+            </div>
+
+            <div class="col-12">
+                @if ((bool)ViewBag.Error)
+                {
+                    <hr />
+                    <div class="alert alert-danger">
+                        @Html.Raw(ViewBag.ErrorMessage)
+                    </div>
+
+                }
+
+                <button type="button" class="btn btn-primary" onclick="saveFolioNumber(@Model.RuloID);" role="button" data-backdrop="static" data-keyboard="false" href="#" data-target="#modalDialogGeneral">Save changes</button>
+            </div>
+
+        </div>
+    </form>
+</div>

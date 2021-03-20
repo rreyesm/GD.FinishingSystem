@@ -39,7 +39,7 @@ namespace GD.FinishingSystem.Entities
         public decimal? FinishMeter { get; set; }
         [Display(Name = "Is Finished")]
         public bool IsFinished { get; set; }
-        public int? SampleID { get; set; }
+
 
     }
 }

@@ -12,6 +12,7 @@ namespace GD.FinishingSystem.Entities
         [Key]
         public int MachineID { get; set; }
         public int DefinationProcessID { get; set; }
+        [ForeignKey(name: "DefinationProcessID")]
         public DefinationProcess DefinationProcess { get; set; }
         [MaxLength(10)]
         [Display(Name = "Machine Code")]

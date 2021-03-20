@@ -62,23 +62,8 @@
             </div>
             <div class="col-lg-3 col-md-4 col-sm-12">
                 <div class="form-group">
-                    <label asp-for="LoomLetter" class="control-label"></label>
-                    <input asp-for="LoomLetter" class="form-control" />
-                    <span asp-validation-for="LoomLetter" class="text-danger"></span>
-                </div>
-            </div>
-            <div class="col-lg-3 col-md-4 col-sm-12">
-                <div class="form-group">
-                    <label asp-for="Piece" class="control-label"></label>
-                    <input asp-for="Piece" class="form-control" type="number" />
-                    <span asp-validation-for="Piece" class="text-danger"></span>
-                </div>
-            </div>
-            <div class="col-lg-3 col-md-4 col-sm-12">
-                <div class="form-group">
-                    <label asp-for="PieceLetter" class="control-label"></label>
-                    <input asp-for="PieceLetter" class="form-control" />
-                    <span asp-validation-for="PieceLetter" class="text-danger"></span>
+                    <label asp-for="IsToyota" class="control-label"></label>
+                    <input type="checkbox" asp-for="IsToyota" class="form-control input-xs" />
                 </div>
             </div>
             <div class="col-lg-3 col-md-4 col-sm-12">
@@ -139,15 +124,17 @@
                 </div>
             </div>
 
-            @if ((bool)ViewBag.Error)
-            {
-                <hr />
-                <div class="alert alert-danger">
-                    @Html.Raw(ViewBag.ErrorMessage)
-                </div>
-
-            }
             <div class="col-12">
+
+                @if ((bool)ViewBag.Error)
+                {
+                    <hr />
+                    <div class="alert alert-danger">
+                        @Html.Raw(ViewBag.ErrorMessage)
+                    </div>
+
+                }
+
                 <div class="form-group">
                     @if (Model.RuloID == 0)
                     {

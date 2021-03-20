@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using GD.FinishingSystem.Entities.ViewModels;
 
 namespace GD.FinishingSystem.WEB.Classes
 {
@@ -19,12 +20,12 @@ namespace GD.FinishingSystem.WEB.Classes
                 );
             }
 
-            var result =  Enum.
+            var result = Enum.
                 GetValues(type).
                 Cast<IFormattable>()
                 .Select(v => new SelectListItem
                 {
-                    Text = v.ToString(),
+                    Text = v.ToString().SplitCamelCase(),
                     Value = v.ToString("d", null),
                     Selected = v.ToString("d", null) == selectedValue.ToString()
                 }).ToList();

@@ -17,9 +17,9 @@ namespace GD.FinishingSystem.Bussines
         /// </summary>
         public FinishingSystemFactory()
         {
-#if RELEASE
-            throw new Exception("You can not use this constructor in Release Mode");
-#endif
+//#if RELEASE
+//            throw new Exception("You can not use this constructor in Release Mode");
+//#endif
             context = new FinishingSystemContext();
             InitObjects();
         }
@@ -37,25 +37,28 @@ namespace GD.FinishingSystem.Bussines
         }
         private void InitObjects()
         {
-            Users = new UserManager(context);
-            Rulos = new RuloManager(context);
             DefinationProcesses = new DefinationProcessManager(context);
-            Machines = new MachineManager(context);
-            TestResults = new TestResultManager(context);
             Floors = new FloorManager(context);
-            TestCategories = new TestCategoryManager(context);
+            Machines = new MachineManager(context);
+            Periods = new PeriodManager(context);
+            Pieces = new PieceManager(context);
+            Rulos = new RuloManager(context);
             Samples = new SampleManager(context);
+            TestCategories = new TestCategoryManager(context);
+            TestResults = new TestResultManager(context);
+            Users = new UserManager(context);
+
         }
 
-        public AbstractUserService Users { get; set; }
-        public AbstractRuloService Rulos { get; set; }
-
         public AbstractDefinationProcessService DefinationProcesses { get; set; }
-        public AbstractMachineService Machines { get; set; }
-        public AbstractTestResultService TestResults { get; set; }
         public AbstractFloorService Floors { get; set; }
-        public AbstractTestCategoryService TestCategories { get; set; }
+        public AbstractMachineService Machines { get; set; }
+        public AbstractPeriodService Periods { get; set; }
+        public AbstractPieceService Pieces { get; set; }
+        public AbstractRuloService Rulos { get; set; }
         public AbstractSampleService Samples { get; set; }
-
+        public AbstractTestCategoryService TestCategories { get; set; }
+        public AbstractTestResultService TestResults { get; set; }
+        public AbstractUserService Users { get; set; }
     }
 }

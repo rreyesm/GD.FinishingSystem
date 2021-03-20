@@ -14,9 +14,11 @@ namespace GD.FinishingSystem.Bussines.Concrete
     public class SampleManager : AbstractSampleService
     {
         IAsyncRepository<Sample> repositorySample = null;
+        IAsyncRepository<User> repositoryUser = null;
         public SampleManager(DbContext context)
         {
             this.repositorySample = new GenericRepository<Sample>(context);
+            this.repositoryUser = new GenericRepository<User>(context);
         }
 
         public override async Task Add(Sample sample, int adderRef)
@@ -31,7 +33,32 @@ namespace GD.FinishingSystem.Bussines.Concrete
 
         public override async Task<Sample> GetSampleFromSampleID(int sampleID)
         {
-            return await repositorySample.GetByPrimaryKey(sampleID);
+            var res = await repositorySample.GetByPrimaryKey(sampleID);
+            if (res != null)
+                res.CutterUser = await repositoryUser.GetByPrimaryKey(res.CutterID);
+
+            return res;
+        }
+
+        public override async Task<IEnumerable<Sample>> GetSamplesByRuloProcessID(int ruloProcessID)
+        {
+            var res = await repositorySample.GetWhere(x => !x.IsDeleted && x.RuloProcessID == ruloProcessID);
+            var userList = await repositoryUser.GetWhere(x => !x.IsDeleted);
+
+            var result = (from s in res
+                          join u in userList on s.CutterID equals u.UserID
+                          select new Sample
+                          {
+                              SampleID = s.SampleID,
+                              RuloProcessID = s.RuloProcessID,
+                              RuloProcess = s.RuloProcess,
+                              Meter = s.Meter,
+                              CutterID = s.CutterID,
+                              CutterUser = u,
+                              Details = s.Details
+                          }).ToList();
+
+            return result;
         }
 
         public override async Task<IEnumerable<Sample>> GetSampleList()

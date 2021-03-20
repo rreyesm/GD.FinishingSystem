@@ -7,6 +7,8 @@ namespace GD.FinishingSystem.WEB.Classes
 {
     public class AppSettings
     {
-        public string PrinterIP { get; set; }
+        public bool IsPrinterIP { get; set; }
+        public string GD1PrinterName { get; set; }
+        public string GD2PrinterName { get; set; }
     }
 }

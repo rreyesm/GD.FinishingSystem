@@ -96,6 +96,7 @@ namespace GD.FinishingSystem.WEB.Controllers
 
                 foundDefinationProcess.ProcessCode = definationProcess.ProcessCode;
                 foundDefinationProcess.Name = definationProcess.Name;
+                foundDefinationProcess.IsMustSample = definationProcess.IsMustSample;
 
                 await factory.DefinationProcesses.Update(foundDefinationProcess, int.Parse(User.Identity.Name));
 

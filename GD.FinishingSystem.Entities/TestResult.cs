@@ -8,11 +8,17 @@ namespace GD.FinishingSystem.Entities
     {
         [Key]
         public int TestResultID { get; set; }
+        [Required, MinLength(length:1)]
         public string Details { get; set; }
+
+        public bool Result { get; set; }
         [Display(Name = "Can Continue")]
         public bool CanContinue { get; set; }
-        [ForeignKey("TestID")]
-        public int TestCategoryID  { get; set; }
+  
+        public int TestCategoryID { get; set; }
+
+        [ForeignKey("TestCategoryID")]
+        public TestCategory TestCategory { get; set; }
 
     }
 }

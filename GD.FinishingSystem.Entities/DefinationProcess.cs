@@ -15,6 +15,8 @@ namespace GD.FinishingSystem.Entities
         public string ProcessCode { get; set; }
         [Required]
         public string Name { get; set; }
+        [Display(Name = "Is Must Sample")]
+        public bool IsMustSample { get; set; }
 
     }
 }

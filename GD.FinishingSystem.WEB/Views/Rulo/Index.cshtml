@@ -5,18 +5,14 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 
     var styleList = ViewBag.StyleList;
+    var role = User.IsInRole("RuloFull") || User.IsInRole("AdminFull") == true ? 1 : 0;
+
 }
 
-<style>
-    .input-xs {
-        height: 22px;
-        padding: 2px 5px;
-        font-size: 12px;
-        line-height: 1.5; /* If Placeholder of the input is moved up, rem/modify this. */
-        border-radius: 3px;
-    }
-</style>
-<h1 class="mt-4">Rulos</h1>
+<div class="row">
+    <h1 class="mt-4">Rulos</h1>
+    <h4 id="titleRulos" class="mt-4">@Html.Raw(ViewBag.CurrentPeriod)</h4>
+</div>
 
 @if (User.IsInRole("RuloAdd") || User.IsInRole("AdminFull") || User.IsInRole("RuloFull"))
 {
@@ -61,23 +57,16 @@
                 <input type="number" onfocusout="controlForSmallerThanZero('numLoom')" min="0" style="width:100% !important;" id="numLoom" name="numLoom">
             </div>
         </div>
-        <div class="col-md-2">
-            <div class="form-group">
-                <label for="numPiece">Piece</label><br>
-                <input type="number" onfocusout="controlForSmallerThanZero('numPiece')" min="0" style="width:100% !important;" id="numPiece" name="numPiece">
-            </div>
-        </div>
-
-    </div>
-
-    @*SECOND ROW*@
-
-    <div class="row">
-
+        @*<div class="col-md-2">
+                <div class="form-group">
+                    <label for="numPiece">Piece</label><br>
+                    <input type="number" onfocusout="controlForSmallerThanZero('numPiece')" min="0" style="width:100% !important;" id="numPiece" name="numPiece">
+                </div>
+            </div>*@
 
         <div class="col-md-2">
             <div class="form-group">
-                <label for="numPiece">Style</label><br>
+                <label for="txtStyle">Style</label><br>
                 <input type="text" style="width:100% !important;" id="txtStyle" name="txtStyle" list="styleList">
                 <datalist id="styleList">
                     @foreach (var item in styleList)
@@ -88,6 +77,11 @@
             </div>
         </div>
 
+    </div>
+
+    @*SECOND ROW*@
+
+    <div class="row">
         <div class="col-md-2">
             <div class="form-group">
                 <label for="numTestCategory">Test Result</label><br>
@@ -102,7 +96,7 @@
         </div>
         <div class="col-md-2">
             <div class="form-group">
-                <label for="numDefinitionProcess">Folio Number</label><br />
+                <label for="folioNumber">Folio Number</label><br />
                 <input type="number" onfocusout="controlForSmallerThanZero('folioNumber')" min="0" style="width:100% !important;" id="folioNumber" name="folioNumber">
             </div>
         </div>
@@ -110,13 +104,13 @@
 
     <div class="row">
         <div class="col-sm-12 col-md-12 col-lg-12" style="text-align:right">
-            <a onclick="setIndex();" class="btn btn-outline-info"><i class="lni lni-search"></i> Filter</a>
-            <a onclick="clearFilters();" class="btn btn-outline-info"><i class="lni lni-brush"></i> Clear Filters</a>
+            <a onclick="setIndex();" class="btn btn-sm btn-outline-info"><i class="lni lni-search"></i> Filter</a>
+            <a onclick="clearFilters();" class="btn btn-sm btn-outline-info"><i class="lni lni-brush"></i> Clear Filters</a>
         </div>
     </div>
 </form>
 
-<table class="table table-sm table-hover table-responsive-lg">
+<table id="tableRulos" class="table table-sm table-hover table-responsive-lg">
     <thead>
         <tr>
             <th colspan="9">
@@ -131,7 +125,7 @@
                 <i class="lni lni-line-dashed"></i>
             </th>
             <th>
-                Lote - Beam - Loom - Piece
+                Lote - Beam - Loom
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.Style)
@@ -162,7 +156,7 @@
             var color = "bgcolor=transparent";
             if (item.CanContinue)
                 color = "bgcolor=66ff66";
-            else if (item.TestCategoryID == 2 || item.TestCategoryID == 4) //Ok X or Fail X
+            else if (item.TestCategoryCode.Contains(" X", StringComparison.InvariantCultureIgnoreCase)) //Ok X or Fail X
                 color = "bgcolor=ff6666";
 
             <tr @color>
@@ -170,18 +164,13 @@
                     @Html.DisplayFor(modelItem => item.RuloID)
                 </td>
                 <td>
-                    <div style="display:block;width:210px;">
+                    <div style="display:block;width:170px;">
 
                         @Html.DisplayFor(modelItem => item.Lote)
                         -
-                        @Html.DisplayFor(modelItem => item.Beam)
-                        @Html.DisplayFor(modelItem => item.BeamStop)
+                        @Html.DisplayFor(modelItem => item.Beam)@Html.DisplayFor(modelItem => item.BeamStop)
                         -
-                        @Html.DisplayFor(modelItem => item.Loom)
-                        @Html.DisplayFor(modelItem => item.LoomLetter)
-                        -
-                        @Html.DisplayFor(modelItem => item.Piece)
-                        @Html.DisplayFor(modelItem => item.PieceLetter)
+                        @Html.DisplayFor(modelItem => item.Loom)@Html.Raw(item.IsToyota ? "T" : "")
                     </div>
                 </td>
                 <td>
@@ -205,74 +194,122 @@
                 </td>
 
                 <td>
-                    <div style="display:block;width:300px;">
+
+                    <div style="display:block;width:150px;">
+                        @if (item.SentAuthorizerID == null && item.FolioNumber == 0)
+                        {
+                            @if (User.IsInRole("Rulo", AuthType.Update))
+                            {
+                                <a onclick="showFolioNumber(@item.RuloID)" class="btn input-xs btn-success" data-backdrop="static" data-keyboard="false" href="#" data-toggle="modal" data-target="#modalDialogGeneral">
+                                    <i class="lni lni-arrow-right-circle"></i>
+                                </a>
+
+                                @Html.Raw(" | ")
+                            }
+                        }
+                        else
+                        {
+                            @if (User.IsInRole("Authorize", AuthType.Full))
+                            {
+                                @if (item.SentAuthorizerID == null)
+                                {
+                                    <a onclick="authorizeRulo(@item.RuloID)" class="btn input-xs btn-danger">
+                                        <i class="lni lni-checkmark-circle"></i>
+                                    </a>
+
+                                    @Html.Raw(" | ")
+                                }
+
+                            }
+                        }
+
+                        @*@if (User.IsInRole("Authorize", AuthType.Show))
+                        {
+                            if (item.SentAuthorizerID == null && item.FolioNumber == 0)
+                            {
+                                @Html.Raw(" | ")
+                            }
+                        }*@
+
+                        @if (User.IsInRole("Piece", AuthType.Show))
+                        {
+                            <a onclick="showPieces(@item.RuloID)" alt="Pieces" class="btn input-xs btn-warning" data-backdrop="static" data-keyboard="false" href="#" data-toggle="modal" data-target="#modalDialogPieces">
+                                <i alt="Pieces" class="lni lni-slice"></i>
+                            </a>
+                        }
+
+                        @if (User.IsInRole("Authorize", AuthType.Show) || User.IsInRole("Piece", AuthType.Show))
+                            @Html.Raw(" | ")
+
                         @if (User.IsInRole("RuloProcessShow") || User.IsInRole("AdminFull") || User.IsInRole("RuloProcessFull"))
                         {
                             <a asp-controller="RuloProcess" asp-action="Index" asp-route-ruloid="@item.RuloID" class="btn input-xs btn-info">
-                                <i class="lni lni-list "></i> Process
+                                <i class="lni lni-list "></i>
                             </a>
                         }
 
-                        @if (User.IsInRole("RuloProcess", AuthType.Show))
-                            @Html.Raw(" | ")
+                        @if (User.IsInRole("Authorize", AuthType.Show) || User.IsInRole("Piece", AuthType.Show) || User.IsInRole("RuloProcess", AuthType.Show))
 
-                        <a onclick="PrintLabel(@item.RuloID)" class="btn  input-xs btn-danger"><i class="lni lni-printer"></i> Print</a>
 
-                        @if (User.IsInRole("TestResult", AuthType.Add))
-                        {
-                            @if (item.TestResultID == null || item.TestResultID == 0 || item.IsWaitingAnswerFromTest)
+                            @if (User.IsInRole("TestResult", AuthType.Add))
                             {
-                                @Html.Raw(" | ")
-                                <a onclick="testResult(@item.RuloID)" class="btn  input-xs btn-danger" data-toggle="modal" data-target="#modalDialog"><i class="lni lni-flag"></i> Test Result</a>
+                                @if (item.TestResultID == null || item.TestResultID == 0 || item.IsWaitingAnswerFromTest)
+                                {
+                                    @Html.Raw(" | ")
+                                    <a onclick="testResult(@item.RuloID)" class="btn  input-xs btn-dark" data-toggle="modal" data-target="#modalDialog"><i class="lni lni-flag"></i></a>
+                                }
                             }
-                        }
 
 
-                    </div>
+                        </div>
 
-                </td>
+                    </td>
 
-                <td>
-                    <div style="display:block;width:107px;">
-                        @if (User.IsInRole("Rulo", AuthType.Update))
-                        {
-                            <a asp-controller="Rulo" asp-action="Edit" asp-route-ruloid="@item.RuloID">
-                                <i class="lni lni-slice"></i>
-                            </a>
-                        }
-
-                        @if (User.IsInRole("Rulo", AuthType.Show))
-                        {
-                            if (User.IsInRole("Rulo", AuthType.Update))
-                                @Html.Raw(" | ")
-
-                                <a asp-controller="Rulo" asp-action="Details" asp-route-ruloid="@item.RuloID">
-                                    <i class="lni lni-question-circle"></i>
+                    <td>
+                        <div style="display:block;width:134px;">
+                            @if (User.IsInRole("Rulo", AuthType.Update))
+                            {
+                                <a asp-controller="Rulo" asp-action="Edit" asp-route-ruloid="@item.RuloID">
+                                    <i class="lni lni-slice"></i>
                                 </a>
                             }
 
-                        @if (User.IsInRole("Rulo", AuthType.Delete))
-                        {
-                            if (User.IsInRole("Rulo", AuthType.Update) || User.IsInRole("Rulo", AuthType.Show))
-                                @Html.Raw(" | ")
-                                <a asp-controller="Rulo" asp-action="Delete" asp-route-ruloid="@item.RuloID">
-                                    <i class="lni lni-circle-minus"></i>
-                                </a>
-                            }
-                        @if (User.IsInRole("Rulo", AuthType.Show))
-                        {
-                            if (User.IsInRole("Rulo", AuthType.Update) || User.IsInRole("Rulo", AuthType.Show) || User.IsInRole("Rulo", AuthType.Delete))
-                                @Html.Raw(" | ")
+                            @if (User.IsInRole("Rulo", AuthType.Show))
+                            {
+                                if (User.IsInRole("Rulo", AuthType.Update))
+                                    @Html.Raw(" | ")
 
-                                <a alt="Processes" onclick="showProcesses(@item.RuloID);" href="#" data-toggle="modal" data-target="#modalDialogprocesses">
-                                    <i class="lni lni-direction-alt"></i>
-                                </a>
-                            }
-                    </div>
+                                    <a asp-controller="Rulo" asp-action="Details" asp-route-ruloid="@item.RuloID">
+                                        <i class="lni lni-question-circle"></i>
+                                    </a>
+                                }
 
-                </td>
-            </tr>
-        }
+                            @if (User.IsInRole("Rulo", AuthType.Delete))
+                            {
+                                if (User.IsInRole("Rulo", AuthType.Update) || User.IsInRole("Rulo", AuthType.Show))
+                                    @Html.Raw(" | ")
+                                    <a asp-controller="Rulo" asp-action="Delete" asp-route-ruloid="@item.RuloID">
+                                        <i class="lni lni-circle-minus"></i>
+                                    </a>
+                                }
+                            @if (User.IsInRole("Rulo", AuthType.Show))
+                            {
+                                if (User.IsInRole("Rulo", AuthType.Update) || User.IsInRole("Rulo", AuthType.Show) || User.IsInRole("Rulo", AuthType.Delete))
+                                    @Html.Raw(" | ")
+
+                                    <a alt="Processes" onclick="showProcesses(@item.RuloID);" href="#" data-toggle="modal" data-target="#modalDialogprocesses">
+                                        <i class="lni lni-direction-alt"></i>
+                                    </a>
+                                    @Html.Raw(" | ")
+
+                                    <a href="#" onclick="printLabel(@item.RuloID)" data-toggle="modal" data-target="#modalDialogGeneral"><i class="lni lni-printer"></i></a>
+                                }
+
+                        </div>
+
+                    </td>
+                </tr>
+            }
     </tbody>
 </table>
 
@@ -297,13 +334,11 @@
     </div>
 </div>
 
-
-
 <div class="modal fade" id="modalDialogprocesses" tabindex="-1" role="dialog" width="350px" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLabel">Rulo Processes List</h5>
+                <h5 class="modal-title" id="exampleModalLabel">Rulo Processes</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
@@ -318,6 +353,61 @@
     </div>
 </div>
 
+@*Pieces*@
+<div class="modal fade" id="modalDialogPieces" tabindex="-1" role="dialog" width="350px" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel"></h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body" style="align-content: center">
+                <div id="piecesInfo"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="document.getElementById('piecesInfo').innerHTML = ''" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@*Dialog General*@
+<div class="modal fade" id="modalDialogGeneral" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel"></h5>
+                <button type="button" class="close" data-dismiss="modal" onclick="restoreDialog();" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div id="generalInfo"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="restoreDialog();" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@*info*@
+<hr />
+
+<h5><strong>Definitions</strong></h5>
+
+<div class="btn-group  btn-group-sm" role="group">
+
+    <button type="button" class="btn btn-sm btn-warning"> <i alt="Pieces" class="lni lni-slice"></i> Pieces</button>
+    <button type="button" class="btn btn-sm btn-danger"><i class="lni lni-checkmark-circle"></i> Authorize</button>
+    <button type="button" class="btn btn-sm btn-success"><i class="lni lni-arrow-right-circle"></i> Send</button>
+    <button type="button" class="btn btn-sm btn-info"><i class="lni lni-list "></i> Processes</button>
+    <button type="button" class="btn btn-sm btn-dark"><i class="lni lni-flag"> Test Result</i></button>
+</div>
+
 <script>
 
     document.getElementById("dtBegin").value = '@ViewBag.dtBegin.ToString()';
@@ -326,11 +416,96 @@
     document.getElementById("numLote").value = '@ViewBag.numLote';
     document.getElementById("numBeam").value = '@ViewBag.numBeam';
     document.getElementById("numLoom").value = '@ViewBag.numLoom';
-    document.getElementById("numPiece").value = '@ViewBag.numPiece';
+    //document.getElementById("numPiece").value = '@ViewBag.numPiece';
     document.getElementById("txtStyle").value = '@ViewBag.txtStyle';
     document.getElementById("numTestCategory").value = '@ViewBag.numTestCategory';
     document.getElementById("numDefinitionProcess").value = '@ViewBag.numDefinitionProcess'
     document.getElementById("folioNumber").value = '@ViewBag.FolioNumber'
+
+    function authorizeRulo(ruloId) {
+        if (confirm('Are you sure you want to authorize this rulo?')) {
+            $.ajax({
+                url: "/Rulo/AuthorizeRulo",
+                type: "POST",
+                data:
+                {
+                    RuloId: ruloId,
+                },
+                success: function (data) {
+                    location.reload();
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+                    alert("404 Not found!");
+                }
+            });
+        }
+    }
+
+    function showFolioNumber(ruloId) {
+            $.ajax({
+                url: "/Rulo/GetFolioNumber",
+                type: "GET",
+                data:
+                {
+                    RuloId: ruloId
+                },
+                success: function (data) {
+                    document.getElementById('generalInfo').innerHTML = data;
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+                    alert("404 Not found!");
+                }
+            });
+    }
+
+    function saveFolioNumber(ruloId) {
+        var shift = $("#Shift").val();
+        var folioNumber = $("#FolioNumber").val();
+
+        $.ajax({
+            url: "/Rulo/SaveFolioNumber",
+            type: "POST",
+            data:
+            {
+                RuloId: ruloId,
+                Shift: shift,
+                FolioNumber: folioNumber,
+            },
+            success: function (data) {
+                if (data == '') {
+                    location.reload();
+                }
+                else {
+                    document.getElementById('generalInfo').innerHTML = data;
+                }
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                alert("404 Not found!");
+            }
+        });
+    }
+
+    function testResultValidateInfo(ruloId) {
+        $.ajax({
+            url: "/Rulo/TestResultValidateInfo",
+            type: "GET",
+            data:
+            {
+                RuloId: ruloId,
+            },
+            success: function (data) {
+                if (data.errorMessage != '') {
+                    alert(data.errorMessage);
+                }
+                else {
+                    testResult(ruloId);
+                }
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                alert("404 Not found!");
+            }
+        });
+    }
 
     function testResult(ruloId) {
 
@@ -348,15 +523,27 @@
         document.getElementById('objModal').innerHTML = sel;
     }
 
-    function PrintLabel(ruloId) {
+    function printLabel(ruloId) {
+        var html = '<a onclick="printLabelConfirm(\'gd1\')" class="btn btn-primary" role="button" data-backdrop="static" data-keyboard="false" href="#" data-target="#modalDialogGeneral">Printer GD1</a> | '
+        html += '<a onclick="printLabelConfirm(\'gd2\')" class="btn btn-success" role="button" data-backdrop="static" data-keyboard="false" href="#" data-target="#modalDialogGeneral">Printer GD2</a>'
+        html += "<input type=hidden id='ruloIdPrint' name='ruloIdPrint' value = " + ruloId + "></input>";
+
+        document.getElementById('modalDialogGeneral').classList.add('text-center');
+
+        document.getElementById('generalInfo').innerHTML = html;
+    }
+
+    function printLabelConfirm(floor) {
         if (confirm('Are you sure you want to print this label?')) {
+            var ruloId = $("#ruloIdPrint").val();
 
             $.ajax({
                 url: "/Rulo/Print",
                 type: "POST",
                 data:
                 {
-                    RuloId: ruloId
+                    RuloId: ruloId,
+                    Floor: floor
                 },
                 success: function (data) {
                     if (data) {
@@ -373,6 +560,12 @@
                 }
             });
         }
+
+
+    }
+
+    function restoreDialog() {
+        document.getElementById('modalDialogGeneral').classList.remove('text-center');
     }
 
     function controlForSmallerThanZero(controlID) {
@@ -422,7 +615,121 @@
         });
     }
 
+    function showPieces(ruloId) {
+        $.ajax({
+            url: "/Rulo/GetPieceIndex",
+            type: "GET",
+            data:
+            {
+                RuloId: ruloId
+            },
+            success: function (data) {
+                document.getElementById('piecesInfo').innerHTML = data;
 
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                alert("Something went wrong!");
+            }
+        });
+    }
+
+    function createOrUpdatePiece(ruloId, pieceId) {
+        $.ajax({
+            url: "/Rulo/GetCreateOrUpdatePiece",
+            type: "GET",
+            data:
+            {
+                RuloId: ruloId,
+                PieceId: pieceId
+            },
+            success: function (data) {
+                document.getElementById('piecesInfo').innerHTML = data;
+
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                alert("Something went wrong!");
+            }
+        });
+    }
+
+    function savePiece(ruloId, pieceId) {
+        var pieceNo = document.getElementById("pieceNo").value
+        var meter = document.getElementById("meter").value
+
+        $.ajax({
+            url: "/Rulo/SavePiece",
+            type: "GET",
+            data:
+            {
+                RuloId: ruloId,
+                PieceId: pieceId,
+                PieceNo: pieceNo,
+                Meter: meter
+            },
+            success: function (data) {
+                document.getElementById('piecesInfo').innerHTML = data;
+
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                alert("Something went wrong!");
+            }
+        });
+    }
+
+    function deleteConfirmedPiece(pieceId) {
+
+        $.ajax({
+            url: "/Rulo/DeleteConfirmedPiece",
+            type: "GET",
+            data:
+            {
+                PieceId: pieceId,
+            },
+            success: function (data) {
+                document.getElementById('piecesInfo').innerHTML = data;
+
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                alert("Something went wrong!");
+            }
+        });
+    }
+
+    function detailsPiece(pieceId) {
+        $.ajax({
+            url: "/Rulo/GetDetailsPiece",
+            type: "GET",
+            data:
+            {
+                PieceId: pieceId
+            },
+            success: function (data) {
+                document.getElementById('piecesInfo').innerHTML = data;
+
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                alert("Something went wrong!");
+            }
+        });
+    }
+
+    function deletePiece(pieceId) {
+        $.ajax({
+            url: "/Rulo/GetDeletePiece",
+            type: "GET",
+            data:
+            {
+                PieceId: pieceId
+            },
+            success: function (data) {
+                document.getElementById('piecesInfo').innerHTML = data;
+
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                alert("Something went wrong!");
+            }
+        });
+    }
 
     function showProcesses(RuloID) {
 
@@ -459,12 +766,35 @@
         document.getElementById("numLote").value = 0;
         document.getElementById("numBeam").value = 0;
         document.getElementById("numLoom").value = 0;
-        document.getElementById("numPiece").value = 0;
+        //document.getElementById("numPiece").value = 0;
         document.getElementById("txtStyle").value = '';
         document.getElementById("numTestCategory").value = 0;
         document.getElementById("numDefinitionProcess").value = 0;
         document.getElementById("folioNumber").value = 0;
         document.getElementById("formFilters").submit();
+    }
+
+    function setTitle(ruloId, role) {
+        if (role == 1) {
+
+            $.ajax({
+                url: "/Rulo/GetInfoTitle",
+                type: "GET",
+                data:
+                {
+                    RuloId: ruloId
+                },
+                success: function (data) {
+                    if (data) {
+                        document.getElementById('titleRulos').innerText = " (" + data.title + ")";
+                    }
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+                    alert("Something went wrong!");
+                }
+            })
+
+        }
     }
 
 </script>
