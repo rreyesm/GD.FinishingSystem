@@ -28,6 +28,7 @@ namespace GD.FinishingSystem.Bussines.Abstract
         public abstract Task<IEnumerable<String>> GetRuloStyleList();
         public abstract Task<IEnumerable<VMRulo>> GetRuloListFromFilters(VMRuloFilters ruloFilters);
         public abstract Task<IEnumerable<VMRuloReport>> GetRuloReportListFromFilters(VMRuloFilters ruloFilters);
+        public abstract Task<IEnumerable<VMRuloReport>> GetAllVMRuloReportList(string query, params object[] parameters);
 
         public abstract Task DeleteRuloProcessFromRuloProcessID(int ruloProcessID, int deleterRef);
  

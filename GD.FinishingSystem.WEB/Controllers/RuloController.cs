@@ -29,14 +29,14 @@ namespace GD.FinishingSystem.WEB.Controllers
         }
         [HttpGet]
         [Authorize(AuthenticationSchemes = SystemStatics.DefaultScheme, Roles = "RuloShow,RuloFull,AdminFull")]
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(int positionRuloId = 0)
         {
             VMRuloFilters ruloFilters = new VMRuloFilters();
             ruloFilters.dtBegin = DateTime.Today.AddMonths(-1);
             ruloFilters.dtEnd = DateTime.Today.AddDays(1).AddMilliseconds(-1);
 
             var result = await factory.Rulos.GetRuloListFromBetweenDate(ruloFilters.dtBegin, ruloFilters.dtEnd);
-            await SetViewBagsForDates(ruloFilters);
+            await SetViewBagsForDates(ruloFilters, positionRuloId);
 
             return View(result);
         }
@@ -54,7 +54,7 @@ namespace GD.FinishingSystem.WEB.Controllers
             return View(result);
         }
 
-        private async Task SetViewBagsForDates(VMRuloFilters ruloFilters)
+        private async Task SetViewBagsForDates(VMRuloFilters ruloFilters, int positionRuloId = 0)
         {
             ViewBag.dtBegin = ruloFilters.dtBegin.ToString("yyyy-MM-dd");
             ViewBag.dtEnd = ruloFilters.dtEnd.ToString("yyyy-MM-dd");
@@ -84,6 +84,8 @@ namespace GD.FinishingSystem.WEB.Controllers
             ViewBag.StyleList = styleList;
             await GetInfoTitle();
 
+            ViewBag.PositionRuloId = positionRuloId;
+
         }
 
         [HttpGet]
@@ -103,6 +105,29 @@ namespace GD.FinishingSystem.WEB.Controllers
                 View("CreateOrUpdate", newRulo);
             }
             
+            return View("CreateOrUpdate", newRulo);
+        }
+
+        [HttpGet]
+        [Authorize(AuthenticationSchemes = SystemStatics.DefaultScheme, Roles = "RuloAdd,RuloFull,AdminFull")]
+        public async Task<IActionResult> CreateFromRuloMigration(Rulo newRulo)
+        {
+            ViewBag.Error = false;
+            ViewBag.ErrorMessage = "";
+
+            await SetViewBagsForCreateOrEdit();
+
+            int ruloMigrationId1 = Convert.ToInt32(TempData["ruloMigrationId1"]);
+            TempData["ruloMigrationId2"] = ruloMigrationId1;
+
+            var currentPeriod = await factory.Periods.GetCurrentPeriod();
+            if (currentPeriod == null)
+            {
+                ViewBag.Error = true;
+                ViewBag.ErrorMessage = "Cannot create a new roll. You must open a period.";
+                View("CreateOrUpdate", newRulo);
+            }
+
             return View("CreateOrUpdate", newRulo);
         }
 
@@ -151,6 +176,19 @@ namespace GD.FinishingSystem.WEB.Controllers
                 if (rulo.SentAuthorizerID == 0) rulo.SentAuthorizerID = null;
                 rulo.PeriodID = currentPeriod.PeriodID;
                 await factory.Rulos.Add(rulo, int.Parse(User.Identity.Name));
+
+                if (TempData["ruloMigrationId2"] != null)
+                {
+                    int ruloMigrationId2 = Convert.ToInt32(TempData["ruloMigrationId2"]);
+
+                    RuloMigration ruloMigration = await factory.RuloMigrations.GetRuloMigrationFromRuloMigrationID(ruloMigrationId2);
+
+                    if (ruloMigration != null)
+                    {
+                        ruloMigration.RuloID = rulo.RuloID;
+                        await factory.RuloMigrations.Update(ruloMigration, int.Parse(User.Identity.Name));
+                    }
+                }
 
             }
             else
@@ -229,11 +267,47 @@ namespace GD.FinishingSystem.WEB.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Print(int ruloId, string floor)
+        public async Task<IActionResult> GetPieces(int ruloId)
+        {
+            string errorMessage = string.Empty;
+
+            if (!User.IsInRole("Rulo", AuthType.Update)) return Unauthorized();
+
+            var rulo = await factory.Rulos.GetRuloFromRuloID(ruloId);
+
+            if (rulo == null)
+            {
+                errorMessage = "Rulo not found";
+                return new JsonResult(new { errorMessage = errorMessage, pieces = new List<SelectListItem>()});
+            }
+
+            IEnumerable<Piece> pieceList = await factory.Pieces.GetPiecesFromRuloID(ruloId);
+            List<SelectListItem> pieces = new List<SelectListItem>();
+            if (pieceList == null || pieceList.Count() == 0)
+            {
+                pieceList = new List<Piece>() { new Piece() { PieceID = 1, PieceNo = 1 } };
+                pieces = WebUtilities.Create<Piece>(pieceList, "PieceID", "PieceNo");
+            }
+            pieces = WebUtilities.Create<Piece>(pieceList, "PieceID", "PieceNo");
+
+            return new JsonResult(new { errorMessage = errorMessage, pieces = pieces });
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Print(int ruloId, string floor, int pieceId)
         {
             if (!User.IsInRole("Rulo", AuthType.Update)) return Unauthorized();
 
             var rulo = await factory.Rulos.GetRuloFromRuloID(ruloId);
+
+            if (rulo == null)
+                return new JsonResult(new { errorMessage = "Rulo not found!" });
+
+            var piece = await factory.Pieces.GetPieceFromPieceID(pieceId);
+
+            if (piece == null)
+                return new JsonResult(new { errorMessage = "Piece not found" });
+
 
             string printer = string.Empty;
             if (floor.Equals("gd1", StringComparison.InvariantCultureIgnoreCase))
@@ -265,21 +339,35 @@ namespace GD.FinishingSystem.WEB.Controllers
 
                 string ZPLString = System.IO.File.ReadAllText(System.IO.Path.Combine(webHostEnvironment.WebRootPath, "..\\Reports\\RuloLabel.prn"));
 
-                int offset = 512; //Before: 733
+                int offset = 672; //Before: 733, 512
                 int lengthId = rulo.RuloID.ToString().Length;
                 if (lengthId > 1)
-                    offset += (lengthId - 1) * 11;
+                    offset += (lengthId - 1) * 8; //Before: 11
 
                 Dictionary<string, string> replaceVaues = new Dictionary<string, string>();
                 replaceVaues.Add("ReplaceRuloID", rulo.RuloID.ToString());
                 replaceVaues.Add("ReplaceStyle", rulo.Style);
                 replaceVaues.Add("ReplaceLote", rulo.Lote);
                 replaceVaues.Add("ReplaceBeam", rulo.Beam.ToString());
+                replaceVaues.Add("ReplaceStop", rulo.BeamStop);
                 replaceVaues.Add("ReplaceLoom", rulo.Loom.ToString());
                 replaceVaues.Add("ReplaceShift", rulo.Shift.ToString());
-                replaceVaues.Add("ReplaceMeters", rulo.ExitLength.ToString("#,##0.00"));
+
+                if (piece.PieceNo != 1)
+                    replaceVaues.Add("ReplaceMeters", piece.Meter.ToString("#,##0.00"));
+                else
+                    replaceVaues.Add("ReplaceMeters", rulo.ExitLength.ToString("#,##0.00"));
+
                 replaceVaues.Add("ReplaceDate", DateTime.Now.ToString("yyyy-MM-dd HH:mm"));
                 replaceVaues.Add("ReplaceOffset", offset.ToString());
+
+                VMOriginType origin = VMOriginType.ToList().Where(x=> x.Value == rulo.OriginID).FirstOrDefault();
+                if (origin != null)
+                    replaceVaues.Add("ReplaceOrigin", origin.Text.ToString());
+                else
+                    replaceVaues.Add("ReplaceOrigin", VMOriginType.ToList().Where(x=> x.Value == 1).FirstOrDefault().Text);
+
+                replaceVaues.Add("ReplacePiece", piece.PieceNo.ToString());
 
                 print.PrintFromZPL(ZPLString, replaceVaues);
             }
@@ -315,9 +403,9 @@ namespace GD.FinishingSystem.WEB.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> TestResultFinish(int RuloId, int TestCategoryId, string Description)
+        public async Task<IActionResult> TestResultFinish(int RuloId, int TestCategoryId, string TestCategoryText, string Description)
         {
-            if (!User.IsInRole("Rulo", AuthType.Update)) return Unauthorized();
+            if (!User.IsInRole("TestResult", AuthType.Update)) return Unauthorized();
 
             var foundRulo = await factory.Rulos.GetRuloFromRuloID(RuloId);
             if (foundRulo == null) return NotFound();
@@ -329,7 +417,9 @@ namespace GD.FinishingSystem.WEB.Controllers
             else
                 testResult = await factory.TestResults.GetTestResultFromTestResultID((int)foundRulo.TestResultID);
 
-            if (Description.Contains("√")) //OK √ or Fail √ - Before: 1, 3
+            Description = Description ?? string.Empty;
+
+            if (TestCategoryText.Contains("√")) //OK √ or Fail √ - Before: 1, 3
             {
                 testResult.Details = Description;
                 testResult.CanContinue = true;
@@ -347,7 +437,7 @@ namespace GD.FinishingSystem.WEB.Controllers
                 await factory.TestResults.Add(testResult, int.Parse(User.Identity.Name));
 
                 bool isWaitingForTestResult = false;
-                if (Description.Contains("Waiting", StringComparison.InvariantCultureIgnoreCase)) //Waiting, Before: 5
+                if (TestCategoryText.Contains("Waiting", StringComparison.InvariantCultureIgnoreCase)) //Waiting, Before: 5
                     isWaitingForTestResult = true;
 
                 var intUser = int.Parse(User.Identity.Name);
@@ -355,7 +445,7 @@ namespace GD.FinishingSystem.WEB.Controllers
             }
             else
             {
-                if (Description.Contains("Waiting", StringComparison.InvariantCultureIgnoreCase)) //Waiting, Before: 5
+                if (TestCategoryText.Contains("Waiting", StringComparison.InvariantCultureIgnoreCase)) //Waiting, Before: 5
                 {
                     foundRulo.IsWaitingAnswerFromTest = true;
                     await factory.Rulos.Update(foundRulo, int.Parse(User.Identity.Name));
@@ -401,13 +491,28 @@ namespace GD.FinishingSystem.WEB.Controllers
             ExportToExcel export = new ExportToExcel();
             string reportName = "Finishing Report";
             string fileName = $"Finishing Report_{DateTime.Today.Year}_{DateTime.Today.Month.ToString().PadLeft(2, '0')}_{DateTime.Today.Day.ToString().PadLeft(2, '0')}.xlsx";
+            
+            var exclude = new List<string>() { "TestCategoryID" };
+            var fileResult = await export.ExportWithDisplayName<VMRuloReport>("Global Denim S.A. de C.V.", "Finishing", reportName, fileName, result.ToList(), exclude);
 
-#if DEBUG
-            var fileResult = await export.ExportWithDisplayName<VMRuloReport>("Global Denim S.A. de C.V.", "Finishing", reportName, fileName, result.ToList());
-#else
-            var fileResult = await export.ExportWithDisplayName<VMRuloReport>("Global Denim S.A. de C.V.", "Finishing", reportName, fileName, result.ToList());
-#endif
+            if (!fileResult.Item1) return NotFound();
 
+            return fileResult.Item2;
+        }
+
+        [HttpPost]
+        [Authorize(AuthenticationSchemes = SystemStatics.DefaultScheme, Roles = "RuloShow,RuloFull,AdminFull")]
+        public async Task<IActionResult> ExportToExcelAllStock(VMRuloFilters ruloFilters)
+        {
+            ruloFilters.dtEnd = ruloFilters.dtEnd.AddDays(1).AddMilliseconds(-1);
+            var result = await factory.Rulos.GetAllVMRuloReportList("spGetAllStock @p0", new[] { ruloFilters.dtEnd.ToString("yyyy-MM-ddTHH:mm:ss") });
+
+            ExportToExcel export = new ExportToExcel();
+            string reportName = "Finishing Report";
+            string fileName = $"Finishing Report_{DateTime.Today.Year}_{DateTime.Today.Month.ToString().PadLeft(2, '0')}_{DateTime.Today.Day.ToString().PadLeft(2, '0')}.xlsx";
+
+            var exclude = new List<string>() { "TestCategoryID" };
+            var fileResult = await export.ExportWithDisplayName<VMRuloReport>("Global Denim S.A. de C.V.", "Finishing", reportName, fileName, result.ToList(), exclude);
 
             if (!fileResult.Item1) return NotFound();
 
@@ -678,6 +783,24 @@ namespace GD.FinishingSystem.WEB.Controllers
             await factory.Rulos.Update(foundRulo, int.Parse(User.Identity.Name));
 
             return Ok();
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetTestResultObservations(int ruloId)
+        {
+            if (!User.IsInRole("TestResult", AuthType.Show) || !User.IsInRole("Rulo", AuthType.Show)) return Unauthorized();
+
+            string details = string.Empty;
+            var rulo = await factory.Rulos.GetRuloFromRuloID(ruloId);
+
+            if (rulo != null)
+            {
+                var testResult = await factory.TestResults.GetTestResultFromTestResultID((int)rulo.TestResultID);
+
+                details = !string.IsNullOrWhiteSpace(testResult.Details) ? testResult.Details : "No observations";
+            }
+
+            return new JsonResult(new { details = details });
         }
 
     }

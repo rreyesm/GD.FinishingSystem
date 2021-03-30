@@ -1,0 +1,198 @@
+﻿@model GD.FinishingSystem.Entities.RuloMigration
+
+<div class="alert alert-info">
+    <h1 class="mt-4">
+        @if (Model.RuloMigrationID == 0)
+        {
+            @Html.Raw("Create")
+            ViewData["Title"] = "Create Rulo Raw Information";
+        }
+        else
+        {
+            @Html.Raw("Edit")
+            ViewData["Title"] = "Edit Rulo Raw Information";
+        }
+    </h1>
+
+    <h4>Rulo Raw Information</h4>
+    <hr />
+</div>
+
+
+<div class="alert alert-success">
+
+    <form asp-action="Save">
+        @Html.HiddenFor(x => x.RuloMigrationID)
+        @Html.AntiForgeryToken()
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+        <div class="row">
+            @*<div class="col-lg-3 col-md-4 col-sm-12">
+            <div class="form-group">
+                <label asp-for="RuloMigrationID" class="control-label"></label>
+                <input asp-for="RuloMigrationID" class="form-control" />
+                <span asp-validation-for="RuloMigrationID" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-4 col-sm-12">
+            <div class="form-group">
+                <label asp-for="ExcelFileRow" class="control-label"></label>
+                <input asp-for="ExcelFileRow" class="form-control" />
+                <span asp-validation-for="ExcelFileRow" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-4 col-sm-12">
+            <div class="form-group">
+                <label asp-for="ExcelFileName" class="control-label"></label>
+                <input asp-for="ExcelFileName" class="form-control" />
+                <span asp-validation-for="ExcelFileName" class="text-danger"></span>
+            </div>
+        </div>*@
+            <div class="col-lg-3 col-md-4 col-sm-12">
+                <div class="form-group">
+                    <label asp-for="Date" class="control-label"></label>
+                    <input asp-for="Date" class="form-control" />
+                    <span asp-validation-for="Date" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-4 col-sm-12">
+                <div class="form-group">
+                    <label asp-for="Style" class="control-label"></label>
+                    <input asp-for="Style" class="form-control" />
+                    <span asp-validation-for="Style" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-4 col-sm-12">
+                <div class="form-group">
+                    <label asp-for="StyleName" class="control-label"></label>
+                    <input asp-for="StyleName" class="form-control" />
+                    <span asp-validation-for="StyleName" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-4 col-sm-12">
+                <div class="form-group">
+                    <label asp-for="NextMachine" class="control-label"></label>
+                    <input asp-for="NextMachine" class="form-control" />
+                    <span asp-validation-for="NextMachine" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-4 col-sm-12">
+                <div class="form-group">
+                    <label asp-for="Lote" class="control-label"></label>
+                    <input asp-for="Lote" class="form-control" />
+                    <span asp-validation-for="Lote" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-4 col-sm-12">
+                <div class="form-group">
+                    <label asp-for="LoteLetter" class="control-label"></label>
+                    <input asp-for="LoteLetter" class="form-control" />
+                    <span asp-validation-for="LoteLetter" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-4 col-sm-12">
+                <div class="form-group">
+                    <label asp-for="Beam" class="control-label"></label>
+                    <input asp-for="Beam" class="form-control" />
+                    <span asp-validation-for="Beam" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-4 col-sm-12">
+                <div class="form-group">
+                    <label asp-for="BeamStop" class="control-label"></label>
+                    <input asp-for="BeamStop" class="form-control" />
+                    <span asp-validation-for="BeamStop" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-4 col-sm-12">
+                <div class="form-group">
+                    <label asp-for="Loom" class="control-label"></label>
+                    <input asp-for="Loom" class="form-control" />
+                    <span asp-validation-for="Loom" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-4 col-sm-12">
+                <div class="form-group">
+                    <label asp-for="PieceNo" class="control-label"></label>
+                    <input asp-for="PieceNo" class="form-control" />
+                    <span asp-validation-for="PieceNo" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-4 col-sm-12">
+                <div class="form-group">
+                    <label asp-for="PieceBetilla" class="control-label"></label>
+                    <input asp-for="PieceBetilla" class="form-control" />
+                    <span asp-validation-for="PieceBetilla" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-4 col-sm-12">
+                <div class="form-group">
+                    <label asp-for="Meters" class="control-label"></label>
+                    <input asp-for="Meters" class="form-control" />
+                    <span asp-validation-for="Meters" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-4 col-sm-12">
+                <div class="form-group">
+                    <label asp-for="GummedMeters" class="control-label"></label>
+                    <input asp-for="GummedMeters" class="form-control" />
+                    <span asp-validation-for="GummedMeters" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-4 col-sm-12">
+                <div class="form-group">
+                    <label asp-for="MigrationCategoryID" class="control-label"></label>
+                    <select asp-for="MigrationCategoryID" asp-items="@ViewBag.MigrationCategoryList" class="form-control"></select>
+                    <span asp-validation-for="MigrationCategoryID" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-4 col-sm-12">
+                <div class="form-group">
+                    <label asp-for="Shift" class="control-label"></label>
+                    <input asp-for="Shift" class="form-control" />
+                    <span asp-validation-for="Shift" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-4 col-sm-12">
+                <div class="form-group">
+                    <label asp-for="Observations" class="control-label"></label>
+                    <textarea asp-for="Observations" rows="3" class="form-control"></textarea>
+                    <span asp-validation-for="Observations" class="text-danger"></span>
+                </div>
+            </div>
+
+
+            <div class="col-12">
+                @if ((bool)ViewBag.Error)
+                {
+                    <hr />
+                    <div class="alert alert-danger">
+                        @Html.Raw(ViewBag.ErrorMessage)
+                    </div>
+                }
+
+                <div class="form-group">
+                    @if (Model.RuloMigrationID == 0)
+                    {
+                        <button type="submit" class="btn btn-primary"><i class="lni lni-circle-plus"></i> Create</button>
+                    }
+                    else
+                    {
+                        <button type="submit" class="btn btn-success"><i class="lni lni-save"></i> Save Changes</button>
+                    }
+
+                </div>
+            </div>
+
+
+        </div>
+    </form>
+
+</div>
+
+<div>
+    <a asp-action="Index" class="btn btn-sm btn-secondary"><i class="lni lni-chevron-left-circle"></i> Back to List</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

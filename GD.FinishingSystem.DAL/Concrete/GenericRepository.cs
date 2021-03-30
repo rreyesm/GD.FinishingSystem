@@ -54,6 +54,27 @@ namespace GD.FinishingSystem.DAL.Concrete
             await SaveChanges();
         }
 
+        async Task IAsyncRepository<T>.AddRange(IEnumerable<T> entities, int userRef)
+        {
+            if (userRef != 0)
+            {
+                DateTime lastUpdate = DateTime.Now;
+                foreach (var entity in entities)
+                {
+                    if (entity is BaseEntity b)
+                    {
+                        b.CreatorID = b.LastUpdaterID = userRef;
+                        b.CreatedDate = b.LastUpdateDate = lastUpdate;
+                        b.IsDeleted = false;
+                    }
+                }
+
+            }
+
+            await table.AddRangeAsync(entities);
+            await SaveChanges();
+        }
+
         public async Task Update(T entity, int userRef)
         {
             if (userRef != 0)
@@ -143,5 +164,11 @@ namespace GD.FinishingSystem.DAL.Concrete
             var res = await table.AsNoTracking().CountAsync(predicate);
             return res;
         }
+
+        public async Task<IEnumerable<T>> GetWithRawSql(string query, params object[] parameters)
+        {
+            return await table.FromSqlRaw(query, parameters).ToListAsync();
+        }
+
     }
 }

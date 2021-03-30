@@ -7,7 +7,6 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace GD.FinishingSystem.Bussines.Concrete
@@ -21,6 +20,7 @@ namespace GD.FinishingSystem.Bussines.Concrete
         private IAsyncRepository<TestCategory> testCategoryRepository = null;
         private IAsyncRepository<User> userRepository = null;
         private IAsyncRepository<Sample> sampleRepository = null;
+        private IAsyncRepository<VMRuloReport> ruloReportRepository = null;
 
         public RuloManager(DbContext context)
         {
@@ -31,6 +31,7 @@ namespace GD.FinishingSystem.Bussines.Concrete
             this.testCategoryRepository = new GenericRepository<TestCategory>(context);
             this.userRepository = new GenericRepository<User>(context);
             this.sampleRepository = new GenericRepository<Sample>(context);
+            this.ruloReportRepository = new GenericRepository<VMRuloReport>(context);
         }
 
         public override async Task Add(Rulo RuloInformation, int adderRef)
@@ -107,7 +108,7 @@ namespace GD.FinishingSystem.Bussines.Concrete
                 TestCategoryID = testCategory?.TestCategoryID ?? 0,
                 TestCategoryCode = testCategory?.TestCode ?? string.Empty,
                 OriginID = sOriginType,
-                TestResultAuthorizer = testResultAuthorizerUser?.UserName ?? string.Empty
+                TestResultAuthorizer = testResultAuthorizerUser?.UserName ?? string.Empty,
             };
 
             return vwRulo;
@@ -118,12 +119,6 @@ namespace GD.FinishingSystem.Bussines.Concrete
             var rulos = await repository.GetWhere(o => !o.IsDeleted);
             var testResults = await testResultRepository.GetWhere(x => !x.IsDeleted);
             var testCategories = await testCategoryRepository.GetWhere(x => x.TestCategoryID != 0);
-
-            //var originList = Enum.GetValues(typeof(OriginType)).Cast<IFormattable>().Select(x => new
-            //                {
-            //                    Text = x.ToString().SplitCamelCase(),
-            //                    Value = int.Parse(x.ToString("d", null)),
-            //                }).ToList();
 
             var originList = VMOriginType.ToList();
 
@@ -184,12 +179,6 @@ namespace GD.FinishingSystem.Bussines.Concrete
             var rulos = await repository.GetWhere(o => !o.IsDeleted && ((o.CreatedDate <= end && o.CreatedDate >= begin) || (o.CreatedDate <= begin && o.CreatedDate >= end)));
             var testResults = await testResultRepository.GetWhere(x => !x.IsDeleted);
             var testCategories = await testCategoryRepository.GetWhere(x => x.TestCategoryID != 0);
-
-            //var originList = Enum.GetValues(typeof(OriginType)).Cast<IFormattable>().Select(x => new
-            //    {
-            //        Text = x.ToString().SplitCamelCase(),
-            //        Value = int.Parse(x.ToString("d", null)),
-            //    }).ToList();
 
             var originList = VMOriginType.ToList();
 
@@ -447,7 +436,7 @@ namespace GD.FinishingSystem.Bussines.Concrete
                                     dp.ProcessCode,
                                     dp.Name
                                 }).ToList();
-                               
+
 
             var result = (from r in rulos
                           join rp in resulRPAndDP.ToList() on r.RuloID equals rp.RuloID
@@ -463,6 +452,9 @@ namespace GD.FinishingSystem.Bussines.Concrete
                           join uResultAutho in userList on r.TestResultAuthorizer equals uResultAutho.UserID
                           into ljuResultAutho
                           from subuResultAutho in ljuResultAutho.DefaultIfEmpty()
+                          join uCreator in userList on r.CreatorID equals uCreator.UserID
+                          into ljuCreator
+                          from subuCreator in ljuCreator.DefaultIfEmpty()
                           join o in originList on r.OriginID equals o.Value
                           into ljO
                           from subO in ljO.DefaultIfEmpty()
@@ -473,7 +465,7 @@ namespace GD.FinishingSystem.Bussines.Concrete
                               Beam = r.Beam,
                               BeamStop = r.BeamStop,
                               Loom = r.Loom,
-                              IsToyota = r.IsToyota ? "Yes": "No",
+                              IsToyota = r.IsToyota ? "Yes" : "No",
                               PieceCount = r.PieceCount,
                               Style = r.Style,
                               StyleName = r.StyleName,
@@ -482,16 +474,19 @@ namespace GD.FinishingSystem.Bussines.Concrete
                               ExitLength = r.ExitLength,
                               Shift = r.Shift,
                               FolioNumber = r.FolioNumber,
-                              Observations = r.Observations,
+                              RuloObservations = r.Observations,
                               SentDate = r.SentDate,
-                              SenderID = r.Sender.ToString(),
+                              SenderID = r.Sender?.ToString(),
                               SentAuthorizerID = r.SentAuthorizer?.ToString(),
                               IsWaitingAnswerFromTest = r.IsWaitingAnswerFromTest ? "Yes" : "No",
                               CanContinue = subTR?.CanContinue == null ? string.Empty : subTR?.CanContinue != null ? "Yes" : "No",
+                              TestResultObservations = subTR?.Details,
                               TestCategoryID = subTC?.TestCategoryID ?? 0,
                               TestCategoryCode = subTC?.TestCode ?? string.Empty,
                               OriginID = subO?.Text,
                               TestResultAuthorizer = subuResultAutho?.UserName ?? string.Empty,
+                              CreatorID = subuCreator?.UserName ?? string.Empty,
+                              CreatedDate = r.CreatedDate,
                               LastRuloProcess = subRP?.Name
                           }).ToList();
 
@@ -524,6 +519,14 @@ namespace GD.FinishingSystem.Bussines.Concrete
         public async override Task<Rulo> GetRuloFromFolio(int folioNumber)
         {
             return await repository.FirstOrDefault(x=> !x.IsDeleted && x.FolioNumber == folioNumber);
+        }
+
+        public async override Task<IEnumerable<VMRuloReport>> GetAllVMRuloReportList(string query, params object[] parameters)
+        {
+
+            var ruloReportList = await ruloReportRepository.GetWithRawSql(query, parameters);
+
+            return ruloReportList;
         }
     }
 }

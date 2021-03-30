@@ -1,0 +1,312 @@
+﻿@model IEnumerable<GD.FinishingSystem.Entities.RuloMigration>
+
+@{ 
+    var positionRuloMigrationId = ViewBag.PositionRuloMigrationId;
+}
+
+<h1 class="mt-4">Rulos Raw</h1>
+
+@if (User.IsInRole("RuloMigration", AuthType.Add))
+{
+    <p>
+        <a asp-action="Create" class="btn btn-sm btn-outline-light border-dark btn-dark">
+            <i class="lni lni-circle-plus"></i> Create New
+        </a>
+    </p>
+}
+
+<form asp-action="Index" method="post" id="formFilters">
+
+    <div class="row d-flex justify-content-center">
+        <div class="col-md-2">
+            <div class="form-group">
+                <label for="dtBegin">Begin</label><br>
+                <input type="date" style="width:100% !important;" id="dtBegin" name="dtBegin">
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="form-group">
+                <label for="dtEnd">End</label><br>
+                <input type="date" style="width:100% !important;" id="dtEnd" name="dtEnd">
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-12 col-md-12 col-lg-12" style="text-align:right">
+            <button type="submit" class="btn btn-sm btn-outline-info"><i class="lni lni-search"></i> Filter</button>
+        </div>
+    </div>
+
+</form>
+
+<div class="col-12">
+    @if ((bool)ViewBag.Error)
+    {
+        <hr />
+        <div class="alert alert-danger">
+            @Html.Raw(ViewBag.ErrorMessage)
+        </div>
+
+    }
+    @if ((bool)ViewBag.Ok)
+    {
+        <div class="alert alert-success">
+            @Html.Raw(ViewBag.OkMessage)
+        </div>
+
+    }
+
+</div>
+
+@if (User.IsInRole("RuloMigration", AuthType.Add))
+{
+    @*<a onclick="uploadFromExcel();" class="btn btn-sm btn-success"><i class="lni lni-cloud-upload"></i> Upload from Excel</a>*@
+
+    <form asp-controller="RuloMigration" asp-action="UploadFile" method="post"
+          enctype="multipart/form-data">
+        @Html.AntiForgeryToken()
+        <div class="container">
+            <div class="row d-flex justify-content-center">
+                <div class="col-sm-8">
+                    @*col-sm-offset-2*@
+                    @*<br><br>*@
+                    <div class="form-group">
+                        <div class="input-group">
+                            <input type="text" class="form-control" readonly>
+                            <div class="input-group-btn">
+                                <span class="fileUpload btn btn-info">
+                                    <span class="upl" id="upload">Select Excel File</span>
+                                    <input type="file" accept=".xls, .xlsx" class="upload up" id="up" name="formFile" onchange="readURL(this);" />
+                                </span><!-- btn-orange -->
+                            </div><!-- btn -->
+                            @Html.Raw(" ")
+                            <button type="submit" class="btn btn-sm btn-success"><i class="lni lni-cloud-upload"></i> Upload from Excel</button>
+
+                        </div><!-- group -->
+                    </div><!-- form-group -->
+                </div>
+            </div>
+        </div>
+
+    </form>
+}
+
+
+<table class="table table-sm table-hover table-responsive-lg">
+    @*table-responsive-lg display nowrap*@
+    <thead>
+        <tr>
+            <th colspan="19">
+                <div>
+                    Rulo Raw List
+                </div>
+            </th>
+        </tr>
+        <tr>
+            <th>
+                <i class="lni lni-line-dashed"></i>
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Date)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Style)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.StyleName)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.NextMachine)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Lote)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.LoteLetter)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Beam)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.BeamStop)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Loom)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.PieceNo)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.PieceBetilla)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Meters)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.GummedMeters)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.MigrationCategoryID)
+            </th>
+            <th></th>
+            <th>
+                @Html.DisplayNameFor(model => model.Shift)
+            </th>
+            <th></th>
+            <th>
+                @Html.DisplayNameFor(model => model.Observations)
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            var color = "bgcolor=transparent";
+            if (item.RuloID != null && item.RuloID != 0)
+                color = "bgcolor=66ff66";
+
+            <tr @color id="@("row"+@item.RuloMigrationID)">
+                <td>
+                    @Html.DisplayFor(modelItem => item.RuloMigrationID)
+                </td>
+                <td>
+                    <div style="display:block;width:95px;">
+                        @Html.Raw(item.Date.ToString("yyyy-MM-dd"))
+                    </div>
+                </td>
+                <td>
+                    <div style="display:block;width:95px;">
+                        @Html.DisplayFor(modelItem => item.Style)
+                    </div>
+                </td>
+                <td>
+                    <div style="display:block;width:260px;">
+                        @Html.DisplayFor(modelItem => item.StyleName)
+                    </div>
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.NextMachine)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Lote)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.LoteLetter)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Beam)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.BeamStop)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Loom)
+                </td>
+                <td>
+                    <div style="display:block;width:75px;">
+                        @Html.DisplayFor(modelItem => item.PieceNo)
+                    </div>
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.PieceBetilla)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Meters)
+                </td>
+                <td>
+                    <div style="display:block;width:135px;">
+                        @Html.DisplayFor(modelItem => item.GummedMeters)
+                    </div>
+                </td>
+                <td>
+                    @Html.Raw(item.MigrationCategory?.Name)
+                </td>
+                <td>
+                    <div style="display:block;width:90px">
+                        @if (User.IsInRole("Rulo", AuthType.Add))
+                        {
+                            if (item.RuloID == null || item.RuloID == 0)
+                            {
+                                <a asp-action="CreateRulo" asp-route-rulomigrationid="@item.RuloMigrationID" class="btn input-xs btn-dark">
+                                    <i class="lni lni-circle-plus"></i> Create Rulo
+                                </a>
+                            }
+                        }
+                    </div>
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Shift)
+                </td>
+
+                <td>
+                    <div style="display:block;width:75px;">
+                        @if (User.IsInRole("RuloMigration", AuthType.Update))
+                        {
+                            <a asp-action="Edit" asp-route-rulomigrationid="@item.RuloMigrationID">
+                                <i class="lni lni-slice"></i>
+                            </a>
+                        }
+                        @if (User.IsInRole("RuloMigration", AuthType.Show))
+                        {
+                            if (User.IsInRole("RuloMigration", AuthType.Update))
+                                @Html.Raw(" | ")
+
+                                <a asp-action="Details" asp-route-rulomigrationid="@item.RuloMigrationID">
+                                    <i class="lni lni-question-circle"></i>
+                                </a>
+                            }
+                        @if (User.IsInRole("RuloMigration", AuthType.Delete))
+                        {
+                            if (User.IsInRole("RuloMigration", AuthType.Show))
+                                @Html.Raw(" | ")
+
+                                <a asp-action="Delete" asp-route-rulomigrationid="@item.RuloMigrationID">
+                                    <i class="lni lni-circle-minus"></i>
+                                </a>
+                            }
+                    </div>
+                </td>
+                <td>
+                    <div style="display:block;width:260px;">
+                        @Html.DisplayFor(modelItem => item.Observations)
+                    </div>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@section scripts{
+    <script>
+            $(document).on('change', '.up', function () {
+                var names = [];
+                var length = $(this).get(0).files.length;
+                for (var i = 0; i < $(this).get(0).files.length; ++i) {
+                    names.push($(this).get(0).files[i].name);
+                }
+                // $("input[name=file]").val(names);
+                if (length > 2) {
+                    var fileName = names.join(', ');
+                    $(this).closest('.form-group').find('.form-control').attr("value", length + " files selected");
+                }
+                else {
+                    $(this).closest('.form-group').find('.form-control').attr("value", names);
+                }
+            });
+
+            $(document).ready(function () {
+
+                var position = '@positionRuloMigrationId';
+                if (!isNaN(position) && position > 0) {
+                var element = document.getElementById("row" + position);
+                element.scrollIntoView({ block: "end", behavior: "smooth" });
+                }
+
+            });
+    </script>
+}
+
+<script>
+    document.getElementById("dtBegin").value = '@ViewBag.dtBegin.ToString()';
+    document.getElementById("dtEnd").value = '@ViewBag.dtEnd.ToString()';
+</script>

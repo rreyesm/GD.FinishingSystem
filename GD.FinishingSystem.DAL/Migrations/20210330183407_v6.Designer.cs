@@ -4,14 +4,16 @@ using GD.FinishingSystem.DAL.Concrete.EntityFramework;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace GD.FinishingSystem.DAL.Migrations
 {
     [DbContext(typeof(FinishingSystemContext))]
-    partial class FinishingSystemContextModelSnapshot : ModelSnapshot
+    [Migration("20210330183407_v6")]
+    partial class v6
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -663,51 +665,6 @@ namespace GD.FinishingSystem.DAL.Migrations
                     b.ToTable("tblShifts");
                 });
 
-            modelBuilder.Entity("GD.FinishingSystem.Entities.SystemPrinter", b =>
-                {
-                    b.Property<int>("SystemPrinterID")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("CreatorID")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime?>("DeletedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int?>("DeleterID")
-                        .HasColumnType("int");
-
-                    b.Property<int>("FloorID")
-                        .HasColumnType("int");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
-
-                    b.Property<DateTime>("LastUpdateDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("LastUpdaterID")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Location")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("SystemPrinterID");
-
-                    b.HasIndex("FloorID");
-
-                    b.ToTable("tblSystemPrinters");
-                });
-
             modelBuilder.Entity("GD.FinishingSystem.Entities.TestCategory", b =>
                 {
                     b.Property<int>("TestCategoryID")
@@ -1079,17 +1036,6 @@ namespace GD.FinishingSystem.DAL.Migrations
                     b.Navigation("CutterUser");
 
                     b.Navigation("RuloProcess");
-                });
-
-            modelBuilder.Entity("GD.FinishingSystem.Entities.SystemPrinter", b =>
-                {
-                    b.HasOne("GD.FinishingSystem.Entities.Floor", "Floor")
-                        .WithMany()
-                        .HasForeignKey("FloorID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Floor");
                 });
 
             modelBuilder.Entity("GD.FinishingSystem.Entities.TestResult", b =>

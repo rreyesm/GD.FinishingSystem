@@ -11,6 +11,7 @@ namespace GD.FinishingSystem.DAL.Abstract
         Task<T> GetByPrimaryKey(object id);
         Task<T> FirstOrDefault(Expression<Func<T, bool>> predicate);
         Task Add(T entity, int userRef);
+        Task AddRange(IEnumerable<T> entities, int userRef);
         Task Update(T entity, int userRef);
         Task Remove(int entityID, int userRef);
         Task HardRemove(int entityID);
@@ -21,5 +22,6 @@ namespace GD.FinishingSystem.DAL.Abstract
         Task<IEnumerable<T>> GetWhereWithNoTrack(Expression<Func<T, bool>> predicate);
         Task<int> CountAll();
         Task<int> CountWhere(Expression<Func<T, bool>> predicate);
+        Task<IEnumerable<T>> GetWithRawSql(string query, params object[] parameters);
     }
 }

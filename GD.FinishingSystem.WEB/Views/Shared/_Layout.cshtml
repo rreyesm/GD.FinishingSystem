@@ -11,7 +11,9 @@
     <link href="~/css/styles.css" rel="stylesheet" />
     <script src="~/lib/font-awesome/all.min.js" crossorigin="anonymous"></script>
     <link href="~/css/LineIcons.css" rel="stylesheet" />
-    
+
+    <link href="~/css/styleUpload.css" rel="stylesheet" />
+
     <style>
         .input-xs {
             height: 22px;
@@ -77,6 +79,15 @@
                                     <i class="lni lni-sm lni-layers"></i>
                                 </div>
                                 Rulo
+                            </a>
+                        }
+                        @if (User.IsInRole("RuloMigration", AuthType.Show))
+                        {
+                            <a class="nav-link" asp-controller="RuloMigration" asp-action="Index">
+                                <div class="sb-nav-link-icon">
+                                    <i class="lni lni-cloud-upload"></i>
+                                </div>
+                                Rulo Raw
                             </a>
                         }
 

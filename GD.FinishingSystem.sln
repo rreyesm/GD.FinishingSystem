@@ -9,7 +9,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GD.FinishingSystem.DAL", "G
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GD.FinishingSystem.Bussines", "GD.FinishingSystem.Bussines\GD.FinishingSystem.Bussines.csproj", "{D4D0B5F6-0D5F-4E61-B104-92E72D23DE7C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GD.FinishingSystem.WEB", "GD.FinishingSystem.WEB\GD.FinishingSystem.WEB.csproj", "{E71D1BED-E981-4FA1-8799-F620881A2091}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GD.FinishingSystem.WEB", "GD.FinishingSystem.WEB\GD.FinishingSystem.WEB.csproj", "{E71D1BED-E981-4FA1-8799-F620881A2091}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

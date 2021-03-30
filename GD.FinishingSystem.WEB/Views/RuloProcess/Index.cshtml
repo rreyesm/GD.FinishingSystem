@@ -123,9 +123,9 @@
                         }
 
 
-                        @if (User.IsInRole("RuloProcessDel") || User.IsInRole("RuloProcessFull") || User.IsInRole("AdminFull"))
+                        @if (User.IsInRole("RuloProcessShow") || User.IsInRole("RuloProcessFull") || User.IsInRole("AdminFull"))
                         {
-                            if (User.IsInRole("RuloProcessUp", AuthType.Show))
+                            if (User.IsInRole("RuloProcess", AuthType.Show))
                                 @Html.Raw(" | ")
 
                                 <a asp-action="Details" asp-route-ruloprocessid="@item.RuloProcessID">
@@ -134,7 +134,7 @@
                             }
                         @if (User.IsInRole("RuloProcessDel") || User.IsInRole("RuloProcessFull") || User.IsInRole("AdminFull"))
                         {
-                            if (User.IsInRole("RuloProcessUp", AuthType.Show) || User.IsInRole("RuloProcess", AuthType.Update))
+                            if (User.IsInRole("RuloProcess", AuthType.Show) || User.IsInRole("RuloProcess", AuthType.Update))
                                 @Html.Raw(" | ")
 
                                 <a asp-action="Delete" asp-route-ruloprocessid="@item.RuloProcessID">
@@ -143,7 +143,7 @@
                             }
                         @if (User.IsInRole("RuloProcessShow") || User.IsInRole("RuloProcessFull") || User.IsInRole("AdminFull"))
                         {
-                            if (User.IsInRole("RuloProcessUp", AuthType.Show) || User.IsInRole("RuloProcess", AuthType.Update) || User.IsInRole("RuloProcess", AuthType.Delete))
+                            if (User.IsInRole("RuloProcess", AuthType.Show) || User.IsInRole("RuloProcess", AuthType.Update) || User.IsInRole("RuloProcess", AuthType.Delete))
                                 @Html.Raw(" | ")
 
                                 <a alt="Rulos" onclick="showRulo(@item.RuloID);" href="#" data-toggle="modal" data-target="#modalDialogRulos">
@@ -154,7 +154,7 @@
                         {
                             if (User.IsInRole("Sample", AuthType.Show))
                             {
-                                if (User.IsInRole("RuloProcessUp", AuthType.Show) || User.IsInRole("RuloProcess", AuthType.Update) || User.IsInRole("RuloProcess", AuthType.Delete))
+                                if (User.IsInRole("RuloProcess", AuthType.Show) || User.IsInRole("RuloProcess", AuthType.Update) || User.IsInRole("RuloProcess", AuthType.Delete))
                                     @Html.Raw(" | ")
 
                                     <a alt="Rulos" onclick="showSample(@item.RuloProcessID);" href="#" data-toggle="modal" data-target="#modalDialogSamples">

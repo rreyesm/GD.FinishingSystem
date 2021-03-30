@@ -43,7 +43,9 @@ namespace GD.FinishingSystem.Bussines
             Periods = new PeriodManager(context);
             Pieces = new PieceManager(context);
             Rulos = new RuloManager(context);
+            RuloMigrations = new RuloMigrationsManager(context);
             Samples = new SampleManager(context);
+            SystemPrinters = new SystemPrinterManager(context);
             TestCategories = new TestCategoryManager(context);
             TestResults = new TestResultManager(context);
             Users = new UserManager(context);
@@ -56,7 +58,9 @@ namespace GD.FinishingSystem.Bussines
         public AbstractPeriodService Periods { get; set; }
         public AbstractPieceService Pieces { get; set; }
         public AbstractRuloService Rulos { get; set; }
+        public AbstractRuloMigrationService RuloMigrations { get; set; }
         public AbstractSampleService Samples { get; set; }
+        public AbstractSystemPrinterService SystemPrinters { get; set; }
         public AbstractTestCategoryService TestCategories { get; set; }
         public AbstractTestResultService TestResults { get; set; }
         public AbstractUserService Users { get; set; }

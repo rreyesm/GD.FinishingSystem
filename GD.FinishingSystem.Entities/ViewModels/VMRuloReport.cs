@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 
 namespace GD.FinishingSystem.Entities.ViewModels
 {
+    [Table("tblRuloReports")]
     public class VMRuloReport
     {
         public int RuloID { get; set; }
@@ -38,9 +39,12 @@ namespace GD.FinishingSystem.Entities.ViewModels
         public string TestCategoryCode { get; set; }
         [Display(Name = "Origin")]
         public string OriginID { get; set; }
-        public string Observations { get; set; }
+        [Display(Name = "Rulo Observations")]
+        public string RuloObservations { get; set; }
         [Display(Name = "Test Result Authorizer")]
         public string TestResultAuthorizer { get; set; }
+        [Display(Name = "Test Result Observations")]
+        public string TestResultObservations { get; set; }
         [Display(Name = "Folio Number")]
         public int FolioNumber { get; set; }
         [Display(Name = "Sent Date")]
@@ -49,6 +53,10 @@ namespace GD.FinishingSystem.Entities.ViewModels
         public string SenderID { get; set; }
         [Display(Name = "Sent Authorizer")]
         public string SentAuthorizerID { get; set; }
+        [Display(Name = "Creator")]
+        public string CreatorID { get; set; }
+        [Display(Name = "Created Date")]
+        public DateTime CreatedDate { get; set; }
         [Display(Name = "Last Rulo Process")]
         public string LastRuloProcess { get; set; }
     }

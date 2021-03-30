@@ -6,6 +6,7 @@
 
     var styleList = ViewBag.StyleList;
     var role = User.IsInRole("RuloFull") || User.IsInRole("AdminFull") == true ? 1 : 0;
+    var positionRuloId = ViewBag.PositionRuloId;
 
 }
 
@@ -113,10 +114,14 @@
 <table id="tableRulos" class="table table-sm table-hover table-responsive-lg">
     <thead>
         <tr>
-            <th colspan="9">
+            <th colspan="10">
                 <div>
                     Rulo List
                     <a onclick="exportToExcel();" class="btn btn-sm btn-success"><i class="lni lni-printer"></i> Export to Excel</a>
+                    @if (User.IsInRole("Authorize", AuthType.Full))
+                    {
+                        <a onclick="exportToExcelAllStock();" class="btn btn-sm btn-danger"><i class="lni lni-printer"></i> Export All Stock</a>
+                    }
                 </div>
             </th>
         </tr>
@@ -140,6 +145,7 @@
             <th>
                 @Html.DisplayNameFor(model => model.ExitLength)
             </th>
+            <th></th>
             <th>
                 Test Result
             </th>
@@ -159,7 +165,7 @@
             else if (item.TestCategoryCode.Contains(" X", StringComparison.InvariantCultureIgnoreCase)) //Ok X or Fail X
                 color = "bgcolor=ff6666";
 
-            <tr @color>
+            <tr @color id="@("row"+@item.RuloID)">
                 <td>
                     @Html.DisplayFor(modelItem => item.RuloID)
                 </td>
@@ -188,6 +194,14 @@
                 </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.ExitLength)
+                </td>
+                <td>
+                    @if (!string.IsNullOrEmpty(item.TestCategoryCode))
+                    {
+                        <a alt="Test Result" onclick="showTestResultObservations(@item.RuloID);" href="#" data-toggle="modal" data-target="#modalDialogGeneral">
+                            <i class="lni lni-eye"></i>
+                        </a>
+                    }
                 </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.TestCategoryCode)
@@ -224,12 +238,12 @@
                         }
 
                         @*@if (User.IsInRole("Authorize", AuthType.Show))
-                        {
-                            if (item.SentAuthorizerID == null && item.FolioNumber == 0)
                             {
-                                @Html.Raw(" | ")
-                            }
-                        }*@
+                                if (item.SentAuthorizerID == null && item.FolioNumber == 0)
+                                {
+                                    @Html.Raw(" | ")
+                                }
+                            }*@
 
                         @if (User.IsInRole("Piece", AuthType.Show))
                         {
@@ -408,8 +422,21 @@
     <button type="button" class="btn btn-sm btn-dark"><i class="lni lni-flag"> Test Result</i></button>
 </div>
 
-<script>
+@section scripts{
+    <script>
+        $(document).ready(function () {
 
+        var position = '@positionRuloId';
+        if (!isNaN(position) && position > 0) {
+        var element = document.getElementById("row" + position);
+        element.scrollIntoView({ block: "end", behavior: "smooth" });
+        }
+
+        });
+    </script>
+}
+
+<script>
     document.getElementById("dtBegin").value = '@ViewBag.dtBegin.ToString()';
     document.getElementById("dtEnd").value = '@ViewBag.dtEnd.ToString()';
 
@@ -507,6 +534,26 @@
         });
     }
 
+    function showTestResultObservations(ruloId) {
+        $.ajax({
+            url: "/Rulo/GetTestResultObservations",
+            type: "GET",
+            data:
+            {
+                RuloId: ruloId,
+            },
+            success: function (data) {
+                html = "<label for='ddlTestResultsDescription'>Observations:</label>"
+                html += "<textarea id='ddlTestResultsDescription' name='ddlTestResultsDescription' rows='4' cols='50' disabled>" + data.details + "</textarea>"
+
+                document.getElementById('generalInfo').innerHTML = html;
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                alert("404 Not found!");
+            }
+        });
+    }
+
     function testResult(ruloId) {
 
         var testCategory = @Html.Raw(ViewBag.ModalTestResultList);
@@ -518,22 +565,65 @@
         })
 
         sel += "</select>";
+
+        sel += "<br/><label for='ddlTestResultsDescription'>Observations:</label>"
+        sel += "<textarea id='ddlTestResultsDescription' name='ddlTestResultsDescription' rows='4' cols='50'></textarea>"
+
         sel += "<input type=hidden id='ruloId' name='ruloId' value = " + ruloId + "></input>";
 
         document.getElementById('objModal').innerHTML = sel;
     }
 
     function printLabel(ruloId) {
-        var html = '<a onclick="printLabelConfirm(\'gd1\')" class="btn btn-primary" role="button" data-backdrop="static" data-keyboard="false" href="#" data-target="#modalDialogGeneral">Printer GD1</a> | '
-        html += '<a onclick="printLabelConfirm(\'gd2\')" class="btn btn-success" role="button" data-backdrop="static" data-keyboard="false" href="#" data-target="#modalDialogGeneral">Printer GD2</a>'
-        html += "<input type=hidden id='ruloIdPrint' name='ruloIdPrint' value = " + ruloId + "></input>";
+        var html
 
-        document.getElementById('modalDialogGeneral').classList.add('text-center');
+        $.ajax({
+            url: "/Rulo/GetPieces",
+            type: "POST",
+            data:
+            {
+                RuloId: ruloId,
+            },
+            success: function (data) {
+                if (data) {
+                    if (!data.errorMessage) {
+                        html = "Select piece number to print on the label: <Select id='ddlPieces'>";
+                        $.each(data.pieces, function (index, value) {
+                            html += "<option value='" + value.value + "'>" + value.text + "</option>";
+                            console.log('The value at arr[' + value.Value + '] is: ' + value.Text);
+                        })
+                        html += "</select>";
 
-        document.getElementById('generalInfo').innerHTML = html;
+                        html += '<br/><br/><a onclick="printLabelConfirm(\'gd1\')" class="btn btn-primary" role="button" data-backdrop="static" data-keyboard="false" href="#" data-target="#modalDialogGeneral">Printer GD1</a> | '
+                        html += '<a onclick="printLabelConfirm(\'gd2\')" class="btn btn-success" role="button" data-backdrop="static" data-keyboard="false" href="#" data-target="#modalDialogGeneral">Printer GD2</a>'
+                        html += "<input type=hidden id='ruloIdPrint' name='ruloIdPrint' value = " + ruloId + "></input>";
+
+                        document.getElementById('modalDialogGeneral').classList.add('text-center');
+
+                        document.getElementById('generalInfo').innerHTML = html;
+                    }
+
+                    else {
+                        alert(data.errorMessage);
+                    }
+
+                    //alert("Listo!");
+                }
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                alert("404 Not found!");
+            }
+        });
+
+
     }
 
     function printLabelConfirm(floor) {
+        var pieceId = $("#ddlPieces :selected").val();
+        if (isNaN(pieceId) || pieceId <= 0) {
+            return alert("Piece number no valid!");
+        }
+
         if (confirm('Are you sure you want to print this label?')) {
             var ruloId = $("#ruloIdPrint").val();
 
@@ -543,7 +633,8 @@
                 data:
                 {
                     RuloId: ruloId,
-                    Floor: floor
+                    Floor: floor,
+                    PieceId: pieceId
                 },
                 success: function (data) {
                     if (data) {
@@ -595,7 +686,8 @@
 
         var ruloId = $("#ruloId").val();
         var testCategoryId = $("#ddlTestResults :selected").val();
-        var description = $("#ddlTestResults :selected").text();
+        var testCategoryText = $("#ddlTestResults :selected").text();
+        var description = $("#ddlTestResultsDescription").val();
 
         $.ajax({
             url: "/Rulo/TestResultFinish",
@@ -604,6 +696,7 @@
             {
                 RuloId: ruloId,
                 TestCategoryId: testCategoryId,
+                TestCategoryText: testCategoryText,
                 Description: description
             },
             success: function (data) {
@@ -752,7 +845,7 @@
     }
 
     function setIndex() {
-        document.getElementById("formFilters").action = "/Rulo";
+        document.getElementById("formFilters").action = "/Rulo/Index";
         document.getElementById("formFilters").submit();
     }
 
@@ -771,6 +864,14 @@
         document.getElementById("numTestCategory").value = 0;
         document.getElementById("numDefinitionProcess").value = 0;
         document.getElementById("folioNumber").value = 0;
+
+        document.getElementById("formFilters").action = "/Rulo/Index";
+        document.getElementById("formFilters").submit();
+    }
+
+    function exportToExcelAllStock() {
+
+        document.getElementById("formFilters").action = "/Rulo/ExportToExcelAllStock";
         document.getElementById("formFilters").submit();
     }
 

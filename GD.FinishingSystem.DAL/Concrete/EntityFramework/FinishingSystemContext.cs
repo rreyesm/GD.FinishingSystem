@@ -1,4 +1,5 @@
 ﻿using GD.FinishingSystem.Entities;
+using GD.FinishingSystem.Entities.ViewModels;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using System;
@@ -17,8 +18,6 @@ namespace GD.FinishingSystem.DAL.Concrete.EntityFramework
         #region Definations
         static string DatabaseName = "dbFinishingSystem";
         public string ConnectionStringProp { private get; set; }
-        //string LocalSqlServer = $"Server=192.168.7.242;Database={DatabaseName};User Id=EMY;Password=0545696s;";
-        //string LocalSqlServer = $"Server=.;Database={DatabaseName};User Id=SA;Password=0545696sS*;";
 
 #if DEBUG
         string LocalSqlServer = $"Server=.;Database={DatabaseName};User Id=SA;Password=0545696sS*;";
@@ -87,13 +86,18 @@ namespace GD.FinishingSystem.DAL.Concrete.EntityFramework
         public DbSet<DefinationProcess> DefinationProcesses { get; set; }
         public DbSet<Floor> Floors { get; set; }
         public DbSet<Machine> Machines { get; set; }
+        public DbSet<MigrationCategory> MigrationCategories { get; set; }
+        public DbSet<MigrationControl> MigrationControls { get; set; }
         public DbSet<Period> Periods { get; set; }
         public DbSet<Piece> Pieces { get; set; }
         public DbSet<Rulo> Rulos { get; set; }
         public DbSet<RuloProcess> RuloProcesses { get; set; }
+        public DbSet<RuloMigration> RuloMigrations { get; set; }
+        public DbSet<VMRuloReport> RuloReports { get; set; }
         public DbSet<Sample> Samples { get; set; }
         public DbSet<Shift> Shifts { get; set; }
         public DbSet<TestCategory> TestCategories { get; set; }
+        public DbSet<SystemPrinter> SystemPrinters { get; set; }
         public DbSet<TestResult> TestResults { get; set; }
         public DbSet<User> Users { get; set; }
         public DbSet<UserRole> UserRoles { get; set; }
@@ -122,7 +126,8 @@ namespace GD.FinishingSystem.DAL.Concrete.EntityFramework
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-
+            modelBuilder.Entity<VMRuloReport>()
+    .HasNoKey();
         }
 
 

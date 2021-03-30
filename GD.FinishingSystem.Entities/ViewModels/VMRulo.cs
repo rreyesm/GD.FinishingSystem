@@ -13,7 +13,7 @@ namespace GD.FinishingSystem.Entities.ViewModels
         [Display(Name = "Beam Stop")]
         public string BeamStop { get; set; }
         public int Loom { get; set; }
-        [Display(Name = "Loom Letter")]
+        [Display(Name = "Is Toyota")]
         public bool IsToyota { get; set; }
         public int PieceCount { get; set; }
         public string Style { get; set; }

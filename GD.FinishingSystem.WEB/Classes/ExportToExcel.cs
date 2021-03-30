@@ -137,7 +137,7 @@ namespace GD.FinishingSystem.WEB.Classes
 
         }
 
-        public async Task<Tuple<bool, FileStreamResult>> ExportWithDisplayName<T>(string nameFabric, string area, string title, string fileName, List<T> list)
+        public async Task<Tuple<bool, FileStreamResult>> ExportWithDisplayName<T>(string nameFabric, string area, string title, string fileName, List<T> list, List<string> excludeFieldList = null)
         {
             bool isOk = true;
 
@@ -154,7 +154,11 @@ namespace GD.FinishingSystem.WEB.Classes
 
                 var property = typeof(List<T>).GetProperty("Count");
                 int rowCount = (int)property.GetValue(list, null);
-                int colEndCount = elementType.GetProperties().Length;
+                int colEndCount = 0;
+                if (excludeFieldList != null)
+                    colEndCount = elementType.GetProperties().Length - excludeFieldList.Count;
+                else
+                    colEndCount = elementType.GetProperties().Length;
 
                 workSheet.Cell(rowIni, colIni).Value = nameFabric;
                 workSheet.Range(rowIni, rowIni, rowEnd, colEndCount).Merge();
@@ -182,12 +186,15 @@ namespace GD.FinishingSystem.WEB.Classes
                 //add a column to table for each public property on T
                 foreach (var propInfo in elementType.GetProperties())
                 {
-                    var displayName = GetPropertyDisplayName(propInfo);
-                    if (!string.IsNullOrWhiteSpace(displayName))
-                        workSheet.Cell(rowIni, ++colIni).Value = displayName;
-                    else
-                        workSheet.Cell(rowIni, ++colIni).Value = propInfo.Name;
-                    workSheet.Cell(rowIni, colIni).Style.Font.Bold = true;
+                    if (excludeFieldList != null && !excludeFieldList.Contains(propInfo.Name))
+                    {
+                        var displayName = GetPropertyDisplayName(propInfo);
+                        if (!string.IsNullOrWhiteSpace(displayName))
+                            workSheet.Cell(rowIni, ++colIni).Value = displayName;
+                        else
+                            workSheet.Cell(rowIni, ++colIni).Value = propInfo.Name;
+                        workSheet.Cell(rowIni, colIni).Style.Font.Bold = true;
+                    }
                 }
 
                 //go through each property on T and add each value to the table
@@ -197,46 +204,49 @@ namespace GD.FinishingSystem.WEB.Classes
                     colIni = 0;
                     foreach (var propInfo in elementType.GetProperties())
                     {
-                        var value = propInfo.GetValue(item, null) ?? DBNull.Value;
-                        workSheet.Cell(rowIni, ++colIni).Value = value;
-
-                        Type propertyType = Nullable.GetUnderlyingType(propInfo.PropertyType) ?? propInfo.PropertyType;
-                        TypeCode typeCode = Type.GetTypeCode(propertyType);
-                        switch (typeCode)
+                        if (excludeFieldList != null && !excludeFieldList.Contains(propInfo.Name))
                         {
-                            case TypeCode.Empty:
-                                break;
-                            case TypeCode.Object:
-                                break;
-                            case TypeCode.DBNull:
-                                break;
-                            case TypeCode.Boolean:
-                                break;
-                            case TypeCode.Char:
-                                break;
-                            case TypeCode.SByte:
-                                break;
-                            case TypeCode.Byte:
-                                break;
-                            case TypeCode.Int16:
-                            case TypeCode.UInt16:
-                            case TypeCode.Int32:
-                            case TypeCode.UInt32:
-                            case TypeCode.Int64:
-                            case TypeCode.UInt64:
-                                workSheet.Cell(rowIni, colIni).Style.NumberFormat.Format = "###0";
-                                break;
-                            case TypeCode.Single:
-                            case TypeCode.Double:
-                            case TypeCode.Decimal:
-                                workSheet.Cell(rowIni, colIni).Style.NumberFormat.Format = "#,##0.00";
-                                break;
-                            case TypeCode.DateTime:
-                                break;
-                            case TypeCode.String:
-                                break;
-                            default:
-                                break;
+                            var value = propInfo.GetValue(item, null) ?? DBNull.Value;
+                            workSheet.Cell(rowIni, ++colIni).Value = value;
+
+                            Type propertyType = Nullable.GetUnderlyingType(propInfo.PropertyType) ?? propInfo.PropertyType;
+                            TypeCode typeCode = Type.GetTypeCode(propertyType);
+                            switch (typeCode)
+                            {
+                                case TypeCode.Empty:
+                                    break;
+                                case TypeCode.Object:
+                                    break;
+                                case TypeCode.DBNull:
+                                    break;
+                                case TypeCode.Boolean:
+                                    break;
+                                case TypeCode.Char:
+                                    break;
+                                case TypeCode.SByte:
+                                    break;
+                                case TypeCode.Byte:
+                                    break;
+                                case TypeCode.Int16:
+                                case TypeCode.UInt16:
+                                case TypeCode.Int32:
+                                case TypeCode.UInt32:
+                                case TypeCode.Int64:
+                                case TypeCode.UInt64:
+                                    workSheet.Cell(rowIni, colIni).Style.NumberFormat.Format = "###0";
+                                    break;
+                                case TypeCode.Single:
+                                case TypeCode.Double:
+                                case TypeCode.Decimal:
+                                    workSheet.Cell(rowIni, colIni).Style.NumberFormat.Format = "#,##0.00";
+                                    break;
+                                case TypeCode.DateTime:
+                                    break;
+                                case TypeCode.String:
+                                    break;
+                                default:
+                                    break;
+                            }
                         }
 
                     }

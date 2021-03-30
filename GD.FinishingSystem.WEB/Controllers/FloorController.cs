@@ -69,9 +69,6 @@ namespace GD.FinishingSystem.WEB.Controllers
                 if (!(User.IsInRole("FloorUp") || User.IsInRole("FloorFull") || User.IsInRole("AdminFull")))
                     return Unauthorized();
 
-
-
-
                 await factory.Floors.Update(floor, int.Parse(User.Identity.Name));
 
             }
