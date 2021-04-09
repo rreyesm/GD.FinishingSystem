@@ -10,8 +10,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace GD.FinishingSystem.DAL.Migrations
 {
     [DbContext(typeof(FinishingSystemContext))]
-    [Migration("20210330221812_v7")]
-    partial class v7
+    [Migration("20210405192008_v8")]
+    partial class v8
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -690,6 +690,9 @@ namespace GD.FinishingSystem.DAL.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
+                    b.Property<bool>("IsPrinterIP")
+                        .HasColumnType("bit");
+
                     b.Property<DateTime>("LastUpdateDate")
                         .HasColumnType("datetime2");
 
@@ -699,13 +702,21 @@ namespace GD.FinishingSystem.DAL.Migrations
                     b.Property<string>("Location")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int?>("MachineID")
+                        .HasColumnType("int");
+
                     b.Property<string>("Name")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PCIP")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("SystemPrinterID");
 
                     b.HasIndex("FloorID");
+
+                    b.HasIndex("MachineID");
 
                     b.ToTable("tblSystemPrinters");
                 });
@@ -1091,7 +1102,13 @@ namespace GD.FinishingSystem.DAL.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("GD.FinishingSystem.Entities.Machine", "Machine")
+                        .WithMany()
+                        .HasForeignKey("MachineID");
+
                     b.Navigation("Floor");
+
+                    b.Navigation("Machine");
                 });
 
             modelBuilder.Entity("GD.FinishingSystem.Entities.TestResult", b =>

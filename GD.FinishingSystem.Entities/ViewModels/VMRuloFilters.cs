@@ -20,6 +20,9 @@ namespace GD.FinishingSystem.Entities.ViewModels
         public int numDefinitionProcess { get; set; }
         public int FolioNumber { get; set; }
 
+        //For Rulo Raw
+        public int numMigrationCategory { get; set; }
+
     }
 
 }

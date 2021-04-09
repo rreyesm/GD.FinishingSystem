@@ -14,7 +14,8 @@ namespace GD.FinishingSystem.DAL.Migrations
                     SystemPrinterID = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Name = table.Column<string>(type: "nvarchar(100)", nullable: false),
-                    Location = table.Column<string>(type: "nvarchar(300)", nullable: true),
+                    IsPrinterIP = table.Column<bool>(type: "bit", nullable: false),
+                    Location = table.Column<string>(type: "nvarchar(300)", nullable: false),
                     FloorID = table.Column<int>(type: "int", nullable: false),
                     CreatorID = table.Column<int>(type: "int", nullable: false),
                     CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false),

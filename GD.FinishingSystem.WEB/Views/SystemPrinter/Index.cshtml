@@ -1,89 +1,116 @@
 ﻿@model IEnumerable<GD.FinishingSystem.Entities.SystemPrinter>
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
-<table class="table">
+@{
+}
+
+<h1 class="mt-4">System Printers</h1>
+
+@if (User.IsInRole("SystemPrinter", AuthType.Add))
+{
+    <p>
+        <a asp-action="Create" class="btn btn-sm btn-outline-light border-dark btn-dark">
+            <i class="lni lni-circle-plus"></i> Create New
+        </a>
+    </p>
+}
+
+<div>
+    <p>
+        <strong>
+            @Html.Raw($"Current PC IP: {ViewBag.MachineIP}")
+        </strong>
+    </p>
+</div>
+
+<table class="table table-sm table-hover table-responsive-md">
     <thead>
         <tr>
+            <th colspan="8">System Printer List</th>
+        </tr>
+        <tr>
             <th>
-                @Html.DisplayNameFor(model => model.SystemPrinterID)
+                <i class="lni lni-line-dashed"></i>
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.Name)
             </th>
             <th>
+                @Html.DisplayNameFor(model => model.IsPrinterIP)
+            </th>
+            <th>
                 @Html.DisplayNameFor(model => model.Location)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.PCIP)
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.FloorID)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.CreatorID)
+                @Html.DisplayNameFor(model => model.MachineID)
             </th>
-            <th>
-                @Html.DisplayNameFor(model => model.CreatedDate)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.LastUpdaterID)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.LastUpdateDate)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.IsDeleted)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.DeletedDate)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.DeleterID)
-            </th>
+
             <th></th>
         </tr>
     </thead>
     <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.SystemPrinterID)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Name)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Location)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.FloorID)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.CreatorID)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.CreatedDate)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.LastUpdaterID)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.LastUpdateDate)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.IsDeleted)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.DeletedDate)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.DeleterID)
-            </td>
-            <td>
-                @Html.ActionLink("Edit", "Edit", new { /* id=item.PrimaryKey */ }) |
-                @Html.ActionLink("Details", "Details", new { /* id=item.PrimaryKey */ }) |
-                @Html.ActionLink("Delete", "Delete", new { /* id=item.PrimaryKey */ })
-            </td>
-        </tr>
-}
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.SystemPrinterID)
+                </td>
+                <td>
+                    <div style="display:block;width:250px;">
+                        @Html.DisplayFor(modelItem => item.Name)
+                    </div>
+                </td>
+                <td>
+                    @Html.Raw(item.IsPrinterIP ? "YES" : "NO")
+                </td>
+                <td>
+                    <div style="display:block;width:250px;">
+                        @Html.DisplayFor(modelItem => item.Location)
+                    </div>
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.PCIP)
+                </td>
+                <td>
+                    @Html.Raw(item.Floor?.FloorName)
+                </td>
+                <td>
+                    @Html.Raw(item.Machine?.MachineName)
+                </td>
+
+                <td>
+                    <div style="display:block;width:150px;">
+                        @if (User.IsInRole("SystemPrinter", AuthType.Update))
+                    {
+                        <a asp-action="Edit" asp-route-systemprinterid="@item.SystemPrinterID">
+                            <i class="lni lni-slice"></i>
+                        </a>
+                        @Html.Raw(" | ");
+                    }
+
+                        @if (User.IsInRole("SystemPrinter", AuthType.Show))
+                    {
+                        <a asp-action="Details" asp-route-systemprinterid="@item.SystemPrinterID">
+                            <i class="lni lni-question-circle"></i>
+                        </a>
+                        @Html.Raw(" | ");
+                    }
+
+                        @if (User.IsInRole("SystemPrinter", AuthType.Delete))
+                    {
+                        <a asp-action="Delete" asp-route-systemprinterid="@item.SystemPrinterID">
+                            <i class="lni lni-circle-minus"></i>
+                        </a>
+                    }
+                    </div>
+
+                </td>
+            </tr>
+        }
     </tbody>
 </table>

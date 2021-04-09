@@ -28,12 +28,12 @@ namespace GD.FinishingSystem.Entities
         public string NextMachine { get; set; }
         [RegularExpression(@"^[1-9][0-9]*$", ErrorMessage = "Lote no valid!")]
         public int Lote { get; set; }
-        [Display(Name = "Letter")]
-        public string LoteLetter { get; set; }
+        [Display(Name = "Stop")]
+        public string Stop { get; set; }
         [RegularExpression(@"^[1-9][0-9]*$", ErrorMessage = "Beam no valid!")]
         public int Beam { get; set; }
-        [Display(Name = "Stop")]
-        public string BeamStop { get; set; }
+        [Display(Name = "Is Toyota")]
+        public string IsToyota { get; set; }
         [RegularExpression(@"^[1-9][0-9]*$", ErrorMessage = "Loom no valid!")]
         public int Loom { get; set; }
         [Display(Name = "Piece No")]

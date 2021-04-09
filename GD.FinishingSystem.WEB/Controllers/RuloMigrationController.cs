@@ -38,7 +38,7 @@ namespace GD.FinishingSystem.WEB.Controllers
             ruloFilters.dtEnd = DateTime.Today.AddDays(1).AddMilliseconds(-1);
 
             var ruloMigrationList = await factory.RuloMigrations.GetRuloMigrationListFromBetweenDates(ruloFilters.dtBegin, ruloFilters.dtEnd);
-            SetViewBagsForDates(ruloFilters, positionRuloMigrationId);
+            await SetViewBagsForDates(ruloFilters, positionRuloMigrationId);
 
             return View(ruloMigrationList);
         }
@@ -48,13 +48,13 @@ namespace GD.FinishingSystem.WEB.Controllers
         public async Task<IActionResult> Index(VMRuloFilters ruloFilters)
         {
             ruloFilters.dtEnd = ruloFilters.dtEnd.AddDays(1).AddMilliseconds(-1);
-            var result = await factory.RuloMigrations.GetRuloMigrationListFromBetweenDates(ruloFilters.dtBegin, ruloFilters.dtEnd);
-            SetViewBagsForDates(ruloFilters);
+            var result = await factory.RuloMigrations.GetRuloMigrationListFromFilters(ruloFilters);
+            await SetViewBagsForDates(ruloFilters);
 
             return View(result);
         }
 
-        private void SetViewBagsForDates(VMRuloFilters ruloFilters, int positionRuloMigrationId = 0)
+        private async Task SetViewBagsForDates(VMRuloFilters ruloFilters, int positionRuloMigrationId = 0)
         {
             ViewBag.Error = false;
             ViewBag.ErrorMessage = string.Empty;
@@ -63,6 +63,22 @@ namespace GD.FinishingSystem.WEB.Controllers
 
             ViewBag.dtBegin = ruloFilters.dtBegin.ToString("yyyy-MM-dd");
             ViewBag.dtEnd = ruloFilters.dtEnd.ToString("yyyy-MM-dd");
+
+            var migrationCategories = await factory.RuloMigrations.GetMigrationCategoryList();
+            var migrationsCategoryList = WebUtilities.Create<MigrationCategory>(migrationCategories, "MigrationCategoryID", "Name", true, "All");
+
+            ViewBag.MigrationCategoryList = migrationsCategoryList;
+
+            ViewBag.numLote = ruloFilters.numLote;
+            ViewBag.numBeam = ruloFilters.numBeam;
+            ViewBag.numLoom = ruloFilters.numLoom;
+            ViewBag.numPiece = ruloFilters.numPiece;
+            ViewBag.txtStyle = ruloFilters.txtStyle;
+            ViewBag.numMigrationCategory = ruloFilters.numMigrationCategory;
+
+            //Style list
+            var styleList = await factory.RuloMigrations.GetRuloMigrationStyleList();
+            ViewBag.StyleList = styleList;
 
             ViewBag.PositionRuloMigrationId = positionRuloMigrationId;
         }
@@ -76,7 +92,7 @@ namespace GD.FinishingSystem.WEB.Controllers
             ruloFilters.dtEnd = DateTime.Today.AddDays(1).AddMilliseconds(-1);
 
             var ruloMigrationList = await factory.RuloMigrations.GetRuloMigrationListFromBetweenDates(ruloFilters.dtBegin, ruloFilters.dtEnd);
-            SetViewBagsForDates(ruloFilters);
+            await SetViewBagsForDates (ruloFilters);
 
             if (formFile == null)
             {
@@ -89,7 +105,7 @@ namespace GD.FinishingSystem.WEB.Controllers
             if (formFile.Length > appSettings.FileSizeLimit)
             {
                 ViewBag.Error = true;
-                ViewBag.ErrorMessage = "File too large. File size limit is 2 megabytes!";
+                ViewBag.ErrorMessage = $"File too large. File size limit is {(appSettings.FileSizeLimit / 1024) / 1024} megabytes!";
                 return View(nameof(Index), ruloMigrationList);
             }
 
@@ -230,9 +246,9 @@ namespace GD.FinishingSystem.WEB.Controllers
                     foundRuloMigration.StyleName = ruloMigration.StyleName;
                     foundRuloMigration.NextMachine = ruloMigration.NextMachine;
                     foundRuloMigration.Lote = ruloMigration.Lote;
-                    foundRuloMigration.LoteLetter = ruloMigration.LoteLetter;
+                    foundRuloMigration.Stop = ruloMigration.Stop;
                     foundRuloMigration.Beam = ruloMigration.Beam;
-                    foundRuloMigration.BeamStop = ruloMigration.BeamStop;
+                    foundRuloMigration.IsToyota = ruloMigration.IsToyota;
                     foundRuloMigration.Loom = ruloMigration.Loom;
                     foundRuloMigration.PieceNo = ruloMigration.PieceNo;
                     foundRuloMigration.PieceBetilla = ruloMigration.PieceBetilla;
@@ -299,19 +315,57 @@ namespace GD.FinishingSystem.WEB.Controllers
             Rulo newRulo = new Rulo();
             newRulo.Lote = foundRuloMigration.Lote.ToString();
             newRulo.Beam = foundRuloMigration.Beam;
-            newRulo.BeamStop = foundRuloMigration.BeamStop;
+            newRulo.BeamStop = foundRuloMigration.Stop;
             newRulo.Loom = foundRuloMigration.Loom;
-            //newRulo.IsToyota = foundRuloMigration.LoomLetter != null ? true : false;
+            newRulo.IsToyota = foundRuloMigration.IsToyota != null && foundRuloMigration.IsToyota.Equals("T", StringComparison.InvariantCultureIgnoreCase) ? true : false;
             newRulo.Style = foundRuloMigration.Style;
             newRulo.StyleName = foundRuloMigration.StyleName;
 
-            newRulo.EntranceLength = (foundRuloMigration.GummedMeters != 0) ? newRulo.EntranceLength = foundRuloMigration.GummedMeters : foundRuloMigration.Meters;
+            newRulo.EntranceLength = foundRuloMigration.Meters;
 
             //newRulo.Shift = foundRuloMigration.Shift; //This Shift is from Loom
-            newRulo.OriginID = (int)OriginType.Process;
+            newRulo.OriginID = (int)OriginType.PP00;
             newRulo.Observations = foundRuloMigration.Observations;
 
             return RedirectToAction("CreateFromRuloMigration", "Rulo", newRulo);
         }
+
+        [HttpPost]
+        [Authorize(AuthenticationSchemes = SystemStatics.DefaultScheme, Roles = "RuloMigrationShow,RuloMigrationFull,AdminFull")]
+        public async Task<IActionResult> ExportToExcel(VMRuloFilters ruloFilters)
+        {
+
+            ruloFilters.dtEnd = ruloFilters.dtEnd.AddDays(1).AddMilliseconds(-1);
+            var result = await factory.RuloMigrations.GetRuloMigrationReportListFromFilters(ruloFilters);
+
+            ExportToExcel export = new ExportToExcel();
+            string reportName = "Finishing Report Rulo Raw";
+            string fileName = $"Finishing Report Rulo Raw_{DateTime.Today.Year}_{DateTime.Today.Month.ToString().PadLeft(2, '0')}_{DateTime.Today.Day.ToString().PadLeft(2, '0')}.xlsx";
+
+            var fileResult = await export.ExportWithDisplayName<VMRuloMigrationReport>("Global Denim S.A. de C.V.", "Finishing", reportName, fileName, result.ToList());
+
+            if (!fileResult.Item1) return NotFound();
+
+            return fileResult.Item2;
+        }
+
+        [HttpPost]
+        [Authorize(AuthenticationSchemes = SystemStatics.DefaultScheme, Roles = "RuloMigrationShow,RuloMigrationFull,AdminFull")]
+        public async Task<IActionResult> ExportToExcelAllStock(VMRuloFilters ruloFilters)
+        {
+            ruloFilters.dtEnd = ruloFilters.dtEnd.AddDays(1).AddMilliseconds(-1);
+            var result = await factory.RuloMigrations.GetAllVMRuloReportList(ruloFilters.dtEnd);
+
+            ExportToExcel export = new ExportToExcel();
+            string reportName = "Finishing Report Rulo Raw All";
+            string fileName = $"Finishing Report Rulo Raw All_{DateTime.Today.Year}_{DateTime.Today.Month.ToString().PadLeft(2, '0')}_{DateTime.Today.Day.ToString().PadLeft(2, '0')}.xlsx";
+
+            var fileResult = await export.ExportWithDisplayName<VMRuloMigrationReport>("Global Denim S.A. de C.V.", "Finishing", reportName, fileName, result.ToList());
+
+            if (!fileResult.Item1) return NotFound();
+
+            return fileResult.Item2;
+        }
+
     }
 }

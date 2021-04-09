@@ -34,7 +34,7 @@ namespace GD.FinishingSystem.Bussines.Concrete
             await repository.Remove(MachineInformation.MachineID, deleterRef);
         }
 
-        public override async Task<IEnumerable<VMMachine>> GetMachineList()
+        public override async Task<IEnumerable<VMMachine>> GetVMMachineList()
         {
             var machines = await repository.GetWhere(o => !o.IsDeleted);
             var processes = await processrepository.GetWhere(o => !o.IsDeleted);
@@ -83,7 +83,7 @@ namespace GD.FinishingSystem.Bussines.Concrete
             return result;
         }
 
-        public override async Task<IEnumerable<VMMachine>> GetMachineListFromBetweenDate(DateTime begin, DateTime end)
+        public override async Task<IEnumerable<VMMachine>> GetVMMachineListFromBetweenDate(DateTime begin, DateTime end)
         {
             var machines = await repository.GetWhere(o => !o.IsDeleted && (o.CreatedDate <= end && o.CreatedDate >= begin) || (o.CreatedDate <= begin && o.CreatedDate >= end));
             var processes = await processrepository.GetWhere(o => !o.IsDeleted);
@@ -137,6 +137,13 @@ namespace GD.FinishingSystem.Bussines.Concrete
             var result = await repository.GetWhere(x => !x.IsDeleted && x.MachineCode.Equals(machineCode));
 
             return result.ToList().FirstOrDefault();
+        }
+
+        public override async Task<IEnumerable<Machine>> GetMachineList()
+        {
+            var result = await repository.GetWhere(x => !x.IsDeleted);
+
+            return result;
         }
     }
 }

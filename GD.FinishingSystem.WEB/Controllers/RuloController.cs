@@ -308,30 +308,37 @@ namespace GD.FinishingSystem.WEB.Controllers
             if (piece == null)
                 return new JsonResult(new { errorMessage = "Piece not found" });
 
+            var systemPrinterList = await factory.SystemPrinters.GetSystemPrinterList();
 
-            string printer = string.Empty;
-            if (floor.Equals("gd1", StringComparison.InvariantCultureIgnoreCase))
-                printer = appSettings.GD1PrinterName;
-            else if (floor.Equals("gd2", StringComparison.InvariantCultureIgnoreCase))
-                printer = appSettings.GD2PrinterName;
+            //var printersByFloor = systemPrinterList.Where(x => x.Floor.FloorName.Equals(floor, StringComparison.InvariantCultureIgnoreCase));
+
+            var resultIP = WebUtilities.GetMachineIP(this.HttpContext);
+            if (!resultIP.IsOk)
+            {
+                return new JsonResult(new { errorMessage = "Error getting the ip from the PC" });
+            }
+
+            var printersByFloor = systemPrinterList.Where(x => x.Floor.FloorName.Equals(floor, StringComparison.InvariantCultureIgnoreCase) && x.PCIP == resultIP.IP);
+
+            //Implement later by machine
+            var printer = printersByFloor.FirstOrDefault();
+            if (printer == null)
+            {
+                return new JsonResult(new { errorMessage = $"Error, Printer settings not found in {floor.ToUpper()}!" });
+            }
+
+            if (string.IsNullOrWhiteSpace(printer.Location))
+                return new JsonResult(new { errorMessage = "Error, IP or Printer Location not found!" });
 
             IPrinterGD print;
-            if (appSettings.IsPrinterIP)
+            if (printer.IsPrinterIP)
             {
-                print = new ZEBRA_IP_PRINTER(printer, 9100);
+                print = new ZEBRA_IP_PRINTER(printer.Location, 9100);
             }
             else
             {
-                print = new ZEBRA_PRINTER(printer);
+                print = new ZEBRA_PRINTER(printer.Location);
             }
-
-            if (string.IsNullOrWhiteSpace(printer))
-                return new JsonResult(new { errorMessage = "Error IP or Printer Name no found!" });
-
-            //var result = await RawPrinterHelper.PrintToZPLByIP(printerIP, ZPLString);
-
-            //if (!result)
-            //    return new JsonResult(new { errorMessage = "Error to the print label!" });
 
             if (print.CheckConnection())
             {
@@ -389,14 +396,14 @@ namespace GD.FinishingSystem.WEB.Controllers
 
             if (ruloProcesses == null || ruloProcesses.Count() == 0)
             {
-                errorMessage += "You cannot test if there are no assigned processes. ";
+                errorMessage += "Cannot be approved if there are no assigned processes. ";
             }
 
             //Validate pieces
             var pieces = await factory.Pieces.GetPiecesFromRuloID(ruloId);
             if (pieces == null || pieces.Count() == 0)
             {
-                errorMessage += "You cannot test if there are no pieces created";
+                errorMessage += "Cannot be approved if there are no pieces created";
             }
 
             return new JsonResult(new { errorMessage = errorMessage });
@@ -508,8 +515,8 @@ namespace GD.FinishingSystem.WEB.Controllers
             var result = await factory.Rulos.GetAllVMRuloReportList("spGetAllStock @p0", new[] { ruloFilters.dtEnd.ToString("yyyy-MM-ddTHH:mm:ss") });
 
             ExportToExcel export = new ExportToExcel();
-            string reportName = "Finishing Report";
-            string fileName = $"Finishing Report_{DateTime.Today.Year}_{DateTime.Today.Month.ToString().PadLeft(2, '0')}_{DateTime.Today.Day.ToString().PadLeft(2, '0')}.xlsx";
+            string reportName = "Finishing Report All";
+            string fileName = $"Finishing Report All_{DateTime.Today.Year}_{DateTime.Today.Month.ToString().PadLeft(2, '0')}_{DateTime.Today.Day.ToString().PadLeft(2, '0')}.xlsx";
 
             var exclude = new List<string>() { "TestCategoryID" };
             var fileResult = await export.ExportWithDisplayName<VMRuloReport>("Global Denim S.A. de C.V.", "Finishing", reportName, fileName, result.ToList(), exclude);
@@ -532,7 +539,7 @@ namespace GD.FinishingSystem.WEB.Controllers
         }
 
         [HttpGet]
-        [Authorize(AuthenticationSchemes = SystemStatics.DefaultScheme, Roles = "PieceShow, PieceUp, PieceShow PieceFull, AdminFull")]
+        [Authorize(AuthenticationSchemes = SystemStatics.DefaultScheme, Roles = "PieceShow, PieceUp, PieceDel, PieceFull, AdminFull")]
         public async Task<IActionResult> GetPieceIndex(int ruloId)
         {
             if (!User.IsInRole("Piece", AuthType.Show) || !User.IsInRole("Piece", AuthType.Add) || !User.IsInRole("Piece", AuthType.Delete))

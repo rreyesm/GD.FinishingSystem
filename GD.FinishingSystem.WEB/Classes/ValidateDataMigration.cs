@@ -112,7 +112,7 @@ namespace GD.FinishingSystem.WEB.Classes
                                 else
                                     errorByRowList.Add($"Lote no valid! Value \"{GetValue(lote)}\", Row {row}, Col {colIni}");
 
-                                ruloMigration.LoteLetter = Convert.ToString(sLoteArray[1]);
+                                ruloMigration.Stop = Convert.ToString(sLoteArray[1]);
                             }
                             else
                             {
@@ -129,7 +129,7 @@ namespace GD.FinishingSystem.WEB.Classes
                                 else
                                     errorByRowList.Add($"Lote no valid! Value \"{GetValue(lote)}\", Row {row}, Col {colIni}");
 
-                                ruloMigration.LoteLetter = string.Join("", alphas);
+                                ruloMigration.Stop = string.Join("", alphas);
                             }
                         }
                         else
@@ -160,7 +160,7 @@ namespace GD.FinishingSystem.WEB.Classes
                                 else
                                     errorByRowList.Add($"Beam no valid! Value \"{GetValue(beam)}\", Row {row}, Col {colIni}");
 
-                                ruloMigration.BeamStop = Convert.ToString(sBeamArray[1]);
+                                ruloMigration.IsToyota = Convert.ToString(sBeamArray[1]);
                             }
                             else
                             {
@@ -177,7 +177,7 @@ namespace GD.FinishingSystem.WEB.Classes
                                 else
                                     errorByRowList.Add($"Beam no valid! Value \"{GetValue(beam)}\", Row {row}, Col {colIni}");
 
-                                ruloMigration.BeamStop = string.Join("", alphas);
+                                ruloMigration.IsToyota = string.Join("", alphas);
                             }
                         }
                         else
@@ -243,12 +243,12 @@ namespace GD.FinishingSystem.WEB.Classes
                         ruloMigration.Meters = Convert.ToDecimal(meters);
                     else errorByRowList.Add($"Meters no valid! Value \"{GetValue(meters)}\", Row {row}, Col {colIni}");
 
-                    //Vañidate gummed meters
+                    //Validate gummed meters
                     var gummedMeters = workSheet.Cell(row, ++colIni).Value;
                     if (gummedMeters.IsNumeric())
                         ruloMigration.GummedMeters = Convert.ToDecimal(gummedMeters);
 
-                    //Vaidate status
+                    //Validate status
                     var status = workSheet.Cell(row, ++colIni).Value;
                     if (!string.IsNullOrWhiteSpace(status.ToString()))
                     {

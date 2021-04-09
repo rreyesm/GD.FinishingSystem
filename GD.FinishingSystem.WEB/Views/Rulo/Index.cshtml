@@ -212,70 +212,71 @@
                     <div style="display:block;width:150px;">
                         @if (item.SentAuthorizerID == null && item.FolioNumber == 0)
                         {
-                            @if (User.IsInRole("Rulo", AuthType.Update))
+                        @if (User.IsInRole("Rulo", AuthType.Update))
                             {
-                                <a onclick="showFolioNumber(@item.RuloID)" class="btn input-xs btn-success" data-backdrop="static" data-keyboard="false" href="#" data-toggle="modal" data-target="#modalDialogGeneral">
-                                    <i class="lni lni-arrow-right-circle"></i>
-                                </a>
+                        <a onclick="showFolioNumber(@item.RuloID)" class="btn input-xs btn-success" data-backdrop="static" data-keyboard="false" href="#" data-toggle="modal" data-target="#modalDialogGeneral">
+                            <i class="lni lni-arrow-right-circle"></i>
+                        </a>
 
-                                @Html.Raw(" | ")
+                        @Html.Raw(" | ")
                             }
                         }
                         else
                         {
-                            @if (User.IsInRole("Authorize", AuthType.Full))
+                        @if (User.IsInRole("Authorize", AuthType.Full))
                             {
-                                @if (item.SentAuthorizerID == null)
+                        @if (item.SentAuthorizerID == null)
                                 {
-                                    <a onclick="authorizeRulo(@item.RuloID)" class="btn input-xs btn-danger">
-                                        <i class="lni lni-checkmark-circle"></i>
-                                    </a>
+                        <a onclick="authorizeRulo(@item.RuloID)" class="btn input-xs btn-danger">
+                            <i class="lni lni-checkmark-circle"></i>
+                        </a>
 
-                                    @Html.Raw(" | ")
+                        @Html.Raw(" | ")
                                 }
 
                             }
                         }
 
                         @*@if (User.IsInRole("Authorize", AuthType.Show))
-                            {
-                                if (item.SentAuthorizerID == null && item.FolioNumber == 0)
-                                {
-                                    @Html.Raw(" | ")
-                                }
-                            }*@
+        {
+            if (item.SentAuthorizerID == null && item.FolioNumber == 0)
+            {
+                @Html.Raw(" | ")
+            }
+        }*@
 
                         @if (User.IsInRole("Piece", AuthType.Show))
                         {
-                            <a onclick="showPieces(@item.RuloID)" alt="Pieces" class="btn input-xs btn-warning" data-backdrop="static" data-keyboard="false" href="#" data-toggle="modal" data-target="#modalDialogPieces">
-                                <i alt="Pieces" class="lni lni-slice"></i>
-                            </a>
+                        <a onclick="showPieces(@item.RuloID)" alt="Pieces" class="btn input-xs btn-warning" data-backdrop="static" data-keyboard="false" href="#" data-toggle="modal" data-target="#modalDialogPieces">
+                            <i alt="Pieces" class="lni lni-slice"></i>
+                        </a>
                         }
 
                         @if (User.IsInRole("Authorize", AuthType.Show) || User.IsInRole("Piece", AuthType.Show))
-                            @Html.Raw(" | ")
+                        @Html.Raw(" | ")
 
                         @if (User.IsInRole("RuloProcessShow") || User.IsInRole("AdminFull") || User.IsInRole("RuloProcessFull"))
                         {
-                            <a asp-controller="RuloProcess" asp-action="Index" asp-route-ruloid="@item.RuloID" class="btn input-xs btn-info">
-                                <i class="lni lni-list "></i>
-                            </a>
+                        <a asp-controller="RuloProcess" asp-action="Index" asp-route-ruloid="@item.RuloID" class="btn input-xs btn-info">
+                            <i class="lni lni-list "></i>
+                        </a>
                         }
 
                         @if (User.IsInRole("Authorize", AuthType.Show) || User.IsInRole("Piece", AuthType.Show) || User.IsInRole("RuloProcess", AuthType.Show))
 
 
-                            @if (User.IsInRole("TestResult", AuthType.Add))
+                        @if (User.IsInRole("TestResult", AuthType.Add))
                             {
-                                @if (item.TestResultID == null || item.TestResultID == 0 || item.IsWaitingAnswerFromTest)
+                        @if (item.TestResultID == null || item.TestResultID == 0 || item.IsWaitingAnswerFromTest)
                                 {
-                                    @Html.Raw(" | ")
-                                    <a onclick="testResult(@item.RuloID)" class="btn  input-xs btn-dark" data-toggle="modal" data-target="#modalDialog"><i class="lni lni-flag"></i></a>
+                        @Html.Raw(" | ")
+                        <a onclick="testResultValidateInfo(@item.RuloID)" class="btn  input-xs btn-dark"><i class="lni lni-flag"></i></a>
+ <!-- <a onclick="testResult(@item.RuloID)" class="btn  input-xs btn-dark" data-toggle="modal" data-target="#modalDialog"><i class="lni lni-flag"></i></a>-->
                                 }
                             }
 
 
-                        </div>
+                    </div>
 
                     </td>
 
@@ -525,6 +526,7 @@
                     alert(data.errorMessage);
                 }
                 else {
+                    $('#modalDialog').modal('show');
                     testResult(ruloId);
                 }
             },

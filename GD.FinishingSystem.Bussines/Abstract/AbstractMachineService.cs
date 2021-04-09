@@ -9,8 +9,9 @@ namespace GD.FinishingSystem.Bussines.Abstract
 {
     public abstract class AbstractMachineService
     {
-        public abstract Task<IEnumerable<VMMachine>> GetMachineList();
-        public abstract Task<IEnumerable<VMMachine>> GetMachineListFromBetweenDate(DateTime begin, DateTime end);
+        public abstract Task<IEnumerable<Machine>> GetMachineList();
+        public abstract Task<IEnumerable<VMMachine>> GetVMMachineList();
+        public abstract Task<IEnumerable<VMMachine>> GetVMMachineListFromBetweenDate(DateTime begin, DateTime end);
         public abstract Task<Machine> GetMachineFromMachineID(int MachineID);
         public abstract Task<VMMachine> GetVMMachineFromVMMachineID(int MachineID);
         public abstract Task<IEnumerable<VMMachine>> GetVMMachinesFromDefinationProcessID(int DefinationProcessID);

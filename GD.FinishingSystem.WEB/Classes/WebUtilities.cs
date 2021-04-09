@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using GD.FinishingSystem.Entities.ViewModels;
+using Microsoft.AspNetCore.Http;
 
 namespace GD.FinishingSystem.WEB.Classes
 {
@@ -25,7 +26,7 @@ namespace GD.FinishingSystem.WEB.Classes
                 Cast<IFormattable>()
                 .Select(v => new SelectListItem
                 {
-                    Text = v.ToString().SplitCamelCase(),
+                    Text = v.ToString(), //.SplitCamelCase(),
                     Value = v.ToString("d", null),
                     Selected = v.ToString("d", null) == selectedValue.ToString()
                 }).ToList();
@@ -143,5 +144,30 @@ namespace GD.FinishingSystem.WEB.Classes
             return result;
         }
 
+
+        public static (bool IsOk, string IP) GetMachineIP(HttpContext context)
+        {
+            var isOk = true;
+            var ip = context.Connection.RemoteIpAddress;
+            var resultIP = string.Empty;
+
+            try
+            {
+                // If we got an IPV6 address, then we need to ask the network for the IPV4 address 
+                // This usually only happens when the browser is on the same machine as the server.
+                if (ip.AddressFamily == System.Net.Sockets.AddressFamily.InterNetworkV6)
+                {
+                    ip = System.Net.Dns.GetHostEntry(ip).AddressList.First(x => x.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork);
+                }
+                resultIP = ip.ToString();
+
+            }
+            catch (Exception)
+            {
+                isOk = false;
+            }
+
+            return (isOk, resultIP);
+        }
     }
 }

@@ -4,14 +4,16 @@ using GD.FinishingSystem.DAL.Concrete.EntityFramework;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace GD.FinishingSystem.DAL.Migrations
 {
     [DbContext(typeof(FinishingSystemContext))]
-    partial class FinishingSystemContextModelSnapshot : ModelSnapshot
+    [Migration("20210331153706_v7")]
+    partial class v7
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -429,6 +431,9 @@ namespace GD.FinishingSystem.DAL.Migrations
                     b.Property<int>("Beam")
                         .HasColumnType("int");
 
+                    b.Property<string>("BeamStop")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("datetime2");
 
@@ -456,9 +461,6 @@ namespace GD.FinishingSystem.DAL.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
-                    b.Property<string>("IsToyota")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<DateTime>("LastUpdateDate")
                         .HasColumnType("datetime2");
 
@@ -470,6 +472,9 @@ namespace GD.FinishingSystem.DAL.Migrations
 
                     b.Property<int>("Lote")
                         .HasColumnType("int");
+
+                    b.Property<string>("LoteLetter")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<decimal>("Meters")
                         .HasColumnType("decimal(18,2)");
@@ -494,9 +499,6 @@ namespace GD.FinishingSystem.DAL.Migrations
 
                     b.Property<int>("Shift")
                         .HasColumnType("int");
-
-                    b.Property<string>("Stop")
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Style")
                         .IsRequired()
@@ -698,23 +700,16 @@ namespace GD.FinishingSystem.DAL.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("Location")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<int?>("MachineID")
-                        .HasColumnType("int");
 
                     b.Property<string>("Name")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("PCIP")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("SystemPrinterID");
 
                     b.HasIndex("FloorID");
-
-                    b.HasIndex("MachineID");
 
                     b.ToTable("tblSystemPrinters");
                 });
@@ -1100,13 +1095,7 @@ namespace GD.FinishingSystem.DAL.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("GD.FinishingSystem.Entities.Machine", "Machine")
-                        .WithMany()
-                        .HasForeignKey("MachineID");
-
                     b.Navigation("Floor");
-
-                    b.Navigation("Machine");
                 });
 
             modelBuilder.Entity("GD.FinishingSystem.Entities.TestResult", b =>

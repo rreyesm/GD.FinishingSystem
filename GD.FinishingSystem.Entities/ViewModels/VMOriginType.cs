@@ -14,7 +14,7 @@ namespace GD.FinishingSystem.Entities.ViewModels
         {
             var originList = Enum.GetValues(typeof(OriginType)).Cast<IFormattable>().Select(x => new VMOriginType
             {
-                Text = x.ToString().SplitCamelCase(),
+                Text = x.ToString(), //.SplitCamelCase(),
                 Value = int.Parse(x.ToString("d", null)),
             }).ToList();
 

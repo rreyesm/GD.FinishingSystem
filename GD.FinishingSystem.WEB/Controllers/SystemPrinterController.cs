@@ -4,7 +4,9 @@ using System.Linq;
 using System.Threading.Tasks;
 using GD.FinishingSystem.Bussines;
 using GD.FinishingSystem.Entities;
+using GD.FinishingSystem.WEB.Classes;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GD.FinishingSystem.WEB.Controllers
@@ -22,18 +24,34 @@ namespace GD.FinishingSystem.WEB.Controllers
         [Authorize(AuthenticationSchemes = SystemStatics.DefaultScheme, Roles = "SystemPrinterShow, SystemPrinterFull, AdminFull")]
         public async Task<IActionResult> Index()
         {
+            var ip = WebUtilities.GetMachineIP(this.HttpContext);
+            ViewBag.MachineIP = ip.IsOk ? ip.IP : "IP not found!";
+
             var result = await factory.SystemPrinters.GetSystemPrinterList();
 
-            return View();
+            return View(result);
         }
 
+        public async Task SetViewBag()
+        {
+            var machines = await factory.Machines.GetMachineList();
+            var machineList = WebUtilities.Create<Machine>(machines, "MachineID", "MachineName", true);
+
+            var floors = await factory.Floors.GetFloorList();
+            var floorList = WebUtilities.Create<Floor>(floors, "FloorID", "FloorName", true);
+
+            ViewBag.foorList = floorList;
+            ViewBag.machineList = machineList;
+        }
 
         [HttpGet]
         [Authorize(AuthenticationSchemes = SystemStatics.DefaultScheme, Roles = "SystemPrinterAdd, SystemPrinterFull, AdminFull")]
-        public IActionResult Create()
+        public async Task<IActionResult> Create()
         {
             ViewBag.Error = false;
             ViewBag.ErrorMessage = string.Empty;
+
+            await SetViewBag();
 
             SystemPrinter systemPrinter = new SystemPrinter();
 
@@ -46,6 +64,8 @@ namespace GD.FinishingSystem.WEB.Controllers
             ViewBag.Error = false;
             ViewBag.ErrorMessage = string.Empty;
 
+            await SetViewBag();
+
             SystemPrinter systemPrinter = await factory.SystemPrinters.GetSystemPrinterFromSystemPrinterID(systemPrinterId);
 
             if (systemPrinter == null) return NotFound();
@@ -57,6 +77,9 @@ namespace GD.FinishingSystem.WEB.Controllers
         public async Task<IActionResult> Save(SystemPrinter systemPrinter)
         {
             ViewBag.Error = false;
+
+            if (systemPrinter.MachineID == 0)
+                systemPrinter.MachineID = null;
 
             if (systemPrinter.SystemPrinterID == 0)
             {

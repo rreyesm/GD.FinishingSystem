@@ -75,6 +75,7 @@ namespace GD.FinishingSystem.WEB
                     name: "default",
                     pattern: "{controller=Home}/{action=Index}/{id?}");
             });
+
         }
     }
 }

@@ -1,6 +1,7 @@
 ﻿@model IEnumerable<GD.FinishingSystem.Entities.RuloMigration>
 
-@{ 
+@{
+    var styleList = ViewBag.StyleList;
     var positionRuloMigrationId = ViewBag.PositionRuloMigrationId;
 }
 
@@ -17,7 +18,7 @@
 
 <form asp-action="Index" method="post" id="formFilters">
 
-    <div class="row d-flex justify-content-center">
+    <div class="row">
         <div class="col-md-2">
             <div class="form-group">
                 <label for="dtBegin">Begin</label><br>
@@ -30,10 +31,53 @@
                 <input type="date" style="width:100% !important;" id="dtEnd" name="dtEnd">
             </div>
         </div>
+        <div class="col-md-2">
+            <div class="form-group">
+                <label for="numLote">Lote</label><br>
+                <input numLote type="number" onfocusout="controlForSmallerThanZero('numLote')" min="0" style="width:100% !important;" id="numLote" name="numLote">
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="form-group">
+                <label for="numBeam">Beam</label><br>
+                <input type="number" onfocusout="controlForSmallerThanZero('numBeam')" min="0" style="width:100% !important;" id="numBeam" name="numBeam">
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="form-group">
+                <label for="numLoom">Loom</label><br>
+                <input type="number" onfocusout="controlForSmallerThanZero('numLoom')" min="0" style="width:100% !important;" id="numLoom" name="numLoom">
+            </div>
+        </div>
+
+        <div class="col-md-2">
+            <div class="form-group">
+                <label for="txtStyle">Style</label><br>
+                <input type="text" style="width:100% !important;" id="txtStyle" name="txtStyle" list="styleList">
+                <datalist id="styleList">
+                    @foreach (var item in styleList)
+                    {
+                        <option value="@item"></option>
+                    }
+                </datalist>
+            </div>
+        </div>
     </div>
+
+    @*SECOND ROW*@
+    <div class="row">
+        <div class="col-md-2">
+            <div class="form-group">
+                <label for="numMigrationCategory">Status</label><br>
+                <select style="width:100% !important;" id="numMigrationCategory" name="numMigrationCategory" asp-items="@ViewBag.MigrationCategoryList"></select>
+            </div>
+        </div>
+    </div>
+
     <div class="row">
         <div class="col-sm-12 col-md-12 col-lg-12" style="text-align:right">
-            <button type="submit" class="btn btn-sm btn-outline-info"><i class="lni lni-search"></i> Filter</button>
+            <button onclick="setIndex();" type="submit" class="btn btn-sm btn-outline-info"><i class="lni lni-search"></i> Filter</button>
+            <a onclick="clearFilters();" class="btn btn-sm btn-outline-info"><i class="lni lni-brush"></i> Clear Filters</a>
         </div>
     </div>
 
@@ -58,18 +102,14 @@
 
 </div>
 
-@if (User.IsInRole("RuloMigration", AuthType.Add))
+@if (User.IsInRole("Authorize", AuthType.Full))
 {
-    @*<a onclick="uploadFromExcel();" class="btn btn-sm btn-success"><i class="lni lni-cloud-upload"></i> Upload from Excel</a>*@
-
     <form asp-controller="RuloMigration" asp-action="UploadFile" method="post"
           enctype="multipart/form-data">
         @Html.AntiForgeryToken()
         <div class="container">
             <div class="row d-flex justify-content-center">
                 <div class="col-sm-8">
-                    @*col-sm-offset-2*@
-                    @*<br><br>*@
                     <div class="form-group">
                         <div class="input-group">
                             <input type="text" class="form-control" readonly>
@@ -77,7 +117,7 @@
                                 <span class="fileUpload btn btn-info">
                                     <span class="upl" id="upload">Select Excel File</span>
                                     <input type="file" accept=".xls, .xlsx" class="upload up" id="up" name="formFile" onchange="readURL(this);" />
-                                </span><!-- btn-orange -->
+                                </span>
                             </div><!-- btn -->
                             @Html.Raw(" ")
                             <button type="submit" class="btn btn-sm btn-success"><i class="lni lni-cloud-upload"></i> Upload from Excel</button>
@@ -93,12 +133,16 @@
 
 
 <table class="table table-sm table-hover table-responsive-lg">
-    @*table-responsive-lg display nowrap*@
     <thead>
         <tr>
             <th colspan="19">
                 <div>
                     Rulo Raw List
+                    <a onclick="exportToExcel();" class="btn btn-sm btn-success"><i class="lni lni-printer"></i> Export to Excel</a>
+                    @if (User.IsInRole("Authorize", AuthType.Full))
+                    {
+                        <a onclick="exportToExcelAllStock();" class="btn btn-sm btn-danger"><i class="lni lni-printer"></i> Export All Stock</a>
+                    }
                 </div>
             </th>
         </tr>
@@ -122,13 +166,13 @@
                 @Html.DisplayNameFor(model => model.Lote)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.LoteLetter)
+                @Html.DisplayNameFor(model => model.Stop)
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.Beam)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.BeamStop)
+                @Html.DisplayNameFor(model => model.IsToyota)
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.Loom)
@@ -191,13 +235,15 @@
                     @Html.DisplayFor(modelItem => item.Lote)
                 </td>
                 <td>
-                    @Html.DisplayFor(modelItem => item.LoteLetter)
+                    @Html.DisplayFor(modelItem => item.Stop)
                 </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.Beam)
                 </td>
                 <td>
-                    @Html.DisplayFor(modelItem => item.BeamStop)
+                    <div style="display:block;width:75px;">
+                        @Html.DisplayFor(modelItem => item.IsToyota)
+                    </div>
                 </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.Loom)
@@ -219,7 +265,9 @@
                     </div>
                 </td>
                 <td>
-                    @Html.Raw(item.MigrationCategory?.Name)
+                    <div style="display:block;width:90px;">
+                        @Html.Raw(item.MigrationCategory?.Name)
+                    </div>
                 </td>
                 <td>
                     <div style="display:block;width:90px">
@@ -309,4 +357,36 @@
 <script>
     document.getElementById("dtBegin").value = '@ViewBag.dtBegin.ToString()';
     document.getElementById("dtEnd").value = '@ViewBag.dtEnd.ToString()';
+    document.getElementById("numLote").value = '@ViewBag.numLote';
+    document.getElementById("numBeam").value = '@ViewBag.numBeam';
+    document.getElementById("numLoom").value = '@ViewBag.numLoom';
+    document.getElementById("txtStyle").value = '@ViewBag.txtStyle';
+    document.getElementById("numMigrationCategory").value = '@ViewBag.numMigrationCategory';
+
+    function setIndex() {
+        document.getElementById("formFilters").action = "/RuloMigration/Index";
+        document.getElementById("formFilters").submit();
+    }
+
+    function exportToExcel() {
+
+        document.getElementById("formFilters").action = "/RuloMigration/ExportToExcel";
+        document.getElementById("formFilters").submit();
+    }
+
+    function exportToExcelAllStock() {
+        document.getElementById("formFilters").action = "/RuloMigration/ExportToExcelAllStock";
+        document.getElementById("formFilters").submit();
+    }
+
+    function clearFilters() {
+        document.getElementById("numLote").value = 0;
+        document.getElementById("numBeam").value = 0;
+        document.getElementById("numLoom").value = 0;
+        document.getElementById("txtStyle").value = '';
+        document.getElementById("numMigrationCategory").value = 0;
+
+        document.getElementById("formFilters").action = "/RuloMigration/Index";
+        document.getElementById("formFilters").submit();
+    }
 </script>

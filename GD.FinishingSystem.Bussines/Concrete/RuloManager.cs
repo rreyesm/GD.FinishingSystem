@@ -72,10 +72,10 @@ namespace GD.FinishingSystem.Bussines.Concrete
                 testCategory = testCategories.FirstOrDefault();
             }
 
-            OriginType originType = OriginType.Process;
+            OriginType originType = OriginType.PP00;
             string sOriginType = string.Empty;
             if (Enum.TryParse(rulo.OriginID.ToString(), true, out originType))
-                sOriginType = originType.ToString().SplitCamelCase();
+                sOriginType = originType.ToString(); //.SplitCamelCase();
 
             var userList = await userRepository.GetAll();
             var testResultAuthorizerUser = userList.Where(x => x.UserID == rulo.TestResultAuthorizer).FirstOrDefault();

@@ -8,12 +8,17 @@ namespace GD.FinishingSystem.Entities.ViewModels
 {
     public enum OriginType
     {
-        Process = 1,
-        [Description("Inspection Reprocess")]
-        InspectionReprocess = 2,
-        [Description("Internal Reprocess")]
-        InternalReprocess = 3,
-        [Description("Quality Recovery")]
-        QualityRecovery = 4
+        //Process
+        [Description("PP00")]
+        PP00 = 1,
+        //Inspection Process and Internal Process
+        [Description("PF00")]
+        PF00 = 2,
+        //Quality Recovery
+        [Description("TF02")]
+        TF02 = 3,
+        //Quality Recovery
+        [Description("DVF2")]
+        DVF2 = 4
     }
 }

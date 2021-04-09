@@ -1,80 +1,59 @@
 ﻿@model GD.FinishingSystem.Entities.SystemPrinter
 
+<h1>Delete</h1>
+
 <h3>Are you sure you want to delete this?</h3>
 <div>
-    <h4>SystemPrinter</h4>
+    <h4>System Printers</h4>
     <hr />
     <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.SystemPrinterID)
+        <dt class="col-sm-2">
+            <i class="lni lni-line-dashed"></i>
         </dt>
-        <dd class = "col-sm-10">
+        <dd class="col-sm-10">
             @Html.DisplayFor(model => model.SystemPrinterID)
         </dd>
-        <dt class = "col-sm-2">
+        <dt class="col-sm-2">
             @Html.DisplayNameFor(model => model.Name)
         </dt>
-        <dd class = "col-sm-10">
+        <dd class="col-sm-10">
             @Html.DisplayFor(model => model.Name)
         </dd>
-        <dt class = "col-sm-2">
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.IsPrinterIP)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.Raw(Model.IsPrinterIP ? "YES" : "NO")
+        </dd>
+        <dt class="col-sm-2">
             @Html.DisplayNameFor(model => model.Location)
         </dt>
-        <dd class = "col-sm-10">
+        <dd class="col-sm-10">
             @Html.DisplayFor(model => model.Location)
         </dd>
-        <dt class = "col-sm-2">
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.PCIP)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.PCIP)
+        </dd>
+        <dt class="col-sm-2">
             @Html.DisplayNameFor(model => model.FloorID)
         </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.FloorID)
+        <dd class="col-sm-10">
+            @Html.Raw(Model.Floor?.FloorName)
         </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.CreatorID)
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.MachineID)
         </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.CreatorID)
+        <dd class="col-sm-10">
+            @Html.Raw(Model.Machine?.MachineName)
         </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.CreatedDate)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.CreatedDate)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.LastUpdaterID)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.LastUpdaterID)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.LastUpdateDate)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.LastUpdateDate)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.IsDeleted)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.IsDeleted)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.DeletedDate)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.DeletedDate)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.DeleterID)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.DeleterID)
-        </dd>
+
     </dl>
     
     <form asp-action="Delete">
-        <input type="submit" value="Delete" class="btn btn-danger" /> |
-        <a asp-action="Index">Back to List</a>
+        <button type="submit" value="Delete" class="btn btn-sm btn-danger"><i class="lni lni-circle-minus"></i> Delete</button> | 
+        <a asp-action="Index" class="btn btn-sm btn-secondary"><i class="lni lni-chevron-left-circle"></i> Back to List</a>
     </form>
 </div>
