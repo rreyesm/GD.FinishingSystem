@@ -303,6 +303,31 @@ namespace GD.FinishingSystem.WEB.Controllers
         }
 
         [HttpGet]
+        public async Task<IActionResult> ValidateCreateRulo(string lote)
+        {
+            if (!User.IsInRole("Rulo", AuthType.Add)) return Unauthorized();
+
+            string errorMessage = string.Empty;
+            var styleData = await factory.Rulos.GetRuloStyle(lote);
+
+            //Comparation period-rulo style
+            Period period = await factory.Periods.GetCurrentPeriod();
+            if (period != null)
+            {
+                if (period.Style != styleData.Style)
+                {
+                    errorMessage = "The style entered does not correspond to the style of the period. First create the period for the style.";
+                }
+            }
+            else
+            {
+                errorMessage = "Period style not found!";
+            }
+
+            return new JsonResult(new { errorMessage = errorMessage });
+        }
+
+        [HttpGet]
         [Authorize(AuthenticationSchemes = SystemStatics.DefaultScheme, Roles = "RuloAdd,RuloFull,AdminFull")]
         public async Task<IActionResult> CreateRulo(int ruloMigrationId)
         {

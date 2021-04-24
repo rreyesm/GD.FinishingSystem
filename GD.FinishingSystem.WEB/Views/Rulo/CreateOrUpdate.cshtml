@@ -35,7 +35,7 @@
             <div class="col-lg-3 col-md-4 col-sm-12">
                 <div class="form-group">
                     <label asp-for="Lote" class="control-label"></label>
-                    <input asp-for="Lote" class="form-control" />
+                    <input asp-for="Lote" class="form-control" onfocusout="getStyleData()" />
                     <span asp-validation-for="Lote" class="text-danger"></span>
                 </div>
             </div>
@@ -69,14 +69,14 @@
             <div class="col-lg-3 col-md-4 col-sm-12">
                 <div class="form-group">
                     <label asp-for="Style" class="control-label"></label>
-                    <input asp-for="Style" class="form-control" />
+                    <input asp-for="Style" class="form-control" disabled />
                     <span asp-validation-for="Style" class="text-danger"></span>
                 </div>
             </div>
             <div class="col-lg-3 col-md-4 col-sm-12">
                 <div class="form-group">
                     <label asp-for="StyleName" class="control-label"></label>
-                    <input asp-for="StyleName" class="form-control" />
+                    <input asp-for="StyleName" class="form-control" disabled />
                     <span asp-validation-for="StyleName" class="text-danger"></span>
                 </div>
             </div>
@@ -161,3 +161,39 @@
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
 }
+
+<script>
+    function getStyleData() {
+        let loteRulo = $("#Lote").val();
+
+        if (!isNaN(loteRulo)) {
+            if (loteRulo != 0) {
+                $.ajax({
+                    url: "/Rulo/GetStyleData",
+                    type: "POST",
+                    data: {
+                        lote: loteRulo
+                    },
+                    success: function (data) {
+                        if (data) {
+                            if (data.errorMessage == "") {
+                                $("#Style").val(data.style);
+                                $("#StyleName").val(data.styleName);
+                            }
+                            else
+                                alert(data.errorMessage);
+                        }
+                    },
+                    error: function (xhr, ajaxOptions, thrownError) {
+                        alert("404 Not found!");
+                    }
+                })
+            }
+        }
+        else {
+            $("#Style").val("");
+            $("#StyleName").val("");
+        }
+
+    }
+</script>

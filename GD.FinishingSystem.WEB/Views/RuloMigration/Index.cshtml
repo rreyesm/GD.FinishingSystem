@@ -138,10 +138,10 @@
             <th colspan="19">
                 <div>
                     Rulo Raw List
-                    <a onclick="exportToExcel();" class="btn btn-sm btn-success"><i class="lni lni-printer"></i> Export to Excel</a>
+                    <a onclick="exportToExcel();" class="btn btn-sm btn-success"><i class="far fa-file-excel"></i> Export to Excel</a>
                     @if (User.IsInRole("Authorize", AuthType.Full))
                     {
-                        <a onclick="exportToExcelAllStock();" class="btn btn-sm btn-danger"><i class="lni lni-printer"></i> Export All Stock</a>
+                        <a onclick="exportToExcelAllStock();" class="btn btn-sm btn-danger"><i class="far fa-file-excel"></i> Export All Stock</a>
                     }
                 </div>
             </th>
@@ -275,7 +275,8 @@
                         {
                             if (item.RuloID == null || item.RuloID == 0)
                             {
-                                <a asp-action="CreateRulo" asp-route-rulomigrationid="@item.RuloMigrationID" class="btn input-xs btn-dark">
+                                
+                                <a id="@("rulo"+@item.RuloMigrationID)" onclick="validateCreateRulo(@item.Lote, @item.RuloMigrationID)" class="btn input-xs btn-dark">
                                     <i class="lni lni-circle-plus"></i> Create Rulo
                                 </a>
                             }
@@ -388,5 +389,29 @@
 
         document.getElementById("formFilters").action = "/RuloMigration/Index";
         document.getElementById("formFilters").submit();
+    }
+
+    function validateCreateRulo(lote, ruloMigrationId) {
+        $.ajax({
+            url: "/RuloMigration/ValidateCreateRulo",
+            type: "GET",
+            data: {
+                lote: lote
+            },
+            success: function (data) {
+                if (data) {
+                    if (data.errorMessage == "") {
+                        location.href = "/RuloMigration/CreateRulo?ruloMigrationId=" + ruloMigrationId;
+                    }
+                    else
+                        alert(data.errorMessage);
+                }
+                else
+                    alert("Something went wrong!")
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                alert("404 Not found!");
+            }
+        });
     }
 </script>

@@ -25,7 +25,8 @@ namespace GD.FinishingSystem.Bussines.Abstract
         public abstract Task<RuloProcess> GetRuloProcessFromRuloProcessID(int RuloProcessID);
         public abstract Task SetTestResult(int RuloID, int TestResultID, bool isWaitingForTestResult, int? authorizer, int setter);
 
-        public abstract Task<IEnumerable<String>> GetRuloStyleList();
+        public abstract Task<IEnumerable<VMStyleData>> GetRuloStyleList();
+        public abstract Task<VMStyleData> GetRuloStyle(string lote);
         public abstract Task<IEnumerable<VMRulo>> GetRuloListFromFilters(VMRuloFilters ruloFilters);
         public abstract Task<IEnumerable<VMRuloReport>> GetRuloReportListFromFilters(VMRuloFilters ruloFilters);
         public abstract Task<IEnumerable<VMRuloReport>> GetAllVMRuloReportList(string query, params object[] parameters);

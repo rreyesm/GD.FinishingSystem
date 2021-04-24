@@ -81,6 +81,11 @@ namespace GD.FinishingSystem.WEB.Controllers
             if (systemPrinter.MachineID == 0)
                 systemPrinter.MachineID = null;
 
+            var floor = await factory.Floors.GetFloorFromFloorID(systemPrinter.FloorID);
+
+            if (floor == null)
+                return Redirect("Index");
+
             if (systemPrinter.SystemPrinterID == 0)
             {
                 if (!User.IsInRole("SystemPrinter", AuthType.Add)) return Unauthorized();

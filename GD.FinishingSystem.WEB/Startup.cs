@@ -1,3 +1,4 @@
+using FastReport.Data;
 using GD.FinishingSystem.WEB.Classes;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -42,6 +43,10 @@ namespace GD.FinishingSystem.WEB
             //Configuration added
             services.AddDistributedMemoryCache(); // Adds a default in-memory implementation of IDistributedCache
             services.AddSession();
+
+            //Added for FastReport
+            FastReport.Utils.RegisteredObjects.AddConnection(typeof(MsSqlDataConnection));
+            //Added for FastReport
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -59,6 +64,10 @@ namespace GD.FinishingSystem.WEB
             }
 
             app.UseHttpsRedirection();
+
+            //Added for FastReport
+            app.UseFastReport();
+            //---
 
             app.UseRouting();
 

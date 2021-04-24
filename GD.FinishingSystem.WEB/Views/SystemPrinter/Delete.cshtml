@@ -53,7 +53,9 @@
     </dl>
     
     <form asp-action="Delete">
-        <button type="submit" value="Delete" class="btn btn-sm btn-danger"><i class="lni lni-circle-minus"></i> Delete</button> | 
+        @Html.HiddenFor(model => model.SystemPrinterID)
+        @Html.AntiForgeryToken()
+        <button type="submit" value="Delete" class="btn btn-sm btn-danger"><i class="lni lni-circle-minus"></i> Delete</button> |
         <a asp-action="Index" class="btn btn-sm btn-secondary"><i class="lni lni-chevron-left-circle"></i> Back to List</a>
     </form>
 </div>

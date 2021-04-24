@@ -1,6 +1,7 @@
 ﻿using GD.FinishingSystem.Bussines.Abstract;
 using GD.FinishingSystem.DAL.Abstract;
 using GD.FinishingSystem.DAL.Concrete;
+using GD.FinishingSystem.DAL.EFdbPlanta;
 using GD.FinishingSystem.Entities;
 using GD.FinishingSystem.Entities.ViewModels;
 using Microsoft.EntityFrameworkCore;
@@ -311,12 +312,44 @@ namespace GD.FinishingSystem.Bussines.Concrete
             await ruloProcessRepository.Update(ruloProcess, updaterRef);
         }
 
-        public override async Task<IEnumerable<String>> GetRuloStyleList()
+        public override async Task<IEnumerable<VMStyleData>> GetRuloStyleList()
         {
-            var result = await repository.GetWhere(x => !x.IsDeleted);
-            var styleList = result.Select(x => x.Style).Distinct();
+            IEnumerable<VMStyleData> styleDataList = null;
+            using (dbPlantaContext context = new dbPlantaContext())
+            {
+                styleDataList = await (from ftt in context.FichaTecnicaTelas
+                                 join lp in context.LotesDeProduccions
+                                 on ftt.CódigoTela equals lp.CódigoTela
+                                 select new VMStyleData
+                                 {
+                                     Style = ftt.CódigoTela,
+                                     StyleName = ftt.Nombre,
+                                     Lote = lp.Lote
+                                 }).ToListAsync();
+            }
 
-            return styleList;
+            return styleDataList;
+        }
+
+        public override async Task<VMStyleData> GetRuloStyle(string lote)
+        {
+            VMStyleData styleData = null;
+            using (dbPlantaContext context = new dbPlantaContext())
+            {
+                styleData = await (from ftt in context.FichaTecnicaTelas
+                                 join lp in context.LotesDeProduccions
+                                 on ftt.CódigoTela equals lp.CódigoTela
+                                 where lp.Lote == lote
+                                 select new VMStyleData
+                                 {
+                                     Style = ftt.CódigoTela,
+                                     StyleName = ftt.Nombre,
+                                     Lote = lp.Lote
+                                 }).FirstOrDefaultAsync();
+            }
+
+
+            return styleData;
         }
 
         public override async Task<IEnumerable<VMRulo>> GetRuloListFromFilters(VMRuloFilters ruloFilters)
@@ -528,5 +561,6 @@ namespace GD.FinishingSystem.Bussines.Concrete
 
             return ruloReportList;
         }
+
     }
 }

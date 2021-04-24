@@ -80,8 +80,8 @@ namespace GD.FinishingSystem.WEB.Controllers
             ViewBag.folioNumber = ruloFilters.FolioNumber;
 
             //Style list
-            var styleList = await factory.Rulos.GetRuloStyleList();
-            ViewBag.StyleList = styleList;
+            var styleDataList = await factory.Rulos.GetRuloStyleList();
+            ViewBag.StyleList = styleDataList.Select(x => x.Style).ToList();
             await GetInfoTitle();
 
             ViewBag.PositionRuloId = positionRuloId;
@@ -104,7 +104,7 @@ namespace GD.FinishingSystem.WEB.Controllers
                 ViewBag.ErrorMessage = "Cannot create a new roll. You must open a period.";
                 View("CreateOrUpdate", newRulo);
             }
-            
+
             return View("CreateOrUpdate", newRulo);
         }
 
@@ -141,6 +141,43 @@ namespace GD.FinishingSystem.WEB.Controllers
             ViewBag.SentAuthorizer = sentAuthorizerListItem;
         }
 
+        [HttpPost]
+        public async Task<IActionResult> GetStyleData(string lote)
+        {
+            string errorMessage = string.Empty;
+            string style = string.Empty;
+            string styleName = string.Empty;
+
+            if (!(User.IsInRole("Rulo", AuthType.Add) || User.IsInRole("Rulo", AuthType.Update)))
+                return Unauthorized();
+
+            var styleData = await factory.Rulos.GetRuloStyle(lote);
+
+            //Comparation period-rulo style
+            Period period = await factory.Periods.GetCurrentPeriod();
+            if (period != null)
+            {
+                if (period.Style != styleData.Style)
+                {
+                    errorMessage = "The style entered does not correspond to the style of the period. First create the period for the style.";
+                }
+            }
+            else
+            {
+                errorMessage = "Period style not found!";
+            }
+
+            if (style == null)
+                errorMessage = "Lote not found in Control de Rollos!";
+            else
+            {
+                style = styleData.Style;
+                styleName = styleData.StyleName;
+            }
+
+            return new JsonResult(new { errorMessage = errorMessage, style = style, styleName = styleName });
+        }
+
         [HttpGet]
         [Authorize(AuthenticationSchemes = SystemStatics.DefaultScheme, Roles = "RuloUp,RuloFull,AdminFull")]
         public async Task<IActionResult> Edit(int RuloID)
@@ -160,6 +197,31 @@ namespace GD.FinishingSystem.WEB.Controllers
         {
             ViewBag.Error = true;
             await SetViewBagsForCreateOrEdit();
+
+            //Update style and style name to avoid update user
+            var styleData = await factory.Rulos.GetRuloStyle(rulo.Lote);
+            rulo.Style = styleData.Style;
+            rulo.StyleName = styleData.StyleName;
+
+            //Comparation period-rulo style
+            Period period = await factory.Periods.GetCurrentPeriod();
+            if (period != null)
+            {
+                if (period.Style != styleData.Style)
+                {
+                    ViewBag.Error = true;
+                    ViewBag.ErrorMessage = "The style entered does not correspond to the style of the period. First create the period for the style.";
+
+                    return View("CreateOrUpdate", rulo);
+                }
+            }
+            else
+            {
+                ViewBag.Error = true;
+                ViewBag.ErrorMessage = "Period style not found!";
+
+                return View("CreateOrUpdate", rulo);
+            }
 
             if (rulo.RuloID == 0)
             {
@@ -278,7 +340,7 @@ namespace GD.FinishingSystem.WEB.Controllers
             if (rulo == null)
             {
                 errorMessage = "Rulo not found";
-                return new JsonResult(new { errorMessage = errorMessage, pieces = new List<SelectListItem>()});
+                return new JsonResult(new { errorMessage = errorMessage, pieces = new List<SelectListItem>() });
             }
 
             IEnumerable<Piece> pieceList = await factory.Pieces.GetPiecesFromRuloID(ruloId);
@@ -353,6 +415,7 @@ namespace GD.FinishingSystem.WEB.Controllers
 
                 Dictionary<string, string> replaceVaues = new Dictionary<string, string>();
                 replaceVaues.Add("ReplaceRuloID", rulo.RuloID.ToString());
+                replaceVaues.Add("ReplaceName", rulo.StyleName);
                 replaceVaues.Add("ReplaceStyle", rulo.Style);
                 replaceVaues.Add("ReplaceLote", rulo.Lote);
                 replaceVaues.Add("ReplaceBeam", rulo.Beam.ToString());
@@ -368,11 +431,11 @@ namespace GD.FinishingSystem.WEB.Controllers
                 replaceVaues.Add("ReplaceDate", DateTime.Now.ToString("yyyy-MM-dd HH:mm"));
                 replaceVaues.Add("ReplaceOffset", offset.ToString());
 
-                VMOriginType origin = VMOriginType.ToList().Where(x=> x.Value == rulo.OriginID).FirstOrDefault();
+                VMOriginType origin = VMOriginType.ToList().Where(x => x.Value == rulo.OriginID).FirstOrDefault();
                 if (origin != null)
                     replaceVaues.Add("ReplaceOrigin", origin.Text.ToString());
                 else
-                    replaceVaues.Add("ReplaceOrigin", VMOriginType.ToList().Where(x=> x.Value == 1).FirstOrDefault().Text);
+                    replaceVaues.Add("ReplaceOrigin", VMOriginType.ToList().Where(x => x.Value == 1).FirstOrDefault().Text);
 
                 replaceVaues.Add("ReplacePiece", piece.PieceNo.ToString());
 
@@ -498,7 +561,7 @@ namespace GD.FinishingSystem.WEB.Controllers
             ExportToExcel export = new ExportToExcel();
             string reportName = "Finishing Report";
             string fileName = $"Finishing Report_{DateTime.Today.Year}_{DateTime.Today.Month.ToString().PadLeft(2, '0')}_{DateTime.Today.Day.ToString().PadLeft(2, '0')}.xlsx";
-            
+
             var exclude = new List<string>() { "TestCategoryID" };
             var fileResult = await export.ExportWithDisplayName<VMRuloReport>("Global Denim S.A. de C.V.", "Finishing", reportName, fileName, result.ToList(), exclude);
 
@@ -808,6 +871,25 @@ namespace GD.FinishingSystem.WEB.Controllers
             }
 
             return new JsonResult(new { details = details });
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetReportStock()
+        {
+            VMRuloFilters ruloFilters = new VMRuloFilters();
+            ruloFilters.dtEnd = ruloFilters.dtEnd.AddDays(1).AddMilliseconds(-1);
+            var result = await factory.Rulos.GetAllVMRuloReportList("spGetAllStock @p0", new[] { ruloFilters.dtEnd.ToString("yyyy-MM-ddTHH:mm:ss") });
+
+            ExportToExcel export = new ExportToExcel();
+            string reportName = "Finishing Report Stock";
+            string fileName = $"Finishing Report Stock_{DateTime.Today.Year}_{DateTime.Today.Month.ToString().PadLeft(2, '0')}_{DateTime.Today.Day.ToString().PadLeft(2, '0')}.xlsx";
+
+            var exclude = new List<string>() { "TestCategoryID" };
+            var fileResult = await export.ExportWithDisplayName<VMRuloReport>("Global Denim S.A. de C.V.", "Finishing", reportName, fileName, result.ToList(), exclude);
+
+            if (!fileResult.Item1) return NotFound();
+
+            return fileResult.Item2;
         }
 
     }
