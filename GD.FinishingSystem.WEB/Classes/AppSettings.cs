@@ -11,5 +11,6 @@ namespace GD.FinishingSystem.WEB.Classes
         public string GD1PrinterName { get; set; }
         public string GD2PrinterName { get; set; }
         public int FileSizeLimit { get; set; }
+        public int PageSize { get; set; }
     }
 }

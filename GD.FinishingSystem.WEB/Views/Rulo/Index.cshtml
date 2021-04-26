@@ -209,7 +209,7 @@
 
                 <td>
 
-                    <div style="display:block;width:150px;">
+                    <div style="display:block;width:120px;">
                         @if (item.SentAuthorizerID == null && item.FolioNumber == 0)
                         {
                             @if (User.IsInRole("Rulo", AuthType.Update))
@@ -284,7 +284,7 @@
                     </td>
 
                     <td>
-                        <div style="display:block;width:134px;">
+                        <div style="display:block;width:165px;">
                             @if (User.IsInRole("Rulo", AuthType.Update))
                             {
                                 <a asp-controller="Rulo" asp-action="Edit" asp-route-ruloid="@item.RuloID">
@@ -321,9 +321,12 @@
                                     @Html.Raw(" | ")
 
                                     <a href="#" onclick="printLabel(@item.RuloID)" data-toggle="modal" data-target="#modalDialogGeneral"><i class="lni lni-printer"></i></a>
-                                }
 
-                        </div>
+                                    @Html.Raw(" | ");
+
+                                    <a onclick="showPerfomanceTestResult(@item.RuloID)" data-toggle="modal" href="#" data-target="#modalDialogGeneral"><i class="fa fa-vials"></i></a>
+                                       }
+                                </div>
 
                     </td>
                 </tr>
@@ -903,5 +906,20 @@
         }
     }
 
+    function showPerfomanceTestResult(ruloId) {
+        $.ajax({
+            url: "/Rulo/GetPerformanceTestResult",
+            type: "Get",
+            data: {
+                ruloId: ruloId,
+            },
+            success: function (data) {
+                document.getElementById('generalInfo').innerHTML = data;
+            },
+            error: function(xhr, ajaxOptions, thrownError) {
+                alert("Something went wrong!");
+            }
+        });
+    }
 
 </script>

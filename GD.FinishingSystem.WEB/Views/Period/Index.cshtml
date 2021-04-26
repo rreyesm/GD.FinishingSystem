@@ -89,8 +89,9 @@
 
     function createPeriod() {
     var stylePeriod = $("#stylePeriod").val();
-        if (stylePeriod == '') {
+        if (stylePeriod.trim() == '') {
             alert("Style no valid!");
+            return;
         }
 
         $.ajax({

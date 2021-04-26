@@ -1,4 +1,5 @@
-﻿using GD.FinishingSystem.Entities;
+﻿using GD.FinishingSystem.DAL.EFdbPerformanceStandards;
+using GD.FinishingSystem.Entities;
 using GD.FinishingSystem.Entities.ViewModels;
 using System;
 using System.Collections.Generic;
@@ -25,13 +26,15 @@ namespace GD.FinishingSystem.Bussines.Abstract
         public abstract Task<RuloProcess> GetRuloProcessFromRuloProcessID(int RuloProcessID);
         public abstract Task SetTestResult(int RuloID, int TestResultID, bool isWaitingForTestResult, int? authorizer, int setter);
 
-        public abstract Task<IEnumerable<VMStyleData>> GetRuloStyleList();
+        public abstract Task<IEnumerable<VMStyleData>> GetRuloStyleForProductionLoteList();
         public abstract Task<VMStyleData> GetRuloStyle(string lote);
         public abstract Task<IEnumerable<VMRulo>> GetRuloListFromFilters(VMRuloFilters ruloFilters);
         public abstract Task<IEnumerable<VMRuloReport>> GetRuloReportListFromFilters(VMRuloFilters ruloFilters);
         public abstract Task<IEnumerable<VMRuloReport>> GetAllVMRuloReportList(string query, params object[] parameters);
 
         public abstract Task DeleteRuloProcessFromRuloProcessID(int ruloProcessID, int deleterRef);
- 
+        public abstract Task<IEnumerable<TblCustomPerformanceForFinishing>> GetPerformanceTestResult(int ruloId);
+
+
     }
 }

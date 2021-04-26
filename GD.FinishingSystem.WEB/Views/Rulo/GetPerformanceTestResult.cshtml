@@ -1,0 +1,52 @@
+﻿@model IEnumerable<GD.FinishingSystem.DAL.EFdbPerformanceStandards.TblCustomPerformanceForFinishing>
+
+<h4>Result</h4>
+<hr />
+
+<table class="table table-sm table-hover table-responsive-lg">
+    <thead>
+        <tr>
+            <th style="color: white; background: #808080;">
+                @Html.DisplayNameFor(model => model.Category)
+            </th>
+            <td colspan="2">
+                @Html.DisplayFor(model => model.FirstOrDefault().Category)
+            </td>
+        </tr>
+        <tr style="color: #fff; background: black;">
+            <th>
+                @Html.DisplayNameFor(model => model.ParameterName)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.MethodName)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Value)
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+
+    var color = "bgcolor=transparent";
+    if (item.ParameterName.Equals("STIFFNESS", StringComparison.InvariantCultureIgnoreCase))
+        color = "bgcolor=ff6666";
+    else if (item.ParameterName.Equals("WIDTH TOTAL", StringComparison.InvariantCultureIgnoreCase))
+        color = "bgcolor=transparent";
+    else
+        color = "bgcolor=66ff66";
+    
+        <tr @color>
+            <td>
+                @Html.DisplayFor(modelItem => item.ParameterName)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.MethodName)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Value)
+            </td>
+        </tr>
+}
+    </tbody>
+</table>

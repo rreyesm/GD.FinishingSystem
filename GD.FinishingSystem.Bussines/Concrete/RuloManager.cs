@@ -1,9 +1,11 @@
 ﻿using GD.FinishingSystem.Bussines.Abstract;
 using GD.FinishingSystem.DAL.Abstract;
 using GD.FinishingSystem.DAL.Concrete;
+using GD.FinishingSystem.DAL.EFdbPerformanceStandards;
 using GD.FinishingSystem.DAL.EFdbPlanta;
 using GD.FinishingSystem.Entities;
 using GD.FinishingSystem.Entities.ViewModels;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -183,7 +185,7 @@ namespace GD.FinishingSystem.Bussines.Concrete
 
             var originList = VMOriginType.ToList();
 
-            var userList = await userRepository.GetWhere(x=> !x.IsDeleted);
+            var userList = await userRepository.GetWhere(x => !x.IsDeleted);
 
             var result = (from r in rulos.ToList()
                           join tr in testResults.ToList() on r.TestResultID equals tr.TestResultID
@@ -239,7 +241,7 @@ namespace GD.FinishingSystem.Bussines.Concrete
         public override async Task<IEnumerable<VMRuloProcess>> GetVMRuloProcessesFromRuloID(int RuloID)
         {
             var ruloProcess = await ruloProcessRepository.GetWhere(o => !o.IsDeleted && o.RuloID == RuloID);
-            var definationResult = await definationProcessRepository.GetWhere(x=> !x.IsDeleted);
+            var definationResult = await definationProcessRepository.GetWhere(x => !x.IsDeleted);
             List<Sample> sampleList = new List<Sample>();
             if (ruloProcess != null && ruloProcess.Count() != 0)
             {
@@ -263,9 +265,9 @@ namespace GD.FinishingSystem.Bussines.Concrete
                               IsMustSample = dp.IsMustSample
                           }).ToList();
 
-            result.ForEach(x=>
+            result.ForEach(x =>
             {
-                x.ExistSample = sampleList.Where(y=>y.RuloProcessID == x.RuloProcessID).Any();
+                x.ExistSample = sampleList.Where(y => y.RuloProcessID == x.RuloProcessID).Any();
             });
 
 
@@ -276,7 +278,7 @@ namespace GD.FinishingSystem.Bussines.Concrete
         {
             var result = await ruloProcessRepository.GetWhere(o => !o.IsDeleted && ((o.CreatedDate <= end && o.CreatedDate >= begin) || (o.CreatedDate <= begin && o.CreatedDate >= end)));
 
-            var definationResult = await definationProcessRepository.GetWhere(x=> !x.IsDeleted);
+            var definationResult = await definationProcessRepository.GetWhere(x => !x.IsDeleted);
             foreach (var item in result)
                 item.DefinationProcess = definationResult.Where(x => x.DefinationProcessID == item.DefinationProcessID).FirstOrDefault();
 
@@ -312,20 +314,20 @@ namespace GD.FinishingSystem.Bussines.Concrete
             await ruloProcessRepository.Update(ruloProcess, updaterRef);
         }
 
-        public override async Task<IEnumerable<VMStyleData>> GetRuloStyleList()
+        public override async Task<IEnumerable<VMStyleData>> GetRuloStyleForProductionLoteList()
         {
             IEnumerable<VMStyleData> styleDataList = null;
             using (dbPlantaContext context = new dbPlantaContext())
             {
                 styleDataList = await (from ftt in context.FichaTecnicaTelas
-                                 join lp in context.LotesDeProduccions
-                                 on ftt.CódigoTela equals lp.CódigoTela
-                                 select new VMStyleData
-                                 {
-                                     Style = ftt.CódigoTela,
-                                     StyleName = ftt.Nombre,
-                                     Lote = lp.Lote
-                                 }).ToListAsync();
+                                       join lp in context.LotesDeProduccions
+                                       on ftt.CódigoTela equals lp.CódigoTela
+                                       select new VMStyleData
+                                       {
+                                           Style = ftt.CódigoTela,
+                                           StyleName = ftt.Nombre,
+                                           Lote = lp.Lote
+                                       }).ToListAsync();
             }
 
             return styleDataList;
@@ -337,15 +339,15 @@ namespace GD.FinishingSystem.Bussines.Concrete
             using (dbPlantaContext context = new dbPlantaContext())
             {
                 styleData = await (from ftt in context.FichaTecnicaTelas
-                                 join lp in context.LotesDeProduccions
-                                 on ftt.CódigoTela equals lp.CódigoTela
-                                 where lp.Lote == lote
-                                 select new VMStyleData
-                                 {
-                                     Style = ftt.CódigoTela,
-                                     StyleName = ftt.Nombre,
-                                     Lote = lp.Lote
-                                 }).FirstOrDefaultAsync();
+                                   join lp in context.LotesDeProduccions
+                                   on ftt.CódigoTela equals lp.CódigoTela
+                                   where lp.Lote == lote
+                                   select new VMStyleData
+                                   {
+                                       Style = ftt.CódigoTela,
+                                       StyleName = ftt.Nombre,
+                                       Lote = lp.Lote
+                                   }).FirstOrDefaultAsync();
             }
 
 
@@ -448,9 +450,9 @@ namespace GD.FinishingSystem.Bussines.Concrete
             var testCategories = await testCategoryRepository.GetWhere(x => x.TestCategoryID != 0);
             var userList = await userRepository.GetWhere(x => !x.IsDeleted);
             var originList = VMOriginType.ToList();
-            var definationsProcess = await definationProcessRepository.GetWhereWithNoTrack(x=> !x.IsDeleted);
+            var definationsProcess = await definationProcessRepository.GetWhereWithNoTrack(x => !x.IsDeleted);
 
-            var ruloProcessGroup = await ruloProcessRepository.GetWhereWithNoTrack(x=> !x.IsDeleted && ((x.BeginningDate <= ruloFilters.dtEnd && x.BeginningDate >= ruloFilters.dtBegin) || (x.BeginningDate <= ruloFilters.dtBegin && x.BeginningDate >= ruloFilters.dtEnd)));
+            var ruloProcessGroup = await ruloProcessRepository.GetWhereWithNoTrack(x => !x.IsDeleted && ((x.BeginningDate <= ruloFilters.dtEnd && x.BeginningDate >= ruloFilters.dtBegin) || (x.BeginningDate <= ruloFilters.dtBegin && x.BeginningDate >= ruloFilters.dtEnd)));
             IEnumerable<IGrouping<int, RuloProcess>> ruloProcessesListGroup = ruloProcessGroup.GroupBy(x => x.RuloID).ToList();
             List<RuloProcess> ruloProcessesList = new List<RuloProcess>();
 
@@ -551,7 +553,7 @@ namespace GD.FinishingSystem.Bussines.Concrete
 
         public async override Task<Rulo> GetRuloFromFolio(int folioNumber)
         {
-            return await repository.FirstOrDefault(x=> !x.IsDeleted && x.FolioNumber == folioNumber);
+            return await repository.FirstOrDefault(x => !x.IsDeleted && x.FolioNumber == folioNumber);
         }
 
         public async override Task<IEnumerable<VMRuloReport>> GetAllVMRuloReportList(string query, params object[] parameters)
@@ -560,6 +562,35 @@ namespace GD.FinishingSystem.Bussines.Concrete
             var ruloReportList = await ruloReportRepository.GetWithRawSql(query, parameters);
 
             return ruloReportList;
+        }
+
+        public async override Task<IEnumerable<TblCustomPerformanceForFinishing>> GetPerformanceTestResult(int ruloId)
+        {
+            var rulo = await repository.GetByPrimaryKey(ruloId);
+
+            List<TblCustomPerformanceForFinishing> tblCustomPerformanceForFinishingList = new List<TblCustomPerformanceForFinishing>();
+
+            try
+            {
+                using (dbPerformanceStandardsContext context = new dbPerformanceStandardsContext())
+                {
+                    var testMaster = context.TblTestMasters.Where(x => x.Lote == int.Parse(rulo.Lote) && x.Beam == rulo.Beam).OrderByDescending(x=>x.CreateDate).FirstOrDefault();
+
+                    if (testMaster != null)
+                    {
+                        List<SqlParameter> sqlParameters = new List<SqlParameter>();
+                        sqlParameters.Add(new SqlParameter("@p0", testMaster.Id));
+
+                        tblCustomPerformanceForFinishingList = await context.TblCustomPerformanceForFinishings.FromSqlRaw("stpGetPerformanceForFinishing @p0", sqlParameters.ToArray()).ToListAsync();
+                    }
+
+                }
+            }
+            catch (Exception ex)
+            {
+            }
+
+            return tblCustomPerformanceForFinishingList;
         }
 
     }

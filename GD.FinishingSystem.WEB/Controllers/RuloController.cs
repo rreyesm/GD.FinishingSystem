@@ -80,8 +80,8 @@ namespace GD.FinishingSystem.WEB.Controllers
             ViewBag.folioNumber = ruloFilters.FolioNumber;
 
             //Style list
-            var styleDataList = await factory.Rulos.GetRuloStyleList();
-            ViewBag.StyleList = styleDataList.Select(x => x.Style).ToList();
+            var styleDataList = await factory.Rulos.GetRuloStyleForProductionLoteList();
+            ViewBag.StyleList = styleDataList.Select(x => x.Style).Distinct().ToList();
             await GetInfoTitle();
 
             ViewBag.PositionRuloId = positionRuloId;
@@ -890,6 +890,19 @@ namespace GD.FinishingSystem.WEB.Controllers
             if (!fileResult.Item1) return NotFound();
 
             return fileResult.Item2;
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetPerformanceTestResult(int ruloId)
+        {
+            if (!User.IsInRole("Rulo", AuthType.Show)) return Unauthorized();
+
+            //tblMaster.ID = 2352; //TODO: For test
+            var performanceTestResultList = await factory.Rulos.GetPerformanceTestResult(ruloId);
+
+            if (performanceTestResultList == null) return NotFound();
+
+            return PartialView(performanceTestResultList);
         }
 
     }
