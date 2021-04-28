@@ -1,4 +1,5 @@
-﻿@model IEnumerable<GD.FinishingSystem.Entities.ViewModels.VMRulo>
+﻿@*@model IEnumerable<GD.FinishingSystem.Entities.ViewModels.VMRulo>*@
+@model GD.FinishingSystem.WEB.Classes.IndexModelRulo
 
 @{
     ViewData["Title"] = "Index";
@@ -133,17 +134,17 @@
                 Lote - Beam - Loom
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Style)
+                @Html.DisplayNameFor(model => model.VMRuloList[0].Style)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.StyleName)
+                @Html.DisplayNameFor(model => model.VMRuloList[0].StyleName)
             </th>
 
             <th>
-                @Html.DisplayNameFor(model => model.EntranceLength)
+                @Html.DisplayNameFor(model => model.VMRuloList[0].EntranceLength)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.ExitLength)
+                @Html.DisplayNameFor(model => model.VMRuloList[0].ExitLength)
             </th>
             <th></th>
             <th>
@@ -157,7 +158,7 @@
         </tr>
     </thead>
     <tbody>
-        @foreach (var item in Model)
+        @foreach (var item in Model.VMRuloList)
         {
             var color = "bgcolor=transparent";
             if (item.CanContinue)
@@ -165,7 +166,7 @@
             else if (item.TestCategoryCode.Contains(" X", StringComparison.InvariantCultureIgnoreCase)) //Ok X or Fail X
                 color = "bgcolor=ff6666";
 
-            <tr @color id="@("row"+@item.RuloID)">
+            <tr @color id="@("row" + @item.RuloID)">
                 <td>
                     @Html.DisplayFor(modelItem => item.RuloID)
                 </td>
@@ -268,7 +269,7 @@
                             @if (User.IsInRole("TestResult", AuthType.Add))
                             {
                                 if (item.SentAuthorizerID != null)
-                                { 
+                                {
                                     @if (item.TestResultID == null || item.TestResultID == 0 || item.IsWaitingAnswerFromTest)
                                     {
                                         @Html.Raw(" | ")
@@ -325,8 +326,8 @@
                                     @Html.Raw(" | ");
 
                                     <a onclick="showPerfomanceTestResult(@item.RuloID)" data-toggle="modal" href="#" data-target="#modalDialogGeneral"><i class="fa fa-vials"></i></a>
-                                       }
-                                </div>
+                                }
+                        </div>
 
                     </td>
                 </tr>
@@ -334,6 +335,45 @@
     </tbody>
 </table>
 
+@{
+    var prevDisabled = !Model.VMRuloList.HasPreviousPage ? "disabled" : "";
+    var nextDisabled = !Model.VMRuloList.HasNextPage ? "disabled" : "";
+}
+
+<div>
+    <a asp-action="Index"
+       asp-route-sortOrder="@Model.CurrentSort"
+       asp-route-pageIndex="1"
+       asp-route-currentFilter="@System.Text.Json.JsonSerializer.Serialize(Model.CurrentVMRuloFilters)"
+       class="btn btn-primary btn-sm @prevDisabled">
+        <i class="lni lni-backward"></i> First
+    </a>
+    <a asp-action="Index"
+       asp-route-sortOrder="@Model.CurrentSort"
+       asp-route-pageIndex="@(Model.VMRuloList.PageIndex - 1)"
+       asp-route-currentFilter="@System.Text.Json.JsonSerializer.Serialize(Model.CurrentVMRuloFilters)"
+       class="btn btn-primary btn-sm @prevDisabled">
+        <i class="lni lni-chevron-left"></i> Previous
+    </a>
+    <a asp-action="Index"
+       asp-route-sortOrder="@Model.CurrentSort"
+       asp-route-pageIndex="@(Model.VMRuloList.PageIndex + 1)"
+       asp-route-currentFilter="@System.Text.Json.JsonSerializer.Serialize(Model.CurrentVMRuloFilters)"
+       class="btn btn-primary btn-sm @nextDisabled">
+        Next <i class="lni lni-chevron-right "></i>
+    </a>
+    <a asp-action="Index"
+       asp-route-sortOrder="@Model.CurrentSort"
+       asp-route-pageIndex="@(Model.VMRuloList.TotalPages)"
+       asp-route-currentFilter="@System.Text.Json.JsonSerializer.Serialize(Model.CurrentVMRuloFilters)"
+       class="btn btn-primary btn-sm @nextDisabled">
+        Last <i class="lni lni-forward"></i>
+    </a>
+
+    <span style="font-weight: bold">
+        Pag.: @(Model.VMRuloList.PageIndex) of @(Model.VMRuloList.TotalPages)
+    </span>
+</div>
 <!-- Modal -->
 <div class="modal fade" id="modalDialog" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
@@ -533,7 +573,7 @@
                 }
                 else {
                     $('#modalDialog').modal('show');
-                    testResult(ruloId);
+                    testResult(ruloId, data.performanceId);
                 }
             },
             error: function (xhr, ajaxOptions, thrownError) {
@@ -562,10 +602,16 @@
         });
     }
 
-    function testResult(ruloId) {
+    function testResult(ruloId, performanceId) {
 
         var testCategory = @Html.Raw(ViewBag.ModalTestResultList);
-        var sel = "Select Test Result: <Select id='ddlTestResults'>";
+
+        if (performanceId == 0)
+            performanceId = "No tests";
+
+        var sel = "<h5>Performance Test Result ID: " + performanceId + "</h5>";
+        sel += "<br/>"
+        sel += "Select Test Result: <Select id='ddlTestResults'>";
 
         $.each(testCategory, function (index, value) {
             sel += "<option value='" + value.Value + "'>" + value.Text + "</option>";

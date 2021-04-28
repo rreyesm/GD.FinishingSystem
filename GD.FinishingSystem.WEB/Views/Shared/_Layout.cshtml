@@ -55,7 +55,7 @@
                 </a>
                 <div class="dropdown-menu dropdown-menu-right" aria-labelledby="userDropdown">
                     <a class="dropdown-item" href="/Account/MyProfile">Account Details</a>
-                    @if (User.IsInRole("AdminFull"))
+                    @if (User.IsInRole("AdminFull") || User.IsInRole("Users", AuthType.Full))
                     {
                         <a class="dropdown-item" href="/Account/UserList">User List</a>
                     }

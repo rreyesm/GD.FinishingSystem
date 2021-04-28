@@ -5,6 +5,7 @@ using GD.FinishingSystem.WEB.Classes;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Options;
 using Microsoft.Net.Http.Headers;
@@ -23,24 +24,39 @@ namespace GD.FinishingSystem.WEB.Controllers
         FinishingSystemFactory factory;
         private readonly IFileProvider fileProvider;
         private AppSettings appSettings;
-        public RuloMigrationController(IFileProvider fileProvider, IOptions<AppSettings> appSettings)
+
+        IConfiguration Configuration;
+        IndexModelRuloMigration IndexModelRuloMigration = null;
+        public RuloMigrationController(IFileProvider fileProvider, IOptions<AppSettings> appSettings, IConfiguration configuration)
         {
             factory = new FinishingSystemFactory();
             this.fileProvider = fileProvider;
             this.appSettings = appSettings.Value;
+
+            Configuration = configuration;
+            IndexModelRuloMigration = new IndexModelRuloMigration(factory, configuration);
         }
         // GET: RuloMigration
         [Authorize(AuthenticationSchemes = SystemStatics.DefaultScheme, Roles = "RuloMigrationShow,RuloMigrationFull,AdminFull")]
-        public async Task<ActionResult> Index(int positionRuloMigrationId = 0)
+        public async Task<ActionResult> Index(int positionRuloMigrationId = 0, string currentFilter = null, int? pageIndex = null)
         {
-            VMRuloFilters ruloFilters = new VMRuloFilters();
-            ruloFilters.dtBegin = DateTime.Today.AddMonths(-1);
-            ruloFilters.dtEnd = DateTime.Today.AddDays(1).AddMilliseconds(-1);
-
-            var ruloMigrationList = await factory.RuloMigrations.GetRuloMigrationListFromBetweenDates(ruloFilters.dtBegin, ruloFilters.dtEnd);
+            VMRuloFilters ruloFilters = null;
+            if (currentFilter == null)
+            {
+                ruloFilters = new VMRuloFilters();
+                ruloFilters.dtBegin = DateTime.Today.AddMonths(-1);
+                ruloFilters.dtEnd = DateTime.Today.AddDays(1).AddMilliseconds(-1);
+            }
+            else
+            {
+                ruloFilters = System.Text.Json.JsonSerializer.Deserialize<VMRuloFilters>(currentFilter);
+            }
+            //var ruloMigrationList = await factory.RuloMigrations.GetRuloMigrationListFromBetweenDates(ruloFilters.dtBegin, ruloFilters.dtEnd);
             await SetViewBagsForDates(ruloFilters, positionRuloMigrationId);
 
-            return View(ruloMigrationList);
+            await IndexModelRuloMigration.OnGetAsync("", pageIndex, ruloFilters);
+
+            return View(IndexModelRuloMigration);
         }
 
         [HttpPost]
@@ -48,10 +64,12 @@ namespace GD.FinishingSystem.WEB.Controllers
         public async Task<IActionResult> Index(VMRuloFilters ruloFilters)
         {
             ruloFilters.dtEnd = ruloFilters.dtEnd.AddDays(1).AddMilliseconds(-1);
-            var result = await factory.RuloMigrations.GetRuloMigrationListFromFilters(ruloFilters);
+            //var result = await factory.RuloMigrations.GetRuloMigrationListFromFilters(ruloFilters);
             await SetViewBagsForDates(ruloFilters);
 
-            return View(result);
+            await IndexModelRuloMigration.OnGetAsync("", 1, ruloFilters);
+
+            return View(IndexModelRuloMigration);
         }
 
         private async Task SetViewBagsForDates(VMRuloFilters ruloFilters, int positionRuloMigrationId = 0)

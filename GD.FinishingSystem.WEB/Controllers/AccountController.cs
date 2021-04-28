@@ -161,7 +161,7 @@ namespace GD.FinishingSystem.WEB.Controllers
                 return ValidationProblem("Old Password is not match!");
             }
         }
-        [Authorize(AuthenticationSchemes = SystemStatics.DefaultScheme, Roles = "AdminFull")]
+        [Authorize(AuthenticationSchemes = SystemStatics.DefaultScheme, Roles = "AdminFull, UsersFull")]
         public async Task<IActionResult> UserList()
         {
             var userlist = await factory.Users.GetAll();
@@ -169,7 +169,7 @@ namespace GD.FinishingSystem.WEB.Controllers
 
         }
         [HttpGet]
-        [Authorize(AuthenticationSchemes = SystemStatics.DefaultScheme, Roles = "AdminFull")]
+        [Authorize(AuthenticationSchemes = SystemStatics.DefaultScheme, Roles = "AdminFull, UsersFull")]
         public IActionResult Register()
         {
             ViewBag.Error = false;
@@ -178,7 +178,7 @@ namespace GD.FinishingSystem.WEB.Controllers
             return View(usr);
         }
         [HttpGet]
-        [Authorize(AuthenticationSchemes = SystemStatics.DefaultScheme, Roles = "AdminFull")]
+        [Authorize(AuthenticationSchemes = SystemStatics.DefaultScheme, Roles = "AdminFull, UsersFull")]
         public async Task<IActionResult> RoleManager(int UserID)
         {
             var userroles = await factory.Users.GetAllRoles(UserID);
@@ -189,7 +189,7 @@ namespace GD.FinishingSystem.WEB.Controllers
         }
 
         [HttpPost]
-        [Authorize(AuthenticationSchemes = SystemStatics.DefaultScheme, Roles = "AdminFull")]
+        [Authorize(AuthenticationSchemes = SystemStatics.DefaultScheme, Roles = "AdminFull, UsersFull")]
         public async Task<IActionResult> Register(User user)
         {
             ViewBag.Error = true;
@@ -208,7 +208,7 @@ namespace GD.FinishingSystem.WEB.Controllers
             return Redirect("UserList");
         }
 
-        [HttpGet, Authorize(AuthenticationSchemes = SystemStatics.DefaultScheme, Roles = "AdminFull")]
+        [HttpGet, Authorize(AuthenticationSchemes = SystemStatics.DefaultScheme, Roles = "AdminFull, UsersFull")]
         public async Task<IActionResult> Activate(int UserID)
         {
             await factory.Users.Activate(UserID, int.Parse(User.Identity.Name));
@@ -216,7 +216,7 @@ namespace GD.FinishingSystem.WEB.Controllers
 
         }
 
-        [HttpGet, Authorize(AuthenticationSchemes = SystemStatics.DefaultScheme, Roles = "AdminFull")]
+        [HttpGet, Authorize(AuthenticationSchemes = SystemStatics.DefaultScheme, Roles = "AdminFull, UsersFull")]
         public async Task<IActionResult> DeActivate(int UserID)
         {
             await factory.Users.DeActivate(UserID, int.Parse(User.Identity.Name));
@@ -224,14 +224,14 @@ namespace GD.FinishingSystem.WEB.Controllers
 
         }
 
-        [HttpGet, Authorize(AuthenticationSchemes = SystemStatics.DefaultScheme, Roles = "AdminFull")]
+        [HttpGet, Authorize(AuthenticationSchemes = SystemStatics.DefaultScheme, Roles = "AdminFull, UsersFull")]
         public async Task<IActionResult> ResetPassword(int UserID)
         {
             await factory.Users.ChangePassword(UserID, "123456");
             return Redirect("UserList");
         }
         [HttpPost]
-        [Authorize(AuthenticationSchemes = SystemStatics.DefaultScheme, Roles = "AdminFull")]
+        [Authorize(AuthenticationSchemes = SystemStatics.DefaultScheme, Roles = "AdminFull, UsersFull")]
         public async Task<IActionResult> AddRole(int UserID, string FormName, AuthType rollType)
         {
 
@@ -247,7 +247,7 @@ namespace GD.FinishingSystem.WEB.Controllers
             return Ok("Role added!");
         }
         [HttpPost]
-        [Authorize(AuthenticationSchemes = SystemStatics.DefaultScheme, Roles = "AdminFull")]
+        [Authorize(AuthenticationSchemes = SystemStatics.DefaultScheme, Roles = "AdminFull, UsersFull")]
         public async Task<IActionResult> DeleteRole(int UserID, string FormName, AuthType rollType)
         {
             await factory.Users.RemoveRole(UserID, FormName, rollType, int.Parse(User.Identity.Name));

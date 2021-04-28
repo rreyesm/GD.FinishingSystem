@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
@@ -21,24 +22,42 @@ namespace GD.FinishingSystem.WEB.Controllers
         private readonly IWebHostEnvironment webHostEnvironment = null;
         private AppSettings appSettings;
         FinishingSystemFactory factory;
-        public RuloController(IWebHostEnvironment webHostEnvironment, IOptions<AppSettings> appSettings)
+
+        IConfiguration Configuration;
+        IndexModelRulo IndexModelRulo = null;
+
+        public RuloController(IWebHostEnvironment webHostEnvironment, IOptions<AppSettings> appSettings, IConfiguration configuration)
         {
             this.webHostEnvironment = webHostEnvironment;
             this.appSettings = appSettings.Value;
             factory = new FinishingSystemFactory();
+
+            Configuration = configuration;
+            IndexModelRulo = new IndexModelRulo(factory, configuration);
         }
+
         [HttpGet]
         [Authorize(AuthenticationSchemes = SystemStatics.DefaultScheme, Roles = "RuloShow,RuloFull,AdminFull")]
-        public async Task<IActionResult> Index(int positionRuloId = 0)
+        public async Task<IActionResult> Index(int positionRuloId = 0, string currentFilter = null, int? pageIndex = null)
         {
-            VMRuloFilters ruloFilters = new VMRuloFilters();
-            ruloFilters.dtBegin = DateTime.Today.AddMonths(-1);
-            ruloFilters.dtEnd = DateTime.Today.AddDays(1).AddMilliseconds(-1);
+            VMRuloFilters ruloFilters = null;
+            if (currentFilter == null)
+            {
+                ruloFilters = new VMRuloFilters();
+                ruloFilters.dtBegin = DateTime.Today.AddMonths(-1);
+                ruloFilters.dtEnd = DateTime.Today.AddDays(1).AddMilliseconds(-1);
+            }
+            else
+            {
+                ruloFilters = System.Text.Json.JsonSerializer.Deserialize<VMRuloFilters>(currentFilter);
+            }
 
-            var result = await factory.Rulos.GetRuloListFromBetweenDate(ruloFilters.dtBegin, ruloFilters.dtEnd);
+            //var result = await factory.Rulos.GetRuloListFromBetweenDate(ruloFilters.dtBegin, ruloFilters.dtEnd);
             await SetViewBagsForDates(ruloFilters, positionRuloId);
 
-            return View(result);
+            await IndexModelRulo.OnGetAsync("", pageIndex, ruloFilters);
+
+            return View(IndexModelRulo);
         }
 
 
@@ -46,12 +65,13 @@ namespace GD.FinishingSystem.WEB.Controllers
         [Authorize(AuthenticationSchemes = SystemStatics.DefaultScheme, Roles = "RuloShow,RuloFull,AdminFull")]
         public async Task<IActionResult> Index(VMRuloFilters ruloFilters)
         {
-
             ruloFilters.dtEnd = ruloFilters.dtEnd.AddDays(1).AddMilliseconds(-1);
-            var result = await factory.Rulos.GetRuloListFromFilters(ruloFilters);
+            //var result = await factory.Rulos.GetRuloListFromFilters(ruloFilters);
             await SetViewBagsForDates(ruloFilters);
 
-            return View(result);
+            await IndexModelRulo.OnGetAsync("", 1, ruloFilters);
+
+            return View(IndexModelRulo);
         }
 
         private async Task SetViewBagsForDates(VMRuloFilters ruloFilters, int positionRuloId = 0)
@@ -60,6 +80,7 @@ namespace GD.FinishingSystem.WEB.Controllers
             ViewBag.dtEnd = ruloFilters.dtEnd.ToString("yyyy-MM-dd");
 
             var testCategoryList = await factory.TestCategories.GetTestCategoryList();
+
             var testCategorylist2 = WebUtilities.Create<TestCategory>(testCategoryList, "TestCategoryID", "TestCode", true, "All");
 
             var definitionProcessList = await factory.DefinationProcesses.GetDefinationProcessList();
@@ -80,8 +101,8 @@ namespace GD.FinishingSystem.WEB.Controllers
             ViewBag.folioNumber = ruloFilters.FolioNumber;
 
             //Style list
-            var styleDataList = await factory.Rulos.GetRuloStyleForProductionLoteList();
-            ViewBag.StyleList = styleDataList.Select(x => x.Style).Distinct().ToList();
+            var styleDataList = await factory.Rulos.GetRuloStyleStringForProductionLoteList();
+            ViewBag.StyleList = styleDataList.ToList();
             await GetInfoTitle();
 
             ViewBag.PositionRuloId = positionRuloId;
@@ -469,7 +490,9 @@ namespace GD.FinishingSystem.WEB.Controllers
                 errorMessage += "Cannot be approved if there are no pieces created";
             }
 
-            return new JsonResult(new { errorMessage = errorMessage });
+            int performanceId = await factory.Rulos.GetPerformanceRuloID(ruloId);
+
+            return new JsonResult(new { errorMessage = errorMessage, performanceId = performanceId });
         }
 
         [HttpPost]

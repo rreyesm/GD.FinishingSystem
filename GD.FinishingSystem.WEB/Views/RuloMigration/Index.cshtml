@@ -1,5 +1,5 @@
-﻿@model IEnumerable<GD.FinishingSystem.Entities.RuloMigration>
-
+﻿@*@model IEnumerable<GD.FinishingSystem.Entities.RuloMigration>*@
+@model GD.FinishingSystem.WEB.Classes.IndexModelRuloMigration
 @{
     var styleList = ViewBag.StyleList;
     var positionRuloMigrationId = ViewBag.PositionRuloMigrationId;
@@ -151,59 +151,59 @@
                 <i class="lni lni-line-dashed"></i>
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Date)
+                @Html.DisplayNameFor(model => model.RuloMigrationList[0].Date)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Style)
+                @Html.DisplayNameFor(model => model.RuloMigrationList[0].Style)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.StyleName)
+                @Html.DisplayNameFor(model => model.RuloMigrationList[0].StyleName)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.NextMachine)
+                @Html.DisplayNameFor(model => model.RuloMigrationList[0].NextMachine)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Lote)
+                @Html.DisplayNameFor(model => model.RuloMigrationList[0].Lote)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Stop)
+                @Html.DisplayNameFor(model => model.RuloMigrationList[0].Stop)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Beam)
+                @Html.DisplayNameFor(model => model.RuloMigrationList[0].Beam)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.IsToyota)
+                @Html.DisplayNameFor(model => model.RuloMigrationList[0].IsToyota)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Loom)
+                @Html.DisplayNameFor(model => model.RuloMigrationList[0].Loom)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.PieceNo)
+                @Html.DisplayNameFor(model => model.RuloMigrationList[0].PieceNo)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.PieceBetilla)
+                @Html.DisplayNameFor(model => model.RuloMigrationList[0].PieceBetilla)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Meters)
+                @Html.DisplayNameFor(model => model.RuloMigrationList[0].Meters)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.GummedMeters)
+                @Html.DisplayNameFor(model => model.RuloMigrationList[0].GummedMeters)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.MigrationCategoryID)
-            </th>
-            <th></th>
-            <th>
-                @Html.DisplayNameFor(model => model.Shift)
+                @Html.DisplayNameFor(model => model.RuloMigrationList[0].MigrationCategoryID)
             </th>
             <th></th>
             <th>
-                @Html.DisplayNameFor(model => model.Observations)
+                @Html.DisplayNameFor(model => model.RuloMigrationList[0].Shift)
+            </th>
+            <th></th>
+            <th>
+                @Html.DisplayNameFor(model => model.RuloMigrationList[0].Observations)
             </th>
         </tr>
     </thead>
     <tbody>
-        @foreach (var item in Model)
+        @foreach (var item in Model.RuloMigrationList)
         {
             var color = "bgcolor=transparent";
             if (item.RuloID != null && item.RuloID != 0)
@@ -275,7 +275,7 @@
                         {
                             if (item.RuloID == null || item.RuloID == 0)
                             {
-                                
+
                                 <a id="@("rulo"+@item.RuloMigrationID)" onclick="validateCreateRulo(@item.Lote, @item.RuloMigrationID)" class="btn input-xs btn-dark">
                                     <i class="lni lni-circle-plus"></i> Create Rulo
                                 </a>
@@ -324,6 +324,46 @@
         }
     </tbody>
 </table>
+
+@{
+    var prevDisabled = !Model.RuloMigrationList.HasPreviousPage ? "disabled" : "";
+    var nextDisabled = !Model.RuloMigrationList.HasNextPage ? "disabled" : "";
+}
+
+<div>
+    <a asp-action="Index"
+       asp-route-sortOrder="@Model.CurrentSort"
+       asp-route-pageIndex="1"
+       asp-route-currentFilter="@System.Text.Json.JsonSerializer.Serialize(Model.CurrentVMRuloFilters)"
+       class="btn btn-primary btn-sm @prevDisabled">
+        <i class="lni lni-backward"></i> First
+    </a>
+    <a asp-action="Index"
+       asp-route-sortOrder="@Model.CurrentSort"
+       asp-route-pageIndex="@(Model.RuloMigrationList.PageIndex - 1)"
+       asp-route-currentFilter="@System.Text.Json.JsonSerializer.Serialize(Model.CurrentVMRuloFilters)"
+       class="btn btn-primary btn-sm @prevDisabled">
+        <i class="lni lni-chevron-left"></i> Previous
+    </a>
+    <a asp-action="Index"
+       asp-route-sortOrder="@Model.CurrentSort"
+       asp-route-pageIndex="@(Model.RuloMigrationList.PageIndex + 1)"
+       asp-route-currentFilter="@System.Text.Json.JsonSerializer.Serialize(Model.CurrentVMRuloFilters)"
+       class="btn btn-primary btn-sm @nextDisabled">
+        Next <i class="lni lni-chevron-right "></i>
+    </a>
+    <a asp-action="Index"
+       asp-route-sortOrder="@Model.CurrentSort"
+       asp-route-pageIndex="@(Model.RuloMigrationList.TotalPages)"
+       asp-route-currentFilter="@System.Text.Json.JsonSerializer.Serialize(Model.CurrentVMRuloFilters)"
+       class="btn btn-primary btn-sm @nextDisabled">
+        Last <i class="lni lni-forward"></i>
+    </a>
+
+    <span style="font-weight: bold">
+        Pag.: @(Model.RuloMigrationList.PageIndex) of @(Model.RuloMigrationList.TotalPages)
+    </span>
+</div>
 
 @section scripts{
     <script>

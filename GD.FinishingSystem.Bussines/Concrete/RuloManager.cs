@@ -314,6 +314,20 @@ namespace GD.FinishingSystem.Bussines.Concrete
             await ruloProcessRepository.Update(ruloProcess, updaterRef);
         }
 
+        public override async Task<IEnumerable<string>> GetRuloStyleStringForProductionLoteList()
+        {
+            IEnumerable<string> styleDataList = null;
+            using (dbPlantaContext context = new dbPlantaContext())
+            {
+                styleDataList = await (from ftt in context.FichaTecnicaTelas
+                                       join lp in context.LotesDeProduccions
+                                       on ftt.CódigoTela equals lp.CódigoTela
+                                       select ftt.CódigoTela).Distinct().ToListAsync();
+            }
+
+            return styleDataList;
+        }
+
         public override async Task<IEnumerable<VMStyleData>> GetRuloStyleForProductionLoteList()
         {
             IEnumerable<VMStyleData> styleDataList = null;
@@ -425,7 +439,7 @@ namespace GD.FinishingSystem.Bussines.Concrete
 
             var sql = query.ToQueryString();
 
-            return result;
+            return result.OrderByDescending(x=> x.RuloID);
         }
 
         public override async Task<IEnumerable<VMRuloReport>> GetRuloReportListFromFilters(VMRuloFilters ruloFilters)
@@ -444,7 +458,7 @@ namespace GD.FinishingSystem.Bussines.Concrete
 
                 select r
 
-                ).ToList();
+                ).AsNoTracking().ToList();
 
             var testResults = await testResultRepository.GetWhere(x => !x.IsDeleted);
             var testCategories = await testCategoryRepository.GetWhere(x => x.TestCategoryID != 0);
@@ -562,6 +576,24 @@ namespace GD.FinishingSystem.Bussines.Concrete
             var ruloReportList = await ruloReportRepository.GetWithRawSql(query, parameters);
 
             return ruloReportList;
+        }
+
+        public async override Task<int> GetPerformanceRuloID(int ruloId)
+        {
+            int id = 0;
+            var rulo = await repository.GetByPrimaryKey(ruloId);
+
+            using (dbPerformanceStandardsContext context = new dbPerformanceStandardsContext())
+            {
+                var testMaster = context.TblTestMasters.Where(x => x.Lote == int.Parse(rulo.Lote) && x.Beam == rulo.Beam).OrderByDescending(x => x.CreateDate).FirstOrDefault();
+
+                if (testMaster != null)
+                {
+                    id = testMaster.Id;
+                }
+            }
+
+            return id;
         }
 
         public async override Task<IEnumerable<TblCustomPerformanceForFinishing>> GetPerformanceTestResult(int ruloId)
