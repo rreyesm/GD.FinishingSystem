@@ -1,9 +1,8 @@
-﻿@model IEnumerable<GD.FinishingSystem.Entities.Period>
-
-@{ 
+﻿@model GD.FinishingSystem.WEB.Classes.IndexModelPeriod 
+@{
 }
 
-<h1 class="mt-4">Period</h1>
+<h1 class="mt-4">Periods</h1>
 
 <p>
     <a onclick="showCreatePeriod()" class="btn btn-sm btn-outline-light border-dark btn-dark" role="button" data-backdrop="static" data-keyboard="false" href="#" data-toggle="modal" data-target="#modalDialogGeneral">
@@ -18,45 +17,80 @@
                 <i class="lni lni-line-dashed"></i>
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Style)
+                @Html.DisplayNameFor(model => model.PeriodList[0].Style)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.StartDate)
+                @Html.DisplayNameFor(model => model.PeriodList[0].StartDate)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.FinishDate)
+                @Html.DisplayNameFor(model => model.PeriodList[0].FinishDate)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.ValidityLastPeriod)
+                @Html.DisplayNameFor(model => model.PeriodList[0].ValidityLastPeriod)
             </th>
 
         </tr>
     </thead>
     <tbody>
-        @foreach (var item in Model)
+        @foreach (var item in Model.PeriodList)
         {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.PeriodID)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Style)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.StartDate)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.FinishDate)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.ValidityLastPeriod)
-            </td>
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.PeriodID)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Style)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.StartDate)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.FinishDate)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.ValidityLastPeriod)
+                </td>
 
-        </tr>
+            </tr>
         }
     </tbody>
 </table>
 
+@{
+    var prevDisabled = !Model.PeriodList.HasPreviousPage ? "disabled" : "";
+    var nextDisabled = !Model.PeriodList.HasNextPage ? "disabled" : "";
+}
+
+<div>
+    <a asp-action="Index"
+       asp-route-sortOrder="@Model.CurrentSort"
+       asp-route-pageIndex="1"
+       class="btn btn-primary btn-sm @prevDisabled">
+        <i class="lni lni-backward"></i> First
+    </a>
+    <a asp-action="Index"
+       asp-route-sortOrder="@Model.CurrentSort"
+       asp-route-pageIndex="@(Model.PeriodList.PageIndex - 1)"
+       class="btn btn-primary btn-sm @prevDisabled">
+        <i class="lni lni-chevron-left"></i> Previous
+    </a>
+    <a asp-action="Index"
+       asp-route-sortOrder="@Model.CurrentSort"
+       asp-route-pageIndex="@(Model.PeriodList.PageIndex + 1)"
+       class="btn btn-primary btn-sm @nextDisabled">
+        Next <i class="lni lni-chevron-right "></i>
+    </a>
+    <a asp-action="Index"
+       asp-route-sortOrder="@Model.CurrentSort"
+       asp-route-pageIndex="@(Model.PeriodList.TotalPages)"
+       class="btn btn-primary btn-sm @nextDisabled">
+        Last <i class="lni lni-forward"></i>
+    </a>
+
+    <span style="font-weight: bold">
+        Pag.: @(Model.PeriodList.PageIndex) of @(Model.PeriodList.TotalPages)
+    </span>
+</div>
 
 @*Dialog General*@
 <div class="modal fade" id="modalDialogGeneral" tabindex="-1" role="dialog" width="350px" aria-labelledby="exampleModalLabel" aria-hidden="true">
@@ -88,7 +122,7 @@
     }
 
     function createPeriod() {
-    var stylePeriod = $("#stylePeriod").val();
+        var stylePeriod = $("#stylePeriod").val();
         if (stylePeriod.trim() == '') {
             alert("Style no valid!");
             return;

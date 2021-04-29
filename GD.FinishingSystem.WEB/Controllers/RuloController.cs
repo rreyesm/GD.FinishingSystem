@@ -117,8 +117,10 @@ namespace GD.FinishingSystem.WEB.Controllers
             ViewBag.ErrorMessage = "";
             await SetViewBagsForCreateOrEdit();
 
+            var systemPrinter = await WebUtilities.GetSystemPrinter(factory, this.HttpContext);
+
             Rulo newRulo = new Rulo();
-            var currentPeriod = await factory.Periods.GetCurrentPeriod();
+            var currentPeriod = await factory.Periods.GetCurrentPeriod(systemPrinter.SystemPrinterID);
             if (currentPeriod == null)
             {
                 ViewBag.Error = true;
@@ -141,7 +143,9 @@ namespace GD.FinishingSystem.WEB.Controllers
             int ruloMigrationId1 = Convert.ToInt32(TempData["ruloMigrationId1"]);
             TempData["ruloMigrationId2"] = ruloMigrationId1;
 
-            var currentPeriod = await factory.Periods.GetCurrentPeriod();
+            var systemPrinter = await WebUtilities.GetSystemPrinter(factory, this.HttpContext);
+            var currentPeriod = await factory.Periods.GetCurrentPeriod(systemPrinter.SystemPrinterID);
+
             if (currentPeriod == null)
             {
                 ViewBag.Error = true;
@@ -174,8 +178,9 @@ namespace GD.FinishingSystem.WEB.Controllers
 
             var styleData = await factory.Rulos.GetRuloStyle(lote);
 
+            var systemPrinter = await WebUtilities.GetSystemPrinter(factory, this.HttpContext);
             //Comparation period-rulo style
-            Period period = await factory.Periods.GetCurrentPeriod();
+            Period period = await factory.Periods.GetCurrentPeriod(systemPrinter.SystemPrinterID);
             if (period != null)
             {
                 if (period.Style != styleData.Style)
@@ -224,8 +229,9 @@ namespace GD.FinishingSystem.WEB.Controllers
             rulo.Style = styleData.Style;
             rulo.StyleName = styleData.StyleName;
 
+            var systemPrinter = await WebUtilities.GetSystemPrinter(factory, this.HttpContext);
             //Comparation period-rulo style
-            Period period = await factory.Periods.GetCurrentPeriod();
+            Period period = await factory.Periods.GetCurrentPeriod(systemPrinter.SystemPrinterID);
             if (period != null)
             {
                 if (period.Style != styleData.Style)
@@ -254,7 +260,7 @@ namespace GD.FinishingSystem.WEB.Controllers
                 //newPeriod.Style = rulo.Style;
                 //await factory.Periods.Add(newPeriod, int.Parse(User.Identity.Name));
 
-                var currentPeriod = await factory.Periods.GetCurrentPeriod();
+                var currentPeriod = await factory.Periods.GetCurrentPeriod(systemPrinter.SystemPrinterID);
 
                 if (rulo.SentAuthorizerID == 0) rulo.SentAuthorizerID = null;
                 rulo.PeriodID = currentPeriod.PeriodID;
@@ -615,11 +621,45 @@ namespace GD.FinishingSystem.WEB.Controllers
         [HttpGet, Authorize(AuthenticationSchemes = SystemStatics.DefaultScheme, Roles = "RuloShow,RuloFull,AdminFull")]
         public async Task GetInfoTitle()
         {
+            var periods = await factory.Periods.GetCurrentPeriods();
+            var systemPrinterList = await factory.SystemPrinters.GetSystemPrinterList();
+            var machineList = await factory.Machines.GetMachineList();
 
-            Period period = await factory.Periods.GetCurrentPeriod();
+            string style = string.Empty;
+            string machineName = string.Empty;
+            foreach (var period in periods.ToList())
+            {
+                if (period.SystemPrinterID != null)
+                {
+                    var systemPrinter = systemPrinterList.Where(x => x.SystemPrinterID == period.SystemPrinterID).FirstOrDefault();
+                    if (systemPrinter != null)
+                    {
+                        var machine = machineList.Where(x => x.MachineID == systemPrinter.MachineID).FirstOrDefault();
+                        if (machine != null)
+                            machineName = machine.MachineName;
+                    }
+                }
 
-            string style = period != null ? period.Style : "There are no rulo in process";
-            string title = $"Period: {style}";
+                if (!string.IsNullOrWhiteSpace(machineName))
+                {
+                    if (string.IsNullOrWhiteSpace(style))
+                        style += machineName.ToUpper() + ": " + period.Style;
+                    else
+                        style += ", " + machineName.ToUpper() + ": " + period.Style;
+                }
+                else
+                {
+                    if (string.IsNullOrWhiteSpace(style))
+                        style += period.Style;
+                    else
+                        style += ", " + period.Style;
+                }
+            }
+
+            if (string.IsNullOrWhiteSpace(style))
+                style = "There are no rulo in process";
+
+            string title = $"Periods: {style}";
             ViewBag.CurrentPeriod = title;
 
         }

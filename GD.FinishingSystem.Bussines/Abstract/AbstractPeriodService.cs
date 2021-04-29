@@ -10,7 +10,8 @@ namespace GD.FinishingSystem.Bussines.Abstract
     {
         public abstract Task<IEnumerable<Period>> GetPeriodList();
         public abstract Task<Period> GetPeriodFromPeriodID(int periodID);
-        public abstract Task<Period> GetCurrentPeriod();
+        public abstract Task<Period> GetCurrentPeriod(int? systemPrinterId);
+        public abstract Task<IEnumerable<Period>> GetCurrentPeriods();
         public abstract Task Add(Period period, int adderRef);
         public abstract Task Update(Period period, int updaterRef);
         public abstract Task Delete(Period period, int deleterRef);

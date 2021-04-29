@@ -328,8 +328,9 @@ namespace GD.FinishingSystem.WEB.Controllers
             string errorMessage = string.Empty;
             var styleData = await factory.Rulos.GetRuloStyle(lote);
 
+            var systemPrinter = await WebUtilities.GetSystemPrinter(factory, this.HttpContext);
             //Comparation period-rulo style
-            Period period = await factory.Periods.GetCurrentPeriod();
+            Period period = await factory.Periods.GetCurrentPeriod(systemPrinter.SystemPrinterID);
             if (period != null)
             {
                 if (period.Style != styleData.Style)

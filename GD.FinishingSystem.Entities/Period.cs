@@ -24,6 +24,8 @@ namespace GD.FinishingSystem.Entities
             set { LastPeriod = value.Ticks; }
         }
         public string Style { get; set; }
-
+        [ForeignKey("SystemPrinterID")]
+        public int? SystemPrinterID { get; set; }
+        public SystemPrinter SystemPrinter { get; set; }
     }
 }

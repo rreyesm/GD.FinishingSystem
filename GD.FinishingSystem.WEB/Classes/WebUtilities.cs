@@ -5,6 +5,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using GD.FinishingSystem.Entities.ViewModels;
 using Microsoft.AspNetCore.Http;
+using GD.FinishingSystem.Entities;
+using GD.FinishingSystem.Bussines;
 
 namespace GD.FinishingSystem.WEB.Classes
 {
@@ -168,6 +170,16 @@ namespace GD.FinishingSystem.WEB.Classes
             }
 
             return (isOk, resultIP);
+        }
+
+        public async static Task<SystemPrinter> GetSystemPrinter(FinishingSystemFactory factory, HttpContext context)
+        {
+            var resultIP = GetMachineIP(context);
+
+            var systemPrinterList = await factory.SystemPrinters.GetSystemPrinterList();
+            var systemPrinter = systemPrinterList.Where(x => x.PCIP == resultIP.IP).FirstOrDefault();
+            
+            return systemPrinter;
         }
     }
 }

@@ -1,8 +1,10 @@
 ﻿using GD.FinishingSystem.Bussines;
 using GD.FinishingSystem.Entities;
+using GD.FinishingSystem.WEB.Classes;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,24 +16,29 @@ namespace GD.FinishingSystem.WEB.Controllers
     public class PeriodController : Controller
     {
         FinishingSystemFactory factory;
-        public PeriodController()
+        IndexModelPeriod IndexModelPeriod = null;
+        public PeriodController(IConfiguration configuration)
         {
             factory = new FinishingSystemFactory();
+
+            IndexModelPeriod = new IndexModelPeriod(factory, configuration);
         }
 
         [HttpGet]
         [Authorize(AuthenticationSchemes = SystemStatics.DefaultScheme, Roles = "PeriodShow, PeriodFull, AdminFull")]
-        public async Task<ActionResult> Index()
+        public async Task<ActionResult> Index(int? pageIndex = null)
         {
-            var result = await factory.Periods.GetPeriodList();
+            //var result = await factory.Periods.GetPeriodList();
+            await IndexModelPeriod.OnGetAsync("", pageIndex);
 
-            return View(result);
+            return View(IndexModelPeriod);
         }
 
         [HttpPost, Authorize(AuthenticationSchemes = SystemStatics.DefaultScheme, Roles = "PeriodAdd,PeriodFull,AdminFull")]
         public async Task<IActionResult> CreatePeriod(string style)
         {
-            var currentPeriod = await factory.Periods.GetCurrentPeriod();
+            var systemPrinter = await WebUtilities.GetSystemPrinter(factory, this.HttpContext);
+            var currentPeriod = await factory.Periods.GetCurrentPeriod(systemPrinter.SystemPrinterID);
 
             //Validate current period and update
             if (currentPeriod != null)
@@ -45,6 +52,7 @@ namespace GD.FinishingSystem.WEB.Controllers
             Period newPeriod = new Period();
             newPeriod.StartDate = DateTime.Now;
             newPeriod.Style = style;
+            newPeriod.SystemPrinterID = systemPrinter.SystemPrinterID;
 
             await factory.Periods.Add(newPeriod, int.Parse(User.Identity.Name));
 

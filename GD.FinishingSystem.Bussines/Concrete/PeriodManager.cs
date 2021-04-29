@@ -5,6 +5,7 @@ using GD.FinishingSystem.Entities;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -27,9 +28,15 @@ namespace GD.FinishingSystem.Bussines.Concrete
             await repository.Remove(period.PeriodID, deleterRef);
         }
 
-        public async override Task<Period> GetCurrentPeriod()
+        public async override Task<Period> GetCurrentPeriod(int? systemPrinterId)
         {
-            var result = await repository.FirstOrDefault(o => !o.IsDeleted && o.FinishDate == null);
+            var result = await repository.FirstOrDefault(o => !o.IsDeleted && o.FinishDate == null && o.SystemPrinterID == systemPrinterId);
+            return result;
+        }
+
+        public async override Task<IEnumerable<Period>> GetCurrentPeriods()
+        {
+            var result = await repository.GetWhere(x => !x.IsDeleted && x.FinishDate == null);
             return result;
         }
 
@@ -40,7 +47,9 @@ namespace GD.FinishingSystem.Bussines.Concrete
 
         public async override Task<IEnumerable<Period>> GetPeriodList()
         {
-            return await repository.GetWhere(x => !x.IsDeleted);
+            var periods = await repository.GetWhere(x => !x.IsDeleted);
+
+            return periods.OrderByDescending(x => x.PeriodID);
         }
 
         public async override Task Update(Period period, int updaterRef)
