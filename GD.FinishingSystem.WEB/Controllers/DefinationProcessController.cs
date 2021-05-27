@@ -20,30 +20,30 @@ namespace GD.FinishingSystem.WEB.Controllers
         [Authorize(AuthenticationSchemes = SystemStatics.DefaultScheme, Roles = "DefinitionProcessShow, DefinitionProcessFull, AdminFull")]
         public async Task<IActionResult> Index()
         {
-            DateTime dtBegin = DateTime.Today.AddMonths(-1);
-            DateTime dtEnd = DateTime.Today.AddDays(1).AddMilliseconds(-1);
+            //DateTime dtBegin = DateTime.Today.AddMonths(-1);
+            //DateTime dtEnd = DateTime.Today.AddDays(1).AddMilliseconds(-1);
 
-            var result = await factory.DefinationProcesses.GetDefinationProcessListFromBetweenDate(dtBegin, dtEnd);
+            var result = await factory.DefinationProcesses.GetDefinationProcessListFromBetweenDate();
 
-            SetViewBagsForDates(dtBegin, dtEnd);
+            //SetViewBagsForDates(dtBegin, dtEnd);
             return View(result);
         }
 
-        [HttpPost]
-        [Authorize(AuthenticationSchemes = SystemStatics.DefaultScheme, Roles = "DefinitionProcessShow, DefinitionProcessFull,AdminFull")]
-        public async Task<IActionResult> Index(DateTime dtBegin, DateTime dtEnd)
-        {
-            dtEnd = dtEnd.AddDays(1).AddMilliseconds(-1);
-            var result = await factory.DefinationProcesses.GetDefinationProcessListFromBetweenDate(dtBegin, dtEnd);
-            SetViewBagsForDates(dtBegin, dtEnd);
-            return View(result);
-        }
+        //[HttpPost]
+        //[Authorize(AuthenticationSchemes = SystemStatics.DefaultScheme, Roles = "DefinitionProcessShow, DefinitionProcessFull,AdminFull")]
+        //public async Task<IActionResult> Index(DateTime dtBegin, DateTime dtEnd)
+        //{
+        //    dtEnd = dtEnd.AddDays(1).AddMilliseconds(-1);
+        //    var result = await factory.DefinationProcesses.GetDefinationProcessListFromBetweenDate(dtBegin, dtEnd);
+        //    SetViewBagsForDates(dtBegin, dtEnd);
+        //    return View(result);
+        //}
 
-        private void SetViewBagsForDates(DateTime dtBegin, DateTime dtEnd)
-        {
-            ViewBag.dtBegin = dtBegin.ToString("yyyy-MM-dd");
-            ViewBag.dtEnd = dtEnd.ToString("yyyy-MM-dd");
-        }
+        //private void SetViewBagsForDates(DateTime dtBegin, DateTime dtEnd)
+        //{
+        //    ViewBag.dtBegin = dtBegin.ToString("yyyy-MM-dd");
+        //    ViewBag.dtEnd = dtEnd.ToString("yyyy-MM-dd");
+        //}
 
         [HttpGet]
         [Authorize(AuthenticationSchemes = SystemStatics.DefaultScheme, Roles = "DefinitionProcessAdd, DefinitionProcessFull, AdminFull")]

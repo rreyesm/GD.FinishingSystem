@@ -1,9 +1,12 @@
 ﻿using GD.FinishingSystem.Bussines;
 using GD.FinishingSystem.Entities;
+using GD.FinishingSystem.WEB.Classes;
+using GD.FinishingSystem.WEB.Interfaces;
 using GD.FinishingSystem.WEB.Models;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,9 +18,11 @@ namespace GD.FinishingSystem.WEB.Controllers
     public class AccountController : Controller
     {
         FinishingSystemFactory factory;
-        public AccountController()
+        private readonly IWritableOptions<AppSettings> _writableAppSettings;
+        public AccountController(IWritableOptions<AppSettings> writableAppSettings)
         {
             this.factory = new FinishingSystemFactory();
+            _writableAppSettings = writableAppSettings;
         }
 
         [HttpGet]
@@ -77,7 +82,7 @@ namespace GD.FinishingSystem.WEB.Controllers
                     return PartialView(login);
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 ErrorViewModel err = new ErrorViewModel()
                 {
@@ -143,6 +148,8 @@ namespace GD.FinishingSystem.WEB.Controllers
         [Authorize(AuthenticationSchemes = SystemStatics.DefaultScheme)]
         public async Task<IActionResult> MyProfile()
         {
+            ViewBag.PaginationSize = _writableAppSettings.Value.PageSize;
+
             var user = await factory.Users.GetByUserID(int.Parse(User.Identity.Name));
             if (user == null) Redirect("/Account/Login");
             return View(user);
@@ -252,6 +259,18 @@ namespace GD.FinishingSystem.WEB.Controllers
         {
             await factory.Users.RemoveRole(UserID, FormName, rollType, int.Parse(User.Identity.Name));
             return Ok("Role Deleted!");
+        }
+
+        [Authorize(AuthenticationSchemes = SystemStatics.DefaultScheme), HttpPost]
+        public IActionResult ChangePaginationSize(int paginationSize)
+        {
+            //appSettings.PageSize = paginationSize;
+            _writableAppSettings.Update(x => {
+                x.PageSize = paginationSize;
+            });
+
+            return Ok("Pagination changed!");
+
         }
 
     }

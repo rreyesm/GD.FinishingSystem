@@ -40,9 +40,10 @@ namespace GD.FinishingSystem.Bussines.Concrete
             return result;
         }
 
-        public override async Task<IEnumerable<DefinationProcess>> GetDefinationProcessListFromBetweenDate(DateTime begin, DateTime end)
+        public override async Task<IEnumerable<DefinationProcess>> GetDefinationProcessListFromBetweenDate() /*DateTime begin, DateTime end*/
         {
-            var result = await repository.GetWhere(o => !o.IsDeleted && (o.CreatedDate <= end && o.CreatedDate >= begin) || (o.CreatedDate <= begin && o.CreatedDate >= end));
+            //&& (o.CreatedDate <= end && o.CreatedDate >= begin) || (o.CreatedDate <= begin && o.CreatedDate >= end)
+            var result = await repository.GetWhere(o => !o.IsDeleted );
             return result;
         }
 

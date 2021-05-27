@@ -19,9 +19,13 @@
 @if (User.IsInRole("RuloAdd") || User.IsInRole("AdminFull") || User.IsInRole("RuloFull"))
 {
     <p>
-        <a asp-action="Create" class="btn btn-sm btn-outline-light border-dark btn-dark">
+        <a onclick="validateCreateRulo()" class="btn btn-sm btn-outline-light border-dark btn-dark">
             <i class="lni lni-circle-plus"></i> Create New
         </a>
+
+@*        <a asp-action="Create" class="btn btn-sm btn-outline-light border-dark btn-dark">
+            <i class="lni lni-circle-plus"></i> Create New
+        </a>*@
     </p>
 }
 
@@ -44,7 +48,7 @@
         <div class="col-md-2">
             <div class="form-group">
                 <label for="numLote">Lote</label><br>
-                <input numLote type="number" onfocusout="controlForSmallerThanZero('numLote')" min="0" style="width:100% !important;" id="numLote" name="numLote">
+                <input type="number" onfocusout="controlForSmallerThanZero('numLote')" min="0" style="width:100% !important;" id="numLote" name="numLote">
             </div>
         </div>
         <div class="col-md-2">
@@ -273,8 +277,8 @@
                                     @if (item.TestResultID == null || item.TestResultID == 0 || item.IsWaitingAnswerFromTest)
                                     {
                                         @Html.Raw(" | ")
-                                        <a onclick="testResultValidateInfo(@item.RuloID)" class="btn  input-xs btn-dark"><i class="fa fa-vial"></i></a>
-                                        <!-- <a onclick="testResult(@item.RuloID)" class="btn  input-xs btn-dark" data-toggle="modal" data-target="#modalDialog"><i class="lni lni-flag"></i></a>-->
+                                        @*<a onclick="testResultValidateInfo(@item.RuloID)" class="btn  input-xs btn-dark"><i class="fa fa-vial"></i></a>*@
+                                         <a onclick="testResult(@item.RuloID)" class="btn  input-xs btn-dark" data-toggle="modal" data-target="#modalDialog"><i class="lni lni-flag"></i></a>
                                     }
                                 }
                             }
@@ -285,7 +289,7 @@
                     </td>
 
                     <td>
-                        <div style="display:block;width:165px;">
+                        <div style="display:block;width:170px;">
                             @if (User.IsInRole("Rulo", AuthType.Update))
                             {
                                 <a asp-controller="Rulo" asp-action="Edit" asp-route-ruloid="@item.RuloID">
@@ -377,6 +381,7 @@
 <!-- Modal -->
 <div class="modal fade" id="modalDialog" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
+        @*modal-lg*@
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="exampleModalLabel">Test Result</h5>
@@ -453,7 +458,6 @@
         </div>
     </div>
 </div>
-
 
 @*info*@
 <hr />
@@ -572,8 +576,13 @@
                     alert(data.errorMessage);
                 }
                 else {
-                    $('#modalDialog').modal('show');
-                    testResult(ruloId, data.performanceId);
+                    $('#modalDialog').modal('show'); /*modalDialog*/
+                    //$("#modalDialog").modal({
+                    //    show: true,
+                    //    data-target: 'bd-example-modal-lg'
+                    //});
+                    //testResult(ruloId, data.performanceId);
+                    showTestResultWithPerformance(ruloId, data.performanceId);
                 }
             },
             error: function (xhr, ajaxOptions, thrownError) {
@@ -609,9 +618,11 @@
         if (performanceId == 0)
             performanceId = "No tests";
 
-        var sel = "<h5>Performance Test Result ID: " + performanceId + "</h5>";
-        sel += "<br/>"
-        sel += "Select Test Result: <Select id='ddlTestResults'>";
+        //var sel = "<h5>Performance Test Result ID: " + performanceId + "</h5>";
+        var sel = "Test #: ";
+        sel += "<input style='width: 100 % !important;' type='number' id='performanceId' name='performanceId' /> <hr/>";
+
+        sel += "Result: <Select id='ddlTestResults'>";
 
         $.each(testCategory, function (index, value) {
             sel += "<option value='" + value.Value + "'>" + value.Text + "</option>";
@@ -711,6 +722,7 @@
 
     function restoreDialog() {
         document.getElementById('modalDialogGeneral').classList.remove('text-center');
+        document.getElementById('generalInfo').innerHTML = '';
     }
 
     function controlForSmallerThanZero(controlID) {
@@ -726,6 +738,18 @@
 
     function Finish() {
         var description = $("#ddlTestResults :selected").text();
+        var performanceId = $("#performanceId").val();
+
+        if (isNaN(performanceId)) {
+            alert("Performance ID no valid!");
+            return;
+        }
+
+        if (performanceId == 0) {
+            alert("Performance ID no valid!");
+            return;
+        }
+
         if (description == 'All') {
             alert('Please select an option');
             return;
@@ -742,6 +766,7 @@
         var testCategoryId = $("#ddlTestResults :selected").val();
         var testCategoryText = $("#ddlTestResults :selected").text();
         var description = $("#ddlTestResultsDescription").val();
+        var performanceId = $("#performanceId").val();
 
         $.ajax({
             url: "/Rulo/TestResultFinish",
@@ -751,7 +776,8 @@
                 RuloId: ruloId,
                 TestCategoryId: testCategoryId,
                 TestCategoryText: testCategoryText,
-                Description: description
+                Description: description,
+                PerformanceId: performanceId
             },
             success: function (data) {
                 location.reload();
@@ -964,6 +990,71 @@
             },
             error: function(xhr, ajaxOptions, thrownError) {
                 alert("Something went wrong!");
+            }
+        });
+    }
+
+    function showTestResultWithPerformance(ruloId, performanceId) {
+        $.ajax({
+            url: "/Rulo/GetTestResultWithPerformance",
+            type: "Get",
+            data: {
+                ruloId: ruloId,
+                performanceId: performanceId
+            },
+            success: function (data) {
+                //document.getElementById('generalInfo').innerHTML = data;
+                document.getElementById('objModal').innerHTML = data;
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                alert("Something went wrong!");
+            }
+        });
+    }
+
+    function GetPerformance() {
+        var performanceId = $("#performanceId").val();
+
+        if (isNaN(performanceId)) {
+            alert("Number is not valid!");
+            return;
+        }
+
+        $.ajax({
+            url: "/Rulo/GetPerformanceTestResult",
+            type: "Get",
+            data: {
+                ruloId: ruloId,
+                performanceId: performanceId
+            },
+            success: function (data) {
+                document.getElementById('generalInfo').innerHTML = data;
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                alert("Something went wrong!");
+            }
+        });
+    }
+
+    function validateCreateRulo() {
+        $.ajax({
+            url: "/Rulo/ValidateCreateRulo",
+            type: "GET",
+            data: {
+            },
+            success: function (data) {
+                if (data) {
+                    if (data.errorMessage == "") {
+                        location.href = "/Rulo/Create";
+                    }
+                    else
+                        alert(data.errorMessage);
+                }
+                else
+                    alert("Something went wrong!")
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                alert("404 Not found!");
             }
         });
     }

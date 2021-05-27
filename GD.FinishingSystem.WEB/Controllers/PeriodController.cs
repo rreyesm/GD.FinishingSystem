@@ -1,10 +1,12 @@
 ﻿using GD.FinishingSystem.Bussines;
 using GD.FinishingSystem.Entities;
+using GD.FinishingSystem.Entities.ViewModels;
 using GD.FinishingSystem.WEB.Classes;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,11 +19,12 @@ namespace GD.FinishingSystem.WEB.Controllers
     {
         FinishingSystemFactory factory;
         IndexModelPeriod IndexModelPeriod = null;
-        public PeriodController(IConfiguration configuration)
+        AppSettings _appSettings;
+        public PeriodController(IOptions<AppSettings> appSettings)
         {
             factory = new FinishingSystemFactory();
-
-            IndexModelPeriod = new IndexModelPeriod(factory, configuration);
+            _appSettings = appSettings.Value;
+            IndexModelPeriod = new IndexModelPeriod(factory, _appSettings);
         }
 
         [HttpGet]
@@ -38,6 +41,7 @@ namespace GD.FinishingSystem.WEB.Controllers
         public async Task<IActionResult> CreatePeriod(string style)
         {
             var systemPrinter = await WebUtilities.GetSystemPrinter(factory, this.HttpContext);
+
             var currentPeriod = await factory.Periods.GetCurrentPeriod(systemPrinter.SystemPrinterID);
 
             //Validate current period and update
@@ -160,5 +164,24 @@ namespace GD.FinishingSystem.WEB.Controllers
                 return View();
             }
         }
+
+        [HttpPost]
+        [Authorize(AuthenticationSchemes = SystemStatics.DefaultScheme, Roles = "PeriodShow,PeriodFull,AdminFull")]
+        public async Task<IActionResult> ExportAllToExcel()
+        {
+            var result = await factory.Periods.GetVMPeriodList();
+
+            ExportToExcel export = new ExportToExcel();
+            string reportName = "Finishing Period Report";
+            string fileName = $"Finishing Period Report_{DateTime.Today.Year}_{DateTime.Today.Month.ToString().PadLeft(2, '0')}_{DateTime.Today.Day.ToString().PadLeft(2, '0')}.xlsx";
+
+            var exclude = new List<string>() { "LastPeriod" };
+            var fileResult = await export.ExportWithDisplayName<VMPeriodReport>("Global Denim S.A. de C.V.", "Finishing", reportName, fileName, result.ToList(), exclude);
+
+            if (!fileResult.Item1) return NotFound();
+
+            return fileResult.Item2;
+        }
+
     }
 }

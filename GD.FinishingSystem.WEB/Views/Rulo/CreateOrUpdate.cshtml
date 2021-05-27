@@ -31,6 +31,15 @@
         <div asp-validation-summary="ModelOnly" class="text-danger"></div>
         <div class="row">
 
+            @if (User.IsInRole("Authorize", AuthType.Add) || User.IsInRole("Authorize", AuthType.Full))
+            {
+                <div class="col-lg-3 col-md-4 col-sm-12">
+                    <div class="form-group">
+                        <label asp-for="IsTestStyle" class="control-label"></label>
+                        <input type="checkbox" asp-for="IsTestStyle" class="form-control input-xs" onclick="setStyleTest();" />
+                    </div>
+                </div>
+            }
 
             <div class="col-lg-3 col-md-4 col-sm-12">
                 <div class="form-group">
@@ -164,36 +173,60 @@
 
 <script>
     function getStyleData() {
-        let loteRulo = $("#Lote").val();
+        var isTestStyle = false;
 
-        if (!isNaN(loteRulo)) {
-            if (loteRulo != 0) {
-                $.ajax({
-                    url: "/Rulo/GetStyleData",
-                    type: "POST",
-                    data: {
-                        lote: loteRulo
-                    },
-                    success: function (data) {
-                        if (data) {
-                            if (data.errorMessage == "") {
-                                $("#Style").val(data.style);
-                                $("#StyleName").val(data.styleName);
+        if (document.getElementById("IsTestStyle"))
+            isTestStyle = document.getElementById("IsTestStyle").checked;
+
+        if (!isTestStyle) {
+
+            let loteRulo = $("#Lote").val();
+
+            if (!isNaN(loteRulo)) {
+                if (loteRulo != 0) {
+                    $.ajax({
+                        url: "/Rulo/GetStyleData",
+                        type: "POST",
+                        data: {
+                            lote: loteRulo
+                        },
+                        success: function (data) {
+                            if (data) {
+                                if (data.errorMessage == "") {
+                                    $("#Style").val(data.style);
+                                    $("#StyleName").val(data.styleName);
+                                }
+                                else
+                                    alert(data.errorMessage);
                             }
-                            else
-                                alert(data.errorMessage);
+                        },
+                        error: function (xhr, ajaxOptions, thrownError) {
+                            alert("404 Not found!");
                         }
-                    },
-                    error: function (xhr, ajaxOptions, thrownError) {
-                        alert("404 Not found!");
-                    }
-                })
+                    })
+                }
             }
-        }
-        else {
-            $("#Style").val("");
-            $("#StyleName").val("");
+            else {
+                $("#Style").val("");
+                $("#StyleName").val("");
+            }
+
         }
 
     }
+
+    window.load = setStyleTest();
+
+    function setStyleTest() {
+        if (document.getElementById('IsTestStyle')) {
+            if (document.getElementById('IsTestStyle').checked) {
+                document.getElementById('Style').disabled = false;
+                document.getElementById('StyleName').disabled = false;
+            } else {
+                document.getElementById('Style').disabled = true;
+                document.getElementById('StyleName').disabled = true;
+            }
+        }
+    }
+
 </script>

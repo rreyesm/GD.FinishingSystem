@@ -139,7 +139,19 @@
 
                     </div>
                     <div class="nav">
-                        <div class="sb-sidenav-menu-heading">Configuration</div>
+                        <div class="sb-sidenav-menu-heading">Reports</div>
+                        @if (User.IsInRole("Report", AuthType.Show) || User.IsInRole("Report", AuthType.Full))
+                        {
+                            <a class="nav-link" asp-controller="Report" asp-action="Index">
+                                <div class="sb-nav-link-icon">
+                                    <i class="far fa-file-alt"></i>
+                                </div>
+                                Custom Reports
+                            </a>
+                        }
+                    </div>
+                    <div class="nav">
+                        <div class="sb-sidenav-menu-heading">Configurations</div>
                         @if (User.IsInRole("SystemPrinter", AuthType.Full))
                         {
                             <a class="nav-link" asp-controller="SystemPrinter" asp-action="Index">

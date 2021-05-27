@@ -11,13 +11,12 @@ namespace GD.FinishingSystem.WEB.Classes
 {
     public class IndexModelRuloMigration
     {
-        private readonly IConfiguration Configuration;
         FinishingSystemFactory factory;
-
-        public IndexModelRuloMigration(FinishingSystemFactory factory, IConfiguration configuration)
+        AppSettings appSettings;
+        public IndexModelRuloMigration(FinishingSystemFactory factory, AppSettings appSettings)
         {
-            Configuration = configuration;
             this.factory = factory;
+            this.appSettings = appSettings;
         }
 
         public string NameSort { get; set; }
@@ -38,7 +37,7 @@ namespace GD.FinishingSystem.WEB.Classes
 
             var result = await factory.RuloMigrations.GetRuloMigrationListFromFilters(ruloFilters);
 
-            var pageSize = Configuration.GetValue("PageSize", 4);
+            var pageSize = appSettings.PageSize != 0 ? appSettings.PageSize : 5;
             RuloMigrationList = PaginatedList<RuloMigration>.CreatePaginated(result, pageIndex ?? 1, pageSize);
         }
     }

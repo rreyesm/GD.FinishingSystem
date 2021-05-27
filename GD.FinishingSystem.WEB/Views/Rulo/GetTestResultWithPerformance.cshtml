@@ -1,0 +1,74 @@
+﻿@model IEnumerable<GD.FinishingSystem.DAL.EFdbPerformanceStandards.TblCustomPerformanceForFinishing>
+
+@{ 
+    var ruloIdPerformance = ViewBag.RuloId;
+}
+    <div class="row">
+        <div class="col-md-6" style="width:100% !important;">
+            <h6>Test</h6>
+            <input style="width:100% !important;" type="number" id='performanceId' name='performanceId' />
+            <a class="btn btn-sm btn-primary" onclick="GetPerformance(@ruloIdPerformance)" role="button" data-backdrop="static" data-keyboard="false" href="#" data-target="#modalDialogPieces">
+                <i class="fa fa-vial"></i> Performance
+            </a>
+            <hr />
+
+            <h6>Result: </h6>
+            <select style="width:100% !important;" id="ddlTestResults" name="numTestCategory" asp-items="@ViewBag.TestCategorytList"></select>
+
+            <br /><label for='ddlTestResultsDescription'>Observations:</label>
+            <textarea style="width:100% !important;" id='ddlTestResultsDescription' name='ddlTestResultsDescription' rows='4'></textarea> @*cols='50'*@
+            @*<input type=hidden id='ruloId' name='ruloId' value=" + ruloId + " />*@
+        </div>
+
+        <div class="col-md-6">
+            <table class="table table-sm table-hover table-responsive-lg">
+                <thead>
+                    <tr>
+                        <th style="color: white; background: #808080;">
+                            @Html.DisplayNameFor(model => model.Category)
+                        </th>
+                        <td colspan="2">
+                            @Html.DisplayFor(model => model.FirstOrDefault().Category)
+                        </td>
+                    </tr>
+                    <tr style="color: #fff; background: black;">
+                        <th>
+                            @Html.DisplayNameFor(model => model.ParameterName)
+                        </th>
+                        <th>
+                            @Html.DisplayNameFor(model => model.MethodName)
+                        </th>
+                        <th>
+                            @Html.DisplayNameFor(model => model.Value)
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+
+                        var color = "bgcolor=transparent";
+                        if (item.ParameterName.Equals("STIFFNESS", StringComparison.InvariantCultureIgnoreCase))
+                            color = "bgcolor=ff6666";
+                        else if (item.ParameterName.Equals("WIDTH TOTAL", StringComparison.InvariantCultureIgnoreCase))
+                            color = "bgcolor=transparent";
+                        else
+                            color = "bgcolor=66ff66";
+
+                        <tr @color>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.ParameterName)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.MethodName)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.Value)
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+    </div>

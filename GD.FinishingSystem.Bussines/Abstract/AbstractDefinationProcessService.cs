@@ -10,7 +10,7 @@ namespace GD.FinishingSystem.Bussines.Abstract
     {
             
         public abstract Task<IEnumerable<DefinationProcess>> GetDefinationProcessList();
-        public abstract Task<IEnumerable<DefinationProcess>> GetDefinationProcessListFromBetweenDate(DateTime begin, DateTime end);
+        public abstract Task<IEnumerable<DefinationProcess>> GetDefinationProcessListFromBetweenDate();
         public abstract Task<DefinationProcess> GetDefinationProcessFromDefinationProcessID(int DefinationProcessID);
         public abstract Task Add(DefinationProcess DefinationProcessInformation, int adderRef);
         public abstract Task Update(DefinationProcess DefinationProcessInformation, int updaterRef);

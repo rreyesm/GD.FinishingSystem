@@ -101,6 +101,7 @@ namespace GD.FinishingSystem.DAL.Concrete.EntityFramework
         public DbSet<TestResult> TestResults { get; set; }
         public DbSet<User> Users { get; set; }
         public DbSet<UserRole> UserRoles { get; set; }
+        //public DbSet<TblCustomReport> TblCustomReports { get; set; }
         #endregion
 
         #region Settings
@@ -126,8 +127,24 @@ namespace GD.FinishingSystem.DAL.Concrete.EntityFramework
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<VMRuloReport>()
-    .HasNoKey();
+            modelBuilder.Entity<VMRuloReport>().HasNoKey();
+
+            //Custom table
+            //modelBuilder.Entity<TblCustomReport>().HasNoKey();
+
+            modelBuilder.Entity<TblCustomReport>(entity =>
+            {
+                entity.HasNoKey();
+                entity.ToTable("TblCustomReport");
+                entity.Property(e => e.Name).HasMaxLength(150);
+                entity.Property(e => e.Shift);
+                entity.Property(e => e.Style).HasMaxLength(20);
+                entity.Property(e => e.StyleName).HasMaxLength(150);
+                entity.Property(e => e.Lote).HasMaxLength(10);
+                entity.Property(e => e.FinishMeterRama);
+                entity.Property(e => e.FinishMeterRP);
+                entity.Property(e => e.ExitLength);
+            });
         }
 
 

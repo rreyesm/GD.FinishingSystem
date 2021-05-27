@@ -143,7 +143,11 @@ namespace GD.FinishingSystem.WEB.Classes
 
             using (var workbook = new XLWorkbook())
             {
-                var workSheet = workbook.Worksheets.Add(title);
+                IXLWorksheet workSheet;
+                if (title.Length > 31)
+                    workSheet = workbook.Worksheets.Add(title.Substring(0, 28) + "...");
+                else
+                    workSheet = workbook.Worksheets.Add(title);
 
                 //Title
                 int rowIni = 1;

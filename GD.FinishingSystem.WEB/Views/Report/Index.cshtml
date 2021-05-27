@@ -1,0 +1,155 @@
+﻿@{
+    var styleList = ViewBag.StyleList;
+}
+
+<div class="row">
+    <h1 class="mt-4">Reports</h1>
+</div>
+
+<form asp-action="Index" method="post" id="formFilters">
+    <div class="row">
+        <div class="col-md-2">
+            <div class="form-group">
+                <label for="dtBegin">Begin</label><br>
+                <input type="datetime-local" style="width:100% !important;" id="dtBegin" name="dtBegin">
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="form-group">
+                <label for="dtEnd">End</label><br>
+                <input type="datetime-local" style="width:100% !important;" id="dtEnd" name="dtEnd">
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="form-group">
+                <label for="numLote">Lote</label><br>
+                <input type="number" onfocusout="controlForSmallerThanZero('numLote')" min="0" style="width:100% !important;" id="numLote" name="numLote">
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="form-group">
+                <label for="numBeam">Beam</label><br>
+                <input type="number" onfocusout="controlForSmallerThanZero('numBeam')" min="0" style="width:100% !important;" id="numBeam" name="numBeam">
+            </div>
+        </div>
+
+        <div class="col-md-2">
+            <div class="form-group">
+                <label for="numLote">Stop</label><br>
+                <input style="width:100% !important;" id="txtStop" name="txtStop">
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="form-group">
+                <label for="numLoom">Loom</label><br>
+                <input type="number" onfocusout="controlForSmallerThanZero('numLoom')" min="0" style="width:100% !important;" id="numLoom" name="numLoom">
+            </div>
+        </div>
+
+    </div>
+
+    @*SECOND ROW*@
+    <div class="row">
+        <div class="col-md-2">
+            <div class="form-group">
+                <label for="txtStyle">Style</label><br>
+                <input type="text" style="width:100% !important;" id="txtStyle" name="txtStyle" list="styleList">
+                <datalist id="styleList">
+                    @foreach (var item in styleList)
+                    {
+                        <option value="@item"></option>
+                    }
+                </datalist>
+            </div>
+        </div>
+
+        <div class="col-md-2">
+            <div class="form-group">
+                <label for="numLote">Shift</label><br>
+                <input numLote type="number" onfocusout="controlForSmallerThanZero('numShift')" min="0" style="width:100% !important;" id="numShift" name="numShift">
+            </div>
+        </div>
+
+    </div>
+
+    <div class="row">
+        <div class="col-lg-12 col-md-12 col-sm-12">
+            <div class="form-group">
+                <input type="radio" id="finishedProcesses" name="typeReport" checked value="1" style="zoom: 1.5">
+                <label for="finishedProcesses" style="font-size: x-large">Get Finished Processes Report</label>
+            </div>
+        </div>
+
+        <div class="col-lg-12 col-md-12 col-sm-12">
+            <div class="form-group">
+                <input type="radio" id="allProcesses" name="typeReport" value="2" style="zoom: 1.5" />
+                <label for="allProcesses" style="font-size: x-large">Get All Processes Report</label>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="row">
+        <div class="col-sm-12 col-md-12 col-lg-12" style="text-align:left">
+            <a onclick="exportToExcel();" class="btn btn-sm btn-success"><i class="far fa-file-excel"></i> Export to Excel</a>
+            @*<a onclick="exportToPDF();" class="btn btn-sm btn-info"><i class="far fa-file-pdf"></i> Export to PDF</a>*@
+            @*<a onclick="setIndex();" class="btn btn-sm btn-outline-info"><i class="lni lni-search"></i> Filter</a>*@
+            <a onclick="clearFilters();" class="btn btn-sm btn-outline-info"><i class="lni lni-brush"></i> Clear Filters</a>
+        </div>
+    </div>
+
+</form>
+
+<script>
+    @*var dateString = '@ViewBag.dtBegin.ToString()';
+    if (dateString !== "") {
+
+        var dateVal = new Date(dateString);
+        var day = dateVal.getDate().toString().padStart(2, "0");
+        var month = (1 + dateVal.getMonth()).toString().padStart(2, "0");
+        var hour = dateVal.getHours().toString().padStart(2, "0");
+        var minute = dateVal.getMinutes().toString().padStart(2, "0");
+        var sec = dateVal.getSeconds().toString().padStart(2, "0");
+        var ms = dateVal.getMilliseconds().toString().padStart(3, "0");
+        var inputDate = dateVal.getFullYear() + "-" + (month) + "-" + (day) + "T" + (hour) + ":" + (minute) + ":" + (sec) + "." + (ms);
+
+        //$("#myDateTime").val(inputDate);
+        document.getElementById('dtBegin').value = inputDate;
+    }*@
+
+    document.getElementById('dtBegin').value = '@ViewBag.dtBegin.ToString()';
+    document.getElementById('dtEnd').value = '@ViewBag.dtEnd.ToString()';
+    document.getElementById("numLote").value = '@ViewBag.numLote';
+    document.getElementById("numBeam").value = '@ViewBag.numBeam';
+    document.getElementById("txtStop").value = '@ViewBag.txtStop';
+    document.getElementById("numLoom").value = '@ViewBag.numLoom';
+    document.getElementById("txtStyle").value = '@ViewBag.txtStyle';
+    document.getElementById("numShift").value = '@ViewBag.numShift';
+
+    function setIndex() {
+        document.getElementById("formFilters").action = "/Rulo/Index";
+        document.getElementById("formFilters").submit();
+    }
+
+    function clearFilters() {
+        document.getElementById("numLote").value = 0;
+        document.getElementById("numBeam").value = 0;
+        document.getElementById("txtStop").value = '';
+        document.getElementById("numLoom").value = 0;
+        document.getElementById("txtStyle").value = '';
+        document.getElementById("numShift").value = 0;
+
+        //document.getElementById("formFilters").action = "/Rulo/Index";
+        //document.getElementById("formFilters").submit();
+    }
+
+    function exportToExcel() {
+        document.getElementById("formFilters").action = "/Report/ExportToExcel";
+        document.getElementById("formFilters").submit();
+    }
+
+    function exportToPDF() {
+        document.getElementById("formFilters").action = "/Report/ExportToPDF";
+        document.getElementById("formFilters").submit();
+    }
+</script>

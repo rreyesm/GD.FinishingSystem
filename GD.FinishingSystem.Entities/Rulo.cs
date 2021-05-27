@@ -56,5 +56,7 @@ namespace GD.FinishingSystem.Entities
         public int PeriodID { get; set; }
         [ForeignKey(name: "PeriodID")]
         public Period Period { get; set; }
+        [Display(Name = "Is Test")]
+        public bool IsTestStyle { get; set; }
     }
 }

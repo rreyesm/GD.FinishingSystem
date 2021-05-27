@@ -1,4 +1,4 @@
-﻿@model GD.FinishingSystem.WEB.Classes.IndexModelPeriod 
+﻿@model GD.FinishingSystem.WEB.Classes.IndexModelPeriod
 @{
 }
 
@@ -12,6 +12,16 @@
 
 <table class="table">
     <thead>
+        <tr>
+            <th colspan="10">
+                <form asp-action="Index" method="post" id="formPeriod">
+                    <div>
+                        Period List
+                        <a onclick="exportAllToExcel();" class="btn btn-sm btn-success"><i class="far fa-file-excel"></i> Export to Excel</a>
+                    </div>
+                </form>
+            </th>
+        </tr>
         <tr>
             <th>
                 <i class="lni lni-line-dashed"></i>
@@ -142,4 +152,11 @@
             }
         });
     }
+
+    function exportAllToExcel() {
+        document.getElementById("formPeriod").action = "/Period/ExportAllToExcel";
+        document.getElementById("formPeriod").submit();
+    }
+
+
 </script>

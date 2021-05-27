@@ -1,4 +1,4 @@
-using FastReport.Data;
+//using FastReport.Data;
 using GD.FinishingSystem.WEB.Classes;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -32,7 +32,8 @@ namespace GD.FinishingSystem.WEB
     new PhysicalFileProvider(
         Path.Combine(Directory.GetCurrentDirectory(), "wwwroot")));
 
-            services.Configure<AppSettings>(Configuration.GetSection("AppSettings"));
+            services.ConfigureWritable<AppSettings>(Configuration.GetSection("AppSettings"));
+            //services.Configure<AppSettings>(Configuration.GetSection("AppSettings"));
             services.AddControllersWithViews();
             services.AddAuthentication(SystemStatics.DefaultScheme)
                  .AddCookie(SystemStatics.DefaultScheme, options =>
@@ -45,7 +46,7 @@ namespace GD.FinishingSystem.WEB
             services.AddSession();
 
             //Added for FastReport
-            FastReport.Utils.RegisteredObjects.AddConnection(typeof(MsSqlDataConnection));
+            //FastReport.Utils.RegisteredObjects.AddConnection(typeof(MsSqlDataConnection));
             //Added for FastReport
         }
 
@@ -65,9 +66,9 @@ namespace GD.FinishingSystem.WEB
 
             app.UseHttpsRedirection();
 
-            //Added for FastReport
-            app.UseFastReport();
-            //---
+            //////Added for FastReport
+            ////app.UseFastReport();
+            //////---
 
             app.UseRouting();
 

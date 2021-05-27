@@ -12,12 +12,14 @@ namespace GD.FinishingSystem.WEB.Classes
 {
     public class IndexModelRulo
     {
-        private readonly IConfiguration Configuration;
+        //private readonly IConfiguration Configuration;
+        private AppSettings _appSettings;
         FinishingSystemFactory factory;
 
-        public IndexModelRulo(FinishingSystemFactory factory, IConfiguration configuration)
+        public IndexModelRulo(FinishingSystemFactory factory, AppSettings appSettings)
         {
-            Configuration = configuration;
+            //Configuration = configuration;
+            this._appSettings = appSettings;
             this.factory = factory;
         }
 
@@ -39,8 +41,8 @@ namespace GD.FinishingSystem.WEB.Classes
 
             var result = await factory.Rulos.GetRuloListFromFilters(ruloFilters);
 
-            var pageSize = Configuration.GetValue("PageSize", 4);
-            VMRuloList = PaginatedList<VMRulo>.CreatePaginated(result, pageIndex ?? 1, pageSize);
+            var pageSize = _appSettings.PageSize != 0 ? _appSettings.PageSize : 5;
+            VMRuloList = PaginatedList<VMRulo>.CreatePaginated(result, pageIndex ?? 1, int.Parse(pageSize.ToString()));
         }
     }
 

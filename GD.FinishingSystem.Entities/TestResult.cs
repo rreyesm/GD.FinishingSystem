@@ -19,6 +19,8 @@ namespace GD.FinishingSystem.Entities
 
         [ForeignKey("TestCategoryID")]
         public TestCategory TestCategory { get; set; }
+        
+        public int? PerformanceID { get; set; }
 
     }
 }

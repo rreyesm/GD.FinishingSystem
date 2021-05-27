@@ -31,6 +31,35 @@
         </dd>
     </dl>
 </div>
+
+@if (User.IsInRole("Admin", AuthType.Full))
+{
+    <hr />
+    <div>
+        <h4>Pagination Settings</h4>
+        <hr />
+        <dl class="row">
+            <dt class="col-sm-2">
+                Pagination Number
+            </dt>
+            <dd class="col-sm-10">
+                <input placeholder="Pagination Number" id="paginationSize" class="form-control" value="@ViewBag.PaginationSize" />
+            </dd>
+        </dl>
+        <button class="btn btn-primary" onclick="changePaginationSize();" type="button" id="btnPaginationSize">
+            <i class="lni lni-save"></i> Save Changes
+        </button>
+
+        <br />
+        <br />
+        <div class="alert alert-danger" id="errorMessage2" style="display:none;"></div>
+
+        <div id="general2">
+
+        </div>
+    </div>
+}
+
 <hr />
 <div>
     <h4>Change Password</h4>
@@ -86,7 +115,6 @@
             const OldPassword = document.getElementById('OldPassword').value;
             const newPassword = document.getElementById('newPassword').value;
 
-
             $.ajax({
                 url: "/Account/ChangeMyPassword",
                 type: "POST",
@@ -111,6 +139,36 @@
 
         }
 
+    }
+
+    function changePaginationSize() {
+        let paginationSize = document.getElementById('paginationSize').value;
+
+        if (isNaN(paginationSize)) {
+            alert("Pagination size is not valid!")
+            return;
+        }
+
+        $.ajax({
+            url: "/Account/ChangePaginationSize",
+            type: "POST",
+            data:
+            {
+                paginationSize: paginationSize
+            },
+            success: function (data) {
+
+                $("#errorMessage2").hide();
+                $("#general2").html('<div class="alert alert-info" id="FirstResult"><b>' + data + '</b></div>');
+                $("#general2").show();
+
+            }, error: function (xhr, ajaxOptions, thrownError) {
+                $("#errorMessage2").html('<b>Something went wrong!');
+                $("#errorMessage2").show();
+                $("#general2").hide();
+            }
+
+        });
     }
 
 </script>

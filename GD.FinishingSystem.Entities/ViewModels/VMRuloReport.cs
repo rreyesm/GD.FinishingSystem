@@ -26,6 +26,8 @@ namespace GD.FinishingSystem.Entities.ViewModels
         public decimal Width { get; set; }
         [Display(Name = "Entrance Length")]
         public decimal EntranceLength { get; set; }
+        [Display(Name = "Exit Length Rama")]
+        public decimal ExitLengthRama { get; set; }
         [Display(Name = "Exit Length")]
         public decimal ExitLength { get; set; }
         public int Shift { get; set; }

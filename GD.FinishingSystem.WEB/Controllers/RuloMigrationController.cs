@@ -23,7 +23,7 @@ namespace GD.FinishingSystem.WEB.Controllers
     {
         FinishingSystemFactory factory;
         private readonly IFileProvider fileProvider;
-        private AppSettings appSettings;
+        private AppSettings _appSettings;
 
         IConfiguration Configuration;
         IndexModelRuloMigration IndexModelRuloMigration = null;
@@ -31,10 +31,10 @@ namespace GD.FinishingSystem.WEB.Controllers
         {
             factory = new FinishingSystemFactory();
             this.fileProvider = fileProvider;
-            this.appSettings = appSettings.Value;
+            _appSettings = appSettings.Value;
 
             Configuration = configuration;
-            IndexModelRuloMigration = new IndexModelRuloMigration(factory, configuration);
+            IndexModelRuloMigration = new IndexModelRuloMigration(factory, _appSettings);
         }
         // GET: RuloMigration
         [Authorize(AuthenticationSchemes = SystemStatics.DefaultScheme, Roles = "RuloMigrationShow,RuloMigrationFull,AdminFull")]
@@ -44,7 +44,7 @@ namespace GD.FinishingSystem.WEB.Controllers
             if (currentFilter == null)
             {
                 ruloFilters = new VMRuloFilters();
-                ruloFilters.dtBegin = DateTime.Today.AddMonths(-1);
+                ruloFilters.dtBegin = DateTime.Today.AddDays(-15);
                 ruloFilters.dtEnd = DateTime.Today.AddDays(1).AddMilliseconds(-1);
             }
             else
@@ -106,7 +106,7 @@ namespace GD.FinishingSystem.WEB.Controllers
         public async Task<IActionResult> UploadFile(IFormFile formFile)
         {
             VMRuloFilters ruloFilters = new VMRuloFilters();
-            ruloFilters.dtBegin = DateTime.Today.AddMonths(-1);
+            ruloFilters.dtBegin = DateTime.Today.AddDays(-15);
             ruloFilters.dtEnd = DateTime.Today.AddDays(1).AddMilliseconds(-1);
 
             var ruloMigrationList = await factory.RuloMigrations.GetRuloMigrationListFromBetweenDates(ruloFilters.dtBegin, ruloFilters.dtEnd);
@@ -120,10 +120,10 @@ namespace GD.FinishingSystem.WEB.Controllers
                 return View(nameof(Index), ruloMigrationList);
             }
 
-            if (formFile.Length > appSettings.FileSizeLimit)
+            if (formFile.Length > _appSettings.FileSizeLimit)
             {
                 ViewBag.Error = true;
-                ViewBag.ErrorMessage = $"File too large. File size limit is {(appSettings.FileSizeLimit / 1024) / 1024} megabytes!";
+                ViewBag.ErrorMessage = $"File too large. File size limit is {(_appSettings.FileSizeLimit / 1024) / 1024} megabytes!";
                 return View(nameof(Index), ruloMigrationList);
             }
 

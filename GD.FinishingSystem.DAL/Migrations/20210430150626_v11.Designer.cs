@@ -4,14 +4,16 @@ using GD.FinishingSystem.DAL.Concrete.EntityFramework;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace GD.FinishingSystem.DAL.Migrations
 {
     [DbContext(typeof(FinishingSystemContext))]
-    partial class FinishingSystemContextModelSnapshot : ModelSnapshot
+    [Migration("20210430150626_v11")]
+    partial class v11
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -352,9 +354,6 @@ namespace GD.FinishingSystem.DAL.Migrations
                         .HasColumnType("int");
 
                     b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("IsTestStyle")
                         .HasColumnType("bit");
 
                     b.Property<bool>("IsToyota")
@@ -911,39 +910,6 @@ namespace GD.FinishingSystem.DAL.Migrations
                     b.ToTable("tblUserRoles");
                 });
 
-            modelBuilder.Entity("GD.FinishingSystem.Entities.ViewModels.TblCustomReport", b =>
-                {
-                    b.Property<decimal?>("ExitLength")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<decimal?>("FinishMeterRP")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<decimal?>("FinishMeterRama")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<string>("Lote")
-                        .HasMaxLength(10)
-                        .HasColumnType("nvarchar(10)");
-
-                    b.Property<string>("Name")
-                        .HasMaxLength(150)
-                        .HasColumnType("nvarchar(150)");
-
-                    b.Property<int>("Shift")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Style")
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
-
-                    b.Property<string>("StyleName")
-                        .HasMaxLength(150)
-                        .HasColumnType("nvarchar(150)");
-
-                    b.ToTable("TblCustomReport");
-                });
-
             modelBuilder.Entity("GD.FinishingSystem.Entities.ViewModels.VMRuloReport", b =>
                 {
                     b.Property<int>("Beam")
@@ -965,9 +931,6 @@ namespace GD.FinishingSystem.DAL.Migrations
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<decimal>("ExitLength")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<decimal>("ExitLengthRama")
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<int>("FolioNumber")

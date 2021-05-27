@@ -24,6 +24,7 @@ namespace GD.FinishingSystem.Bussines.Concrete
         private IAsyncRepository<User> userRepository = null;
         private IAsyncRepository<Sample> sampleRepository = null;
         private IAsyncRepository<VMRuloReport> ruloReportRepository = null;
+        private IAsyncRepository<TblCustomReport> customReportRepository = null;
 
         public RuloManager(DbContext context)
         {
@@ -35,6 +36,7 @@ namespace GD.FinishingSystem.Bussines.Concrete
             this.userRepository = new GenericRepository<User>(context);
             this.sampleRepository = new GenericRepository<Sample>(context);
             this.ruloReportRepository = new GenericRepository<VMRuloReport>(context);
+            this.customReportRepository = new GenericRepository<TblCustomReport>(context);
         }
 
         public override async Task Add(Rulo RuloInformation, int adderRef)
@@ -439,7 +441,7 @@ namespace GD.FinishingSystem.Bussines.Concrete
 
             var sql = query.ToQueryString();
 
-            return result.OrderByDescending(x=> x.RuloID);
+            return result.OrderByDescending(x => x.RuloID);
         }
 
         public override async Task<IEnumerable<VMRuloReport>> GetRuloReportListFromFilters(VMRuloFilters ruloFilters)
@@ -475,6 +477,15 @@ namespace GD.FinishingSystem.Bussines.Concrete
                 ruloProcessesList.Add(key.MaxBy(x => x.RuloProcessID));
             }
 
+            //Get value rama
+            List<RuloProcess> ruloProcessRamaList = new List<RuloProcess>();
+            foreach (var key in ruloProcessesListGroup)
+            {
+                var temp = key.Where(x => x.DefinationProcessID == 6).FirstOrDefault();
+                if (temp != null)
+                    ruloProcessRamaList.Add(temp);
+            }
+
             var resulRPAndDP = (from rp in ruloProcessesList
                                 join dp in definationsProcess.ToList() on rp.DefinationProcessID equals dp.DefinationProcessID
                                 select new
@@ -491,6 +502,10 @@ namespace GD.FinishingSystem.Bussines.Concrete
                           join rp in resulRPAndDP.ToList() on r.RuloID equals rp.RuloID
                           into ljRP
                           from subRP in ljRP.DefaultIfEmpty()
+
+                          join rprama in ruloProcessRamaList on r.RuloID equals rprama.RuloID
+                          into ljRPRAMA
+                          from subRPRAMA in ljRPRAMA.DefaultIfEmpty()
 
                           join tr in testResults.ToList() on r.TestResultID equals tr.TestResultID
                           into ljTR
@@ -520,6 +535,7 @@ namespace GD.FinishingSystem.Bussines.Concrete
                               StyleName = r.StyleName,
                               Width = r.Width,
                               EntranceLength = r.EntranceLength,
+                              ExitLengthRama = subRPRAMA?.FinishMeter ?? 0,
                               ExitLength = r.ExitLength,
                               Shift = r.Shift,
                               FolioNumber = r.FolioNumber,
@@ -596,7 +612,7 @@ namespace GD.FinishingSystem.Bussines.Concrete
             return id;
         }
 
-        public async override Task<IEnumerable<TblCustomPerformanceForFinishing>> GetPerformanceTestResult(int ruloId)
+        public async override Task<IEnumerable<TblCustomPerformanceForFinishing>> GetPerformanceTestResultByRuloId(int ruloId)
         {
             var rulo = await repository.GetByPrimaryKey(ruloId);
 
@@ -606,7 +622,7 @@ namespace GD.FinishingSystem.Bussines.Concrete
             {
                 using (dbPerformanceStandardsContext context = new dbPerformanceStandardsContext())
                 {
-                    var testMaster = context.TblTestMasters.Where(x => x.Lote == int.Parse(rulo.Lote) && x.Beam == rulo.Beam).OrderByDescending(x=>x.CreateDate).FirstOrDefault();
+                    var testMaster = context.TblTestMasters.Where(x => x.Lote == int.Parse(rulo.Lote) && x.Beam == rulo.Beam).OrderByDescending(x => x.CreateDate).FirstOrDefault();
 
                     if (testMaster != null)
                     {
@@ -624,6 +640,70 @@ namespace GD.FinishingSystem.Bussines.Concrete
 
             return tblCustomPerformanceForFinishingList;
         }
+
+        public async override Task<IEnumerable<TblCustomPerformanceForFinishing>> GetPerformanceTestResultById(int perfomanceId)
+        {
+            List<TblCustomPerformanceForFinishing> tblCustomPerformanceForFinishingList = new List<TblCustomPerformanceForFinishing>();
+
+            try
+            {
+                using (dbPerformanceStandardsContext context = new dbPerformanceStandardsContext())
+                {
+                    List<SqlParameter> sqlParameters = new List<SqlParameter>();
+                    sqlParameters.Add(new SqlParameter("@p0", perfomanceId));
+
+                    tblCustomPerformanceForFinishingList = await context.TblCustomPerformanceForFinishings.FromSqlRaw("stpGetPerformanceForFinishing @p0", sqlParameters.ToArray()).ToListAsync();
+
+                }
+            }
+            catch (Exception ex)
+            {
+            }
+
+            return tblCustomPerformanceForFinishingList;
+        }
+
+        public async override Task<IEnumerable<TblCustomReport>> GetCustomReportList(VMReportFilter reportFilter)
+        {
+            //reportFilter.dtEnd = reportFilter.dtEnd.AddDays(1).AddMilliseconds(-1);
+            string query = string.Empty;
+
+            //Order in stored procedure
+            var txtStyle = string.IsNullOrWhiteSpace(reportFilter.txtStyle) ? reportFilter.txtStyle : null;
+            var numLote = reportFilter.numLote != 0 ? (int?)reportFilter.numLote : null;
+            var numBeam = reportFilter.numBeam != 0 ? (int?)reportFilter.numBeam : null;
+            var stop = string.IsNullOrWhiteSpace(reportFilter.stop) ? reportFilter.stop : null;
+            var numLoom = reportFilter.numLoom != 0 ? (int?)reportFilter.numLoom : null;
+            var shift = reportFilter.shift != 0 ? (int?)reportFilter.shift : null;
+
+            switch (reportFilter.typeReport)
+            {
+                case 1:
+                    query = "spGetProcessesCompletedReport @p0,@p1,@p2,@p3,@p4,@p5,@p6,@p7";
+                    break;
+                case 2:
+                    query = "spGetAllProcessesReport @p0,@p1,@p2,@p3,@p4,@p5,@p6,@p7";
+                    break;
+                default:
+                    break;
+            }
+
+            object[] parameters = new object[] {
+            reportFilter.dtBegin.ToString("yyyy-MM-dd HH:mm:ss"),
+            reportFilter.dtEnd.ToString("yyyy-MM-dd HH:mm:ss"),
+            txtStyle,
+            numLote,
+            numBeam,
+            stop,
+            numLoom,
+            shift
+            };
+
+            var ruloReportList = await customReportRepository.GetWithRawSql(query, parameters);
+
+            return ruloReportList;
+        }
+
 
     }
 }

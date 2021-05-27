@@ -10,12 +10,12 @@ namespace GD.FinishingSystem.WEB.Classes
 {
     public class IndexModelPeriod
     {
-        private readonly IConfiguration Configuration;
+        AppSettings _appSettings;
         FinishingSystemFactory factory;
 
-        public IndexModelPeriod(FinishingSystemFactory factory, IConfiguration configuration)
+        public IndexModelPeriod(FinishingSystemFactory factory, AppSettings appSettings)
         {
-            Configuration = configuration;
+            _appSettings = appSettings;
             this.factory = factory;
         }
 
@@ -32,7 +32,7 @@ namespace GD.FinishingSystem.WEB.Classes
 
             var result = await factory.Periods.GetPeriodList();
 
-            var pageSize = Configuration.GetValue("PageSize", 4);
+            var pageSize = _appSettings.PageSize != 0 ? _appSettings.PageSize : 5;
             PeriodList = PaginatedList<Period>.CreatePaginated(result, pageIndex ?? 1, pageSize);
         }
     }

@@ -1,4 +1,5 @@
 ﻿using GD.FinishingSystem.Bussines;
+using GD.FinishingSystem.DAL.EFdbPerformanceStandards;
 using GD.FinishingSystem.Entities;
 using GD.FinishingSystem.Entities.ViewModels;
 using GD.FinishingSystem.WEB.Classes;
@@ -23,17 +24,15 @@ namespace GD.FinishingSystem.WEB.Controllers
         private AppSettings appSettings;
         FinishingSystemFactory factory;
 
-        IConfiguration Configuration;
         IndexModelRulo IndexModelRulo = null;
 
-        public RuloController(IWebHostEnvironment webHostEnvironment, IOptions<AppSettings> appSettings, IConfiguration configuration)
+        public RuloController(IWebHostEnvironment webHostEnvironment, IOptions<AppSettings> appSettings)
         {
             this.webHostEnvironment = webHostEnvironment;
             this.appSettings = appSettings.Value;
             factory = new FinishingSystemFactory();
 
-            Configuration = configuration;
-            IndexModelRulo = new IndexModelRulo(factory, configuration);
+            IndexModelRulo = new IndexModelRulo(factory, this.appSettings);
         }
 
         [HttpGet]
@@ -44,7 +43,7 @@ namespace GD.FinishingSystem.WEB.Controllers
             if (currentFilter == null)
             {
                 ruloFilters = new VMRuloFilters();
-                ruloFilters.dtBegin = DateTime.Today.AddMonths(-1);
+                ruloFilters.dtBegin = DateTime.Today.AddDays(-15);
                 ruloFilters.dtEnd = DateTime.Today.AddDays(1).AddMilliseconds(-1);
             }
             else
@@ -109,6 +108,23 @@ namespace GD.FinishingSystem.WEB.Controllers
 
         }
 
+        
+        public async Task<IActionResult> ValidateCreateRulo()
+        {
+            if (!User.IsInRole("Rulo", AuthType.Add)) return Unauthorized();
+
+            string errorMessage = string.Empty;
+
+            var systemPrinter = await WebUtilities.GetSystemPrinter(factory, this.HttpContext);
+
+            if (systemPrinter == null)
+            {
+                errorMessage = "This PC is not register for capture. Add this PC in the system printers window.";
+            }
+
+            return new JsonResult(new { errorMessage = errorMessage });
+        }
+
         [HttpGet]
         [Authorize(AuthenticationSchemes = SystemStatics.DefaultScheme, Roles = "RuloAdd,RuloFull,AdminFull")]
         public async Task<IActionResult> Create()
@@ -125,7 +141,7 @@ namespace GD.FinishingSystem.WEB.Controllers
             {
                 ViewBag.Error = true;
                 ViewBag.ErrorMessage = "Cannot create a new roll. You must open a period.";
-                View("CreateOrUpdate", newRulo);
+                return View("CreateOrUpdate", newRulo);
             }
 
             return View("CreateOrUpdate", newRulo);
@@ -183,9 +199,12 @@ namespace GD.FinishingSystem.WEB.Controllers
             Period period = await factory.Periods.GetCurrentPeriod(systemPrinter.SystemPrinterID);
             if (period != null)
             {
-                if (period.Style != styleData.Style)
+                if (styleData != null)
                 {
-                    errorMessage = "The style entered does not correspond to the style of the period. First create the period for the style.";
+                    if (period.Style != styleData.Style)
+                    {
+                        errorMessage = "The style entered does not correspond to the style of the period. First create the period for the style.";
+                    }
                 }
             }
             else
@@ -193,8 +212,8 @@ namespace GD.FinishingSystem.WEB.Controllers
                 errorMessage = "Period style not found!";
             }
 
-            if (style == null)
-                errorMessage = "Lote not found in Control de Rollos!";
+            if (styleData == null)
+                errorMessage = "The lote number is not registered in the Programming!";
             else
             {
                 style = styleData.Style;
@@ -225,21 +244,46 @@ namespace GD.FinishingSystem.WEB.Controllers
             await SetViewBagsForCreateOrEdit();
 
             //Update style and style name to avoid update user
-            var styleData = await factory.Rulos.GetRuloStyle(rulo.Lote);
-            rulo.Style = styleData.Style;
-            rulo.StyleName = styleData.StyleName;
+            VMStyleData styleData = null;
+            //Validation if it is a test, the style is not updated in the DB
+            if (!rulo.IsTestStyle)
+            {
+                styleData = await factory.Rulos.GetRuloStyle(rulo.Lote);
+                if (styleData == null)
+                {
+                    ViewBag.Error = true;
+                    ViewBag.ErrorMessage = "The lote number is not registered in the Programming!";
+
+                    return View("CreateOrUpdate", rulo);
+                }
+
+                rulo.Style = styleData.Style;
+                rulo.StyleName = styleData.StyleName;
+            }
 
             var systemPrinter = await WebUtilities.GetSystemPrinter(factory, this.HttpContext);
+
+            if (systemPrinter == null)
+            {
+                ViewBag.Error = true;
+                ViewBag.ErrorMessage = "This PC is not assigned to any finishing machine. Use an assigned machine to update data.";
+
+                return View("CreateOrUpdate", rulo);
+            }
+
             //Comparation period-rulo style
             Period period = await factory.Periods.GetCurrentPeriod(systemPrinter.SystemPrinterID);
             if (period != null)
             {
-                if (period.Style != styleData.Style)
+                if (!rulo.IsTestStyle)
                 {
-                    ViewBag.Error = true;
-                    ViewBag.ErrorMessage = "The style entered does not correspond to the style of the period. First create the period for the style.";
+                    if (period.Style != styleData.Style) //TODO: Las modificaciones se realizan en el momento, si se realizan cuando ya no está el mismo estilo marcará este error
+                    {
+                        ViewBag.Error = true;
+                        ViewBag.ErrorMessage = "The style entered does not correspond to the style of the period. First create the period for the style.";
 
-                    return View("CreateOrUpdate", rulo);
+                        return View("CreateOrUpdate", rulo);
+                    }
                 }
             }
             else
@@ -502,7 +546,7 @@ namespace GD.FinishingSystem.WEB.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> TestResultFinish(int RuloId, int TestCategoryId, string TestCategoryText, string Description)
+        public async Task<IActionResult> TestResultFinish(int RuloId, int TestCategoryId, string TestCategoryText, string Description, int PerformanceId)
         {
             if (!User.IsInRole("TestResult", AuthType.Update)) return Unauthorized();
 
@@ -523,12 +567,14 @@ namespace GD.FinishingSystem.WEB.Controllers
                 testResult.Details = Description;
                 testResult.CanContinue = true;
                 testResult.TestCategoryID = TestCategoryId;
+                testResult.PerformanceID = PerformanceId;
             }
             else
             {
                 testResult.Details = Description;
                 testResult.CanContinue = false;
                 testResult.TestCategoryID = TestCategoryId;
+                testResult.PerformanceID = PerformanceId;
             }
 
             if (foundRulo.TestResultID == null)
@@ -640,20 +686,21 @@ namespace GD.FinishingSystem.WEB.Controllers
                     }
                 }
 
-                if (!string.IsNullOrWhiteSpace(machineName))
-                {
-                    if (string.IsNullOrWhiteSpace(style))
-                        style += machineName.ToUpper() + ": " + period.Style;
-                    else
-                        style += ", " + machineName.ToUpper() + ": " + period.Style;
-                }
-                else
-                {
+                //TODO: Comment because the machine is shown differently when because the user captures in another PC not assigned to the machine
+                //if (!string.IsNullOrWhiteSpace(machineName))
+                //{
+                //    if (string.IsNullOrWhiteSpace(style))
+                //        style += machineName.ToUpper() + ": " + period.Style;
+                //    else
+                //        style += ", " + machineName.ToUpper() + ": " + period.Style;
+                //}
+                //else
+                //{
                     if (string.IsNullOrWhiteSpace(style))
                         style += period.Style;
                     else
                         style += ", " + period.Style;
-                }
+                //}
             }
 
             if (string.IsNullOrWhiteSpace(style))
@@ -872,15 +919,15 @@ namespace GD.FinishingSystem.WEB.Controllers
                 return PartialView("GetFolioNumber", ruloTemp);
             }
 
-            var foundRulo = await factory.Rulos.GetRuloFromFolio(folioNumber);
-            if (foundRulo != null)
-            {
-                ViewBag.Error = true;
-                ViewBag.ErrorMessage = "Folio number already exist!";
-                return PartialView("GetFolioNumber", ruloTemp);
-            }
+            //var foundRulo = await factory.Rulos.GetRuloFromFolio(folioNumber);
+            //if (foundRulo != null)
+            //{
+            //    ViewBag.Error = true;
+            //    ViewBag.ErrorMessage = "Folio number already exist!";
+            //    return PartialView("GetFolioNumber", ruloTemp);
+            //}
 
-            foundRulo = await factory.Rulos.GetRuloFromRuloID(ruloId);
+            var foundRulo = await factory.Rulos.GetRuloFromRuloID(ruloId);
 
             //Validate rulo process
             var ruloProcesses = await factory.Rulos.GetVMRuloProcessesFromRuloID(ruloId);
@@ -961,9 +1008,42 @@ namespace GD.FinishingSystem.WEB.Controllers
             if (!User.IsInRole("Rulo", AuthType.Show)) return Unauthorized();
 
             //tblMaster.ID = 2352; //TODO: For test
-            var performanceTestResultList = await factory.Rulos.GetPerformanceTestResult(ruloId);
+            var performanceTestResultList = await factory.Rulos.GetPerformanceTestResultByRuloId(ruloId);
+
+            if (performanceTestResultList == null || performanceTestResultList.Count() == 0)
+            {
+                var ruloTemp = await factory.Rulos.GetRuloFromRuloID(ruloId);
+                var testResultTemp = await factory.TestResults.GetTestResultFromTestResultID((int)ruloTemp.TestResultID);
+                if (testResultTemp != null)
+                {
+                    if (testResultTemp.PerformanceID != null)
+                        performanceTestResultList = await factory.Rulos.GetPerformanceTestResultById((int)testResultTemp.PerformanceID);
+                }
+            }
 
             if (performanceTestResultList == null) return NotFound();
+
+            return PartialView(performanceTestResultList);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetTestResultWithPerformance(int ruloId, int performanceId)
+        {
+            if (!User.IsInRole("Rulo", AuthType.Show)) return Unauthorized();
+
+            //tblMaster.ID = 2352; //TODO: For test
+            IEnumerable<TblCustomPerformanceForFinishing> performanceTestResultList = null;
+            if (performanceId == 0)
+                performanceTestResultList = await factory.Rulos.GetPerformanceTestResultByRuloId(ruloId);
+            else
+                performanceTestResultList = await factory.Rulos.GetPerformanceTestResultById(performanceId);
+
+            if (performanceTestResultList == null) return NotFound();
+
+            var testCategoryList = await factory.TestCategories.GetTestCategoryList();
+            var testCategorylist2 = WebUtilities.Create<TestCategory>(testCategoryList, "TestCategoryID", "TestCode", true, "All");
+            ViewBag.TestCategorytList = testCategorylist2;
+            ViewBag.RuloId = ruloId;
 
             return PartialView(performanceTestResultList);
         }

@@ -176,6 +176,13 @@ namespace GD.FinishingSystem.WEB.Classes
         {
             var resultIP = GetMachineIP(context);
 
+#if DEBUG
+            ////Server
+            resultIP.IP = "192.168.182.193";
+            //////local
+            //resultIP.IP = "172.30.144.1";
+#endif
+
             var systemPrinterList = await factory.SystemPrinters.GetSystemPrinterList();
             var systemPrinter = systemPrinterList.Where(x => x.PCIP == resultIP.IP).FirstOrDefault();
             

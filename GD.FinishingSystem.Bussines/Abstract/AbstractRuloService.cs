@@ -36,8 +36,10 @@ namespace GD.FinishingSystem.Bussines.Abstract
         public abstract Task DeleteRuloProcessFromRuloProcessID(int ruloProcessID, int deleterRef);
 
         public abstract Task<int> GetPerformanceRuloID(int ruloId);
-        public abstract Task<IEnumerable<TblCustomPerformanceForFinishing>> GetPerformanceTestResult(int ruloId);
+        public abstract Task<IEnumerable<TblCustomPerformanceForFinishing>> GetPerformanceTestResultByRuloId(int ruloId);
+        public abstract Task<IEnumerable<TblCustomPerformanceForFinishing>> GetPerformanceTestResultById(int perfomanceId);
 
+        public abstract Task<IEnumerable<TblCustomReport>> GetCustomReportList(VMReportFilter reportFilter);
 
     }
 }

@@ -11,6 +11,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Content Remove="Views\PDFReport\Report.cshtml" />
     <Content Remove="Views\TestResult\CreateOrUpdate.cshtml" />
   </ItemGroup>
 
@@ -30,9 +31,9 @@
 
   <ItemGroup>
     <PackageReference Include="ClosedXML" Version="0.95.4" />
-    <PackageReference Include="FastReport.OpenSource" Version="2021.2.7" />
-    <PackageReference Include="FastReport.OpenSource.Data.MsSql" Version="2021.2.0" />
-    <PackageReference Include="FastReport.OpenSource.Web" Version="2021.2.7" />
+    <PackageReference Include="FastReport.OpenSource" Version="2020.4.6" />
+    <PackageReference Include="FastReport.OpenSource.Data.MsSQL" Version="2020.4.6" />
+    <PackageReference Include="FastReport.OpenSource.Export.PdfSimple" Version="2020.4.6" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="5.0.2" />
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="3.8.0" />
     <PackageReference Include="Microsoft.CodeAnalysis.VisualBasic" Version="3.8.0" />
@@ -47,6 +48,10 @@
   <ItemGroup>
     <ProjectReference Include="..\GD.FinishingSystem.Bussines\GD.FinishingSystem.Bussines.csproj" />
     <ProjectReference Include="..\GD.FinishingSystem.Entities\GD.FinishingSystem.Entities.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Views\PDFReport\" />
   </ItemGroup>
 
 </Project>
