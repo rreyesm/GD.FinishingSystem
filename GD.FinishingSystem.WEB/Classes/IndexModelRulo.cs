@@ -12,13 +12,11 @@ namespace GD.FinishingSystem.WEB.Classes
 {
     public class IndexModelRulo
     {
-        //private readonly IConfiguration Configuration;
         private AppSettings _appSettings;
         FinishingSystemFactory factory;
 
         public IndexModelRulo(FinishingSystemFactory factory, AppSettings appSettings)
         {
-            //Configuration = configuration;
             this._appSettings = appSettings;
             this.factory = factory;
         }

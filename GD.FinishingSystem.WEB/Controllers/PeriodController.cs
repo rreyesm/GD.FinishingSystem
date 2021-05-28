@@ -20,10 +20,12 @@ namespace GD.FinishingSystem.WEB.Controllers
         FinishingSystemFactory factory;
         IndexModelPeriod IndexModelPeriod = null;
         AppSettings _appSettings;
-        public PeriodController(IOptions<AppSettings> appSettings)
+        
+        public PeriodController(IConfiguration configuration)
         {
             factory = new FinishingSystemFactory();
-            _appSettings = appSettings.Value;
+
+            this._appSettings = (AppSettings)configuration.GetSection("AppSettings").Get<AppSettings>();
             IndexModelPeriod = new IndexModelPeriod(factory, _appSettings);
         }
 

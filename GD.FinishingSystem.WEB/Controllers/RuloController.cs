@@ -26,11 +26,11 @@ namespace GD.FinishingSystem.WEB.Controllers
 
         IndexModelRulo IndexModelRulo = null;
 
-        public RuloController(IWebHostEnvironment webHostEnvironment, IOptions<AppSettings> appSettings)
+        public RuloController(IWebHostEnvironment webHostEnvironment, IConfiguration configuration)
         {
             this.webHostEnvironment = webHostEnvironment;
-            this.appSettings = appSettings.Value;
             factory = new FinishingSystemFactory();
+            this.appSettings = configuration.GetSection("AppSettings").Get<AppSettings>();
 
             IndexModelRulo = new IndexModelRulo(factory, this.appSettings);
         }

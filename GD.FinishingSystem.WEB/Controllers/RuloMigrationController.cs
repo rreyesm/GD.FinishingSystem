@@ -25,15 +25,13 @@ namespace GD.FinishingSystem.WEB.Controllers
         private readonly IFileProvider fileProvider;
         private AppSettings _appSettings;
 
-        IConfiguration Configuration;
         IndexModelRuloMigration IndexModelRuloMigration = null;
-        public RuloMigrationController(IFileProvider fileProvider, IOptions<AppSettings> appSettings, IConfiguration configuration)
+        public RuloMigrationController(IFileProvider fileProvider, IConfiguration configuration)
         {
             factory = new FinishingSystemFactory();
             this.fileProvider = fileProvider;
-            _appSettings = appSettings.Value;
 
-            Configuration = configuration;
+            this._appSettings = (AppSettings)configuration.GetSection("AppSettings").Get<AppSettings>();
             IndexModelRuloMigration = new IndexModelRuloMigration(factory, _appSettings);
         }
         // GET: RuloMigration
