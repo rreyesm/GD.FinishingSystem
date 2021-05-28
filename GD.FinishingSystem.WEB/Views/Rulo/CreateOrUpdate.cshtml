@@ -31,7 +31,7 @@
         <div asp-validation-summary="ModelOnly" class="text-danger"></div>
         <div class="row">
 
-            @if (User.IsInRole("Authorize", AuthType.Add) || User.IsInRole("Authorize", AuthType.Full))
+            @if (User.IsInRole("RuloTest", AuthType.Add) || User.IsInRole("RuloTest", AuthType.Full))
             {
                 <div class="col-lg-3 col-md-4 col-sm-12">
                     <div class="form-group">

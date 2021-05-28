@@ -19,20 +19,20 @@ using System.Threading.Tasks;
 namespace GD.FinishingSystem.WEB.Controllers
 {
     [Authorize(AuthenticationSchemes = SystemStatics.DefaultScheme)]
-    public class RuloMigrationController : Controller
+    public class MigrationController : Controller
     {
         FinishingSystemFactory factory;
         private readonly IFileProvider fileProvider;
         private AppSettings _appSettings;
 
-        IndexModelRuloMigration IndexModelRuloMigration = null;
-        public RuloMigrationController(IFileProvider fileProvider, IConfiguration configuration)
+        IndexModelMigration IndexModelMigration = null;
+        public MigrationController(IFileProvider fileProvider, IConfiguration configuration)
         {
             factory = new FinishingSystemFactory();
             this.fileProvider = fileProvider;
 
             this._appSettings = (AppSettings)configuration.GetSection("AppSettings").Get<AppSettings>();
-            IndexModelRuloMigration = new IndexModelRuloMigration(factory, _appSettings);
+            IndexModelMigration = new IndexModelMigration(factory, _appSettings);
         }
         // GET: RuloMigration
         [Authorize(AuthenticationSchemes = SystemStatics.DefaultScheme, Roles = "RuloMigrationShow,RuloMigrationFull,AdminFull")]
@@ -52,9 +52,9 @@ namespace GD.FinishingSystem.WEB.Controllers
             //var ruloMigrationList = await factory.RuloMigrations.GetRuloMigrationListFromBetweenDates(ruloFilters.dtBegin, ruloFilters.dtEnd);
             await SetViewBagsForDates(ruloFilters, positionRuloMigrationId);
 
-            await IndexModelRuloMigration.OnGetAsync("", pageIndex, ruloFilters);
+            await IndexModelMigration.OnGetAsync("", pageIndex, ruloFilters);
 
-            return View(IndexModelRuloMigration);
+            return View(IndexModelMigration);
         }
 
         [HttpPost]
@@ -65,9 +65,9 @@ namespace GD.FinishingSystem.WEB.Controllers
             //var result = await factory.RuloMigrations.GetRuloMigrationListFromFilters(ruloFilters);
             await SetViewBagsForDates(ruloFilters);
 
-            await IndexModelRuloMigration.OnGetAsync("", 1, ruloFilters);
+            await IndexModelMigration.OnGetAsync("", 1, ruloFilters);
 
-            return View(IndexModelRuloMigration);
+            return View(IndexModelMigration);
         }
 
         private async Task SetViewBagsForDates(VMRuloFilters ruloFilters, int positionRuloMigrationId = 0)

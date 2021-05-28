@@ -1,5 +1,4 @@
-﻿@*@model IEnumerable<GD.FinishingSystem.Entities.RuloMigration>*@
-@model GD.FinishingSystem.WEB.Classes.IndexModelRuloMigration
+﻿@model GD.FinishingSystem.WEB.Classes.IndexModelMigration
 @{
     var styleList = ViewBag.StyleList;
     var positionRuloMigrationId = ViewBag.PositionRuloMigrationId;
@@ -104,7 +103,7 @@
 
 @if (User.IsInRole("Authorize", AuthType.Full))
 {
-    <form asp-controller="RuloMigration" asp-action="UploadFile" method="post"
+    <form asp-controller="Migration" asp-action="UploadFile" method="post"
           enctype="multipart/form-data">
         @Html.AntiForgeryToken()
         <div class="container">

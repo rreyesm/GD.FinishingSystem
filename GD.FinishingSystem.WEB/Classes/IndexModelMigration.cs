@@ -9,11 +9,11 @@ using System.Threading.Tasks;
 
 namespace GD.FinishingSystem.WEB.Classes
 {
-    public class IndexModelRuloMigration
+    public class IndexModelMigration
     {
         FinishingSystemFactory factory;
         AppSettings appSettings;
-        public IndexModelRuloMigration(FinishingSystemFactory factory, AppSettings appSettings)
+        public IndexModelMigration(FinishingSystemFactory factory, AppSettings appSettings)
         {
             this.factory = factory;
             this.appSettings = appSettings;
