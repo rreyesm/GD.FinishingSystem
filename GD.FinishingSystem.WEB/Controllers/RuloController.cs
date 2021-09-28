@@ -108,7 +108,7 @@ namespace GD.FinishingSystem.WEB.Controllers
 
         }
 
-        
+
         public async Task<IActionResult> ValidateCreateRulo()
         {
             if (!User.IsInRole("Rulo", AuthType.Add)) return Unauthorized();
@@ -473,6 +473,8 @@ namespace GD.FinishingSystem.WEB.Controllers
                 print = new ZEBRA_PRINTER(printer.Location);
             }
 
+            string machine = await factory.Rulos.GetMachineByRuloId(ruloId);
+
             if (print.CheckConnection())
             {
                 print.Connect();
@@ -485,6 +487,7 @@ namespace GD.FinishingSystem.WEB.Controllers
                     offset += (lengthId - 1) * 8; //Before: 11
 
                 Dictionary<string, string> replaceVaues = new Dictionary<string, string>();
+                replaceVaues.Add("^XA", "^XA^CI28"); //This is for working latin characters
                 replaceVaues.Add("ReplaceRuloID", rulo.RuloID.ToString());
                 replaceVaues.Add("ReplaceName", rulo.StyleName);
                 replaceVaues.Add("ReplaceStyle", rulo.Style);
@@ -509,12 +512,13 @@ namespace GD.FinishingSystem.WEB.Controllers
                     replaceVaues.Add("ReplaceOrigin", VMOriginType.ToList().Where(x => x.Value == 1).FirstOrDefault().Text);
 
                 replaceVaues.Add("ReplacePiece", piece.PieceNo.ToString());
+                replaceVaues.Add("ReplaceMachine", machine);
 
                 print.PrintFromZPL(ZPLString, replaceVaues);
             }
             else
             {
-                return new JsonResult(new { errorMessage = "Can not connect to printer!" });
+                return new JsonResult(new { errorMessage = "Cannot connect to printer!" });
             }
 
             return Ok();
@@ -696,10 +700,10 @@ namespace GD.FinishingSystem.WEB.Controllers
                 //}
                 //else
                 //{
-                    if (string.IsNullOrWhiteSpace(style))
-                        style += period.Style;
-                    else
-                        style += ", " + period.Style;
+                if (string.IsNullOrWhiteSpace(style))
+                    style += period.Style;
+                else
+                    style += ", " + period.Style;
                 //}
             }
 
@@ -1008,11 +1012,24 @@ namespace GD.FinishingSystem.WEB.Controllers
             if (!User.IsInRole("Rulo", AuthType.Show)) return Unauthorized();
 
             //tblMaster.ID = 2352; //TODO: For test
-            var performanceTestResultList = await factory.Rulos.GetPerformanceTestResultByRuloId(ruloId);
+            //var performanceTestResultList = await factory.Rulos.GetPerformanceTestResultByRuloId(ruloId);
 
-            if (performanceTestResultList == null || performanceTestResultList.Count() == 0)
+            //if (performanceTestResultList == null || performanceTestResultList.Count() == 0)
+            //{
+            //    var ruloTemp = await factory.Rulos.GetRuloFromRuloID(ruloId);
+            //    var testResultTemp = await factory.TestResults.GetTestResultFromTestResultID((int)ruloTemp.TestResultID);
+            //    if (testResultTemp != null)
+            //    {
+            //        if (testResultTemp.PerformanceID != null)
+            //            performanceTestResultList = await factory.Rulos.GetPerformanceTestResultById((int)testResultTemp.PerformanceID);
+            //    }
+            //}
+
+            IEnumerable<TblCustomPerformanceForFinishing> performanceTestResultList = new List<TblCustomPerformanceForFinishing>();
+
+            var ruloTemp = await factory.Rulos.GetRuloFromRuloID(ruloId);
+            if (ruloTemp.TestResultID != null)
             {
-                var ruloTemp = await factory.Rulos.GetRuloFromRuloID(ruloId);
                 var testResultTemp = await factory.TestResults.GetTestResultFromTestResultID((int)ruloTemp.TestResultID);
                 if (testResultTemp != null)
                 {
@@ -1046,6 +1063,43 @@ namespace GD.FinishingSystem.WEB.Controllers
             ViewBag.RuloId = ruloId;
 
             return PartialView(performanceTestResultList);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ExportPerformanceTestResult(int ruloIdPerformance)
+        {
+            if (!User.IsInRole("Rulo", AuthType.Show)) return Unauthorized();
+
+            IEnumerable<TblCustomPerformanceForFinishing> performanceTestResultList = new List<TblCustomPerformanceForFinishing>();
+
+            var ruloTemp = await factory.Rulos.GetRuloFromRuloID(ruloIdPerformance);
+
+            if (ruloTemp == null)
+                return NotFound();
+
+            if (ruloTemp.TestResultID != null)
+            {
+                var testResultTemp = await factory.TestResults.GetTestResultFromTestResultID((int)ruloTemp.TestResultID);
+                if (testResultTemp != null)
+                {
+                    if (testResultTemp.PerformanceID != null)
+                        performanceTestResultList = await factory.Rulos.GetPerformanceTestResultById((int)testResultTemp.PerformanceID);
+                }
+            }
+
+            if (performanceTestResultList == null || performanceTestResultList.Count() == 0)
+                return NotFound();
+
+            ExportToExcel export = new ExportToExcel();
+            string reportName = "Performance Test Result Report";
+            string fileName = $"Performance Test Result Report_{DateTime.Today.Year}_{DateTime.Today.Month.ToString().PadLeft(2, '0')}_{DateTime.Today.Day.ToString().PadLeft(2, '0')}.xlsx";
+
+            var exclude = new List<string>() { "TestCategoryID" };
+            var fileResult = await export.ExportWithDisplayName<TblCustomPerformanceForFinishing>("Global Denim S.A. de C.V.", $"Finishing - Rulo: {ruloIdPerformance}, Lote: {ruloTemp.Lote}, Beam: {ruloTemp.Loom}", reportName, fileName, performanceTestResultList.ToList(), exclude);
+
+            if (!fileResult.Item1) return NotFound();
+
+            return fileResult.Item2;
         }
 
     }

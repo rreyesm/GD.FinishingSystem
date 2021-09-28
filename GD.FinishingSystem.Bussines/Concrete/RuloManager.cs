@@ -391,6 +391,25 @@ namespace GD.FinishingSystem.Bussines.Concrete
             var testResults = await testResultRepository.GetWhere(x => !x.IsDeleted);
             var testCategories = await testCategoryRepository.GetWhere(x => x.TestCategoryID != 0);
 
+            //Add machine by rulo
+            var definationsProcess = await definationProcessRepository.GetWhereWithNoTrack(x => !x.IsDeleted);
+
+            var ruloProcessGroup = await ruloProcessRepository.GetWhereWithNoTrack(x => !x.IsDeleted && ((x.BeginningDate <= ruloFilters.dtEnd && x.BeginningDate >= ruloFilters.dtBegin) || (x.BeginningDate <= ruloFilters.dtBegin && x.BeginningDate >= ruloFilters.dtEnd)));
+            List<RuloProcess> ruloProcessesList = new List<RuloProcess>();
+            ruloProcessesList = ruloProcessGroup.Where(x => !x.IsDeleted).GroupBy(x => x.RuloID, (key, g) => g.OrderByDescending(e => e.RuloProcessID).FirstOrDefault()).ToList();
+
+            var resulRPAndDP = (from rp in ruloProcessesList
+                                join dp in definationsProcess.ToList() on rp.DefinationProcessID equals dp.DefinationProcessID
+                                select new
+                                {
+                                    rp.RuloID,
+                                    rp.RuloProcessID,
+                                    dp.DefinationProcessID,
+                                    dp.ProcessCode,
+                                    dp.Name
+                                }).ToList();
+            //////////////////////////
+
             var result = (from r in rulos
                           join tr in testResults.ToList() on r.TestResultID equals tr.TestResultID
                           into ljTR
@@ -398,6 +417,10 @@ namespace GD.FinishingSystem.Bussines.Concrete
                           join tc in testCategories.ToList() on subTR?.TestCategoryID equals tc.TestCategoryID
                           into ljTC
                           from subTC in ljTC.DefaultIfEmpty()
+
+                          join rp in resulRPAndDP.ToList() on r.RuloID equals rp.RuloID
+                          into ljRP
+                          from subRP in ljRP.DefaultIfEmpty()
                           select new VMRulo
                           {
                               RuloID = r.RuloID,
@@ -423,7 +446,8 @@ namespace GD.FinishingSystem.Bussines.Concrete
                               TestResultID = r.TestResultID,
                               CanContinue = subTR?.CanContinue ?? false,
                               TestCategoryID = subTC?.TestCategoryID ?? 0,
-                              TestCategoryCode = subTC?.TestCode ?? string.Empty
+                              TestCategoryCode = subTC?.TestCode ?? string.Empty,
+                              Machine = subRP?.Name
                           }).ToList();
 
             if (ruloFilters.numDefinitionProcess != 0)
@@ -474,7 +498,7 @@ namespace GD.FinishingSystem.Bussines.Concrete
 
             foreach (var key in ruloProcessesListGroup)
             {
-                ruloProcessesList.Add(key.MaxBy(x => x.RuloProcessID));
+                ruloProcessesList.Add(key.Where(x=> !x.IsDeleted).MaxBy(x => x.RuloProcessID));
             }
 
             //Get value rama
@@ -554,9 +578,6 @@ namespace GD.FinishingSystem.Bussines.Concrete
                               CreatedDate = r.CreatedDate,
                               LastRuloProcess = subRP?.Name
                           }).ToList();
-
-
-
 
             if (ruloFilters.numDefinitionProcess != 0)
             {
@@ -704,6 +725,20 @@ namespace GD.FinishingSystem.Bussines.Concrete
             return ruloReportList;
         }
 
+        public async override Task<string> GetMachineByRuloId(int ruloId)
+        {
+            var ruloProcess = await ruloProcessRepository.GetWhere(o => !o.IsDeleted && o.RuloID == ruloId);
+            var definationResult = await definationProcessRepository.GetWhere(x => !x.IsDeleted);
+
+            var result = (from rp in ruloProcess.ToList()
+                          join dp in definationResult.ToList() on rp.DefinationProcessID equals dp.DefinationProcessID
+                          where rp.LastUpdateDate != null && !rp.IsDeleted
+                          orderby rp.LastUpdateDate descending
+                          select dp.Name
+                          ).FirstOrDefault();
+
+            return result ?? string.Empty;
+        }
 
     }
 }

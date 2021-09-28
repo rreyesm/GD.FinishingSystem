@@ -45,6 +45,7 @@ namespace GD.FinishingSystem.Entities.ViewModels
         public User Sender { get; set; }
         public User SentAuthorizer { get; set; }
         public int? SentAuthorizerID { get; set; }
+        public string Machine { get; set; }
 
     }
 }

@@ -19,6 +19,12 @@ namespace GD.FinishingSystem.Entities.ViewModels
         TF02 = 3,
         //Quality Recovery
         [Description("DVF2")]
-        DVF2 = 4
+        DVF2 = 4,
+        //From inspection stock, integration stock
+        [Description("PF01")]
+        PF01 = 5,
+        //From inspection stock or integration stock
+        [Description("PF02")]
+        PF02 = 6
     }
 }

@@ -19,6 +19,8 @@ namespace GD.FinishingSystem.Entities
         public int Beam { get; set; }
         [Display(Name = "Beam Stop")]
         public string BeamStop { get; set; }
+        //TODO: Salón 2: 101-148, Salón 1: 149-248, Salón 3: 301-324, Salón 4: 401-460
+        [RegularExpression(@"^(10[1-9]|1[1-3][0-9]|14[0-8])|(14[9]|1[5-9][0-9]|2[0-3][0-9]|24[0-8])|(30[1-9]|31[0-9]|32[0-4])|(40[1-9]|4[1-5][0-9]|46[0])$", ErrorMessage = "Loom does not exist")]
         public int Loom { get; set; }
         [Display(Name = "Is Toyota")]
         public bool IsToyota { get; set; }

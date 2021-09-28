@@ -190,6 +190,11 @@ namespace GD.FinishingSystem.WEB.Controllers
             var rulo = await factory.Rulos.GetRuloFromRuloID(foundRuloProcess.RuloID);
             rulo.ExitLength = Meter;
 
+            ////TODO: Update machine by rulo (PENDING)
+            //var definitionProcess = await factory.DefinationProcesses.GetDefinationProcessFromDefinationProcessID(foundRuloProcess.DefinationProcessID);
+            //if (definitionProcess != null)
+            //    rulo.MachineName = definitionProcess.Name;
+
             await factory.Rulos.Update(rulo, int.Parse(User.Identity.Name));
             return Ok();
         }

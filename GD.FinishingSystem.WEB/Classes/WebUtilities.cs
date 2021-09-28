@@ -177,10 +177,10 @@ namespace GD.FinishingSystem.WEB.Classes
             var resultIP = GetMachineIP(context);
 
 #if DEBUG
-            ////Server
-            resultIP.IP = "192.168.182.193";
-            //////local
-            //resultIP.IP = "172.25.16.1";
+            //////Server
+            //resultIP.IP = "192.168.182.193";
+            ////local
+            resultIP.IP = "172.25.16.1";
 #endif
 
             var systemPrinterList = await factory.SystemPrinters.GetSystemPrinterList();

@@ -17,11 +17,15 @@
 
   <ItemGroup>
     <None Remove="Reports\RuloLabel.prn" />
+    <None Remove="Reports\RuloLabel_old_2021-08-23.prn" />
     <None Remove="Reports\RulosPDFReport.frx" />
   </ItemGroup>
 
   <ItemGroup>
     <Content Include="Reports\RuloLabel.prn">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Reports\RuloLabel_old_2021-08-23.prn">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Reports\RulosPDFReport.frx">

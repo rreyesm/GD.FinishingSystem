@@ -23,9 +23,9 @@
             <i class="lni lni-circle-plus"></i> Create New
         </a>
 
-@*        <a asp-action="Create" class="btn btn-sm btn-outline-light border-dark btn-dark">
-            <i class="lni lni-circle-plus"></i> Create New
-        </a>*@
+        @*        <a asp-action="Create" class="btn btn-sm btn-outline-light border-dark btn-dark">
+                <i class="lni lni-circle-plus"></i> Create New
+            </a>*@
     </p>
 }
 
@@ -116,6 +116,10 @@
     </div>
 </form>
 
+<form id="form2">
+    <input type="hidden" id="ruloIdPerformance" name="ruloIdPerformance" />
+</form>
+
 <table id="tableRulos" class="table table-sm table-hover table-responsive-lg">
     <thead>
         <tr>
@@ -143,7 +147,9 @@
             <th>
                 @Html.DisplayNameFor(model => model.VMRuloList[0].StyleName)
             </th>
-
+            <th>
+                @Html.DisplayNameFor(model=> model.VMRuloList[0].Machine)
+            </th>
             <th>
                 @Html.DisplayNameFor(model => model.VMRuloList[0].EntranceLength)
             </th>
@@ -192,6 +198,11 @@
                 <td>
                     <div style="display:block;width:260px;">
                         @Html.DisplayFor(modelItem => item.StyleName)
+                    </div>
+                </td>
+                <td>
+                    <div style="display:block;width:100;">
+                        @Html.DisplayFor(modelItem=> item.Machine)
                     </div>
                 </td>
                 <td>
@@ -278,7 +289,7 @@
                                     {
                                         @Html.Raw(" | ")
                                         @*<a onclick="testResultValidateInfo(@item.RuloID)" class="btn  input-xs btn-dark"><i class="fa fa-vial"></i></a>*@
-                                         <a onclick="testResult(@item.RuloID)" class="btn  input-xs btn-dark" data-toggle="modal" data-target="#modalDialog"><i class="lni lni-flag"></i></a>
+                                        <a onclick="testResult(@item.RuloID)" class="btn  input-xs btn-dark" data-toggle="modal" data-target="#modalDialog"><i class="lni lni-flag"></i></a>
                                     }
                                 }
                             }
@@ -329,7 +340,8 @@
 
                                     @Html.Raw(" | ");
 
-                                    <a onclick="showPerfomanceTestResult(@item.RuloID)" data-toggle="modal" href="#" data-target="#modalDialogGeneral"><i class="fa fa-vials"></i></a>
+                                    @*<a onclick="showPerfomanceTestResult(@item.RuloID)" data-toggle="modal" href="#" data-target="#modalDialogGeneral"><i class="fa fa-vials"></i></a>*@
+                                    <a onclick="showPerfomanceTestResult(@item.RuloID)" data-toggle="modal" href="#" data-target="#modalDialogPerformanceTestResult"><i class="fa fa-vials"></i></a>
                                 }
                         </div>
 
@@ -453,6 +465,27 @@
                 <div id="generalInfo"></div>
             </div>
             <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="restoreDialog();" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@*Dialog Performance Test Result*@
+<div class="modal fade" id="modalDialogPerformanceTestResult" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel"></h5>
+                <button type="button" class="close" data-dismiss="modal" onclick="restoreDialog();" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div id="performanceTestResult"></div>
+            </div>
+            <div class="modal-footer">
+                <a onclick="exportPerformanceTestResult();" class="btn btn-success"><i class="far fa-file-excel"></i> Export Test Result</a>
                 <button type="button" class="btn btn-secondary" onclick="restoreDialog();" data-dismiss="modal">Close</button>
             </div>
         </div>
@@ -979,6 +1012,8 @@
     }
 
     function showPerfomanceTestResult(ruloId) {
+        document.getElementById("ruloIdPerformance").value = ruloId;
+
         $.ajax({
             url: "/Rulo/GetPerformanceTestResult",
             type: "Get",
@@ -986,12 +1021,18 @@
                 ruloId: ruloId,
             },
             success: function (data) {
-                document.getElementById('generalInfo').innerHTML = data;
+                document.getElementById('performanceTestResult').innerHTML = data;
             },
-            error: function(xhr, ajaxOptions, thrownError) {
+            error: function (xhr, ajaxOptions, thrownError) {
                 alert("Something went wrong!");
             }
         });
+    }
+
+    function exportPerformanceTestResult(ruloId) {
+        document.getElementById("form2").method = "post";
+        document.getElementById("form2").action = "/Rulo/ExportPerformanceTestResult";
+        document.getElementById("form2").submit();
     }
 
     function showTestResultWithPerformance(ruloId, performanceId) {

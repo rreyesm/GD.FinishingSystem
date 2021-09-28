@@ -41,5 +41,6 @@ namespace GD.FinishingSystem.Bussines.Abstract
 
         public abstract Task<IEnumerable<TblCustomReport>> GetCustomReportList(VMReportFilter reportFilter);
 
+        public abstract Task<string> GetMachineByRuloId(int ruloId);
     }
 }

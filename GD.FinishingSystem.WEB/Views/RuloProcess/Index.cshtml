@@ -83,19 +83,33 @@
                 }
                 else
                 {
-                    <td colspan="2">
-                        @if (!item.IsMustSample)
-                        {
+            <td colspan="2">
+                @if (!item.IsMustSample)
+                {
+                    //if (User.IsInRole("FinishMetersManually", AuthType.Update) || User.IsInRole("FinishMetersManually", AuthType.Full))
+                    //{
+                        <a onclick="finish(@item.RuloProcessID)" class="btn input-xs btn-danger"> <i class="lni lni-flag"></i> Finish This</a>
+                    @*}
+                    else
+                    {
+                        <span style="color:red; font-weight:bold">Finish From Meter Counter</span>
+                    }*@
+                }
+                else
+                {
+                    if (item.ExistSample)
+                    {
+                        //if (User.IsInRole("FinishMetersManually", AuthType.Update) || User.IsInRole("FinishMetersManually", AuthType.Full))
+                        //{
                             <a onclick="finish(@item.RuloProcessID)" class="btn input-xs btn-danger"> <i class="lni lni-flag"></i> Finish This</a>
-                        }
+                        @*}
                         else
                         {
-                            if (item.ExistSample)
-                            {
-                                <a onclick="finish(@item.RuloProcessID)" class="btn input-xs btn-danger"> <i class="lni lni-flag"></i> Finish This</a>
-                            }
-                        }
-                    </td>
+                            <span style="color:red; font-weight:bold">Finish From Meter Counter</span>
+                        }*@
+                    }
+                }
+            </td>
                 }
 
                 <td>
