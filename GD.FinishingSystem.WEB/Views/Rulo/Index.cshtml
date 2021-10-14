@@ -148,7 +148,7 @@
                 @Html.DisplayNameFor(model => model.VMRuloList[0].StyleName)
             </th>
             <th>
-                @Html.DisplayNameFor(model=> model.VMRuloList[0].Machine)
+                @Html.DisplayNameFor(model => model.VMRuloList[0].Machine)
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.VMRuloList[0].EntranceLength)
@@ -202,7 +202,7 @@
                 </td>
                 <td>
                     <div style="display:block;width:100;">
-                        @Html.DisplayFor(modelItem=> item.Machine)
+                        @Html.DisplayFor(modelItem => item.Machine)
                     </div>
                 </td>
                 <td>
@@ -269,13 +269,19 @@
                         }
 
                         @if (User.IsInRole("Authorize", AuthType.Show) || User.IsInRole("Piece", AuthType.Show))
-                            @Html.Raw(" | ")
+                        {
+                            if (item.TestResultID == null)
+                                @Html.Raw(" | ")
+                        }
 
                         @if (User.IsInRole("RuloProcessShow") || User.IsInRole("AdminFull") || User.IsInRole("RuloProcessFull"))
                         {
-                            <a asp-controller="RuloProcess" asp-action="Index" asp-route-ruloid="@item.RuloID" class="btn input-xs btn-info">
-                                <i class="lni lni-list "></i>
-                            </a>
+                            if (item.TestResultID == null) //If test result is null show button processes
+                            {
+                                <a asp-controller="RuloProcess" asp-action="Index" asp-route-ruloid="@item.RuloID" class="btn input-xs btn-info">
+                                    <i class="lni lni-list "></i>
+                                </a>
+                            }
                         }
 
                         @if (User.IsInRole("Authorize", AuthType.Show) || User.IsInRole("Piece", AuthType.Show) || User.IsInRole("RuloProcess", AuthType.Show))
@@ -320,12 +326,15 @@
 
                             @if (User.IsInRole("Rulo", AuthType.Delete))
                             {
-                                if (User.IsInRole("Rulo", AuthType.Update) || User.IsInRole("Rulo", AuthType.Show))
+                                if (item.TestResultID == null) //If test result is null show button processes
+                                {
+                                    if (User.IsInRole("Rulo", AuthType.Update) || User.IsInRole("Rulo", AuthType.Show))
                                     @Html.Raw(" | ")
                                     <a asp-controller="Rulo" asp-action="Delete" asp-route-ruloid="@item.RuloID">
                                         <i class="lni lni-circle-minus"></i>
                                     </a>
                                 }
+                            }
                             @if (User.IsInRole("Rulo", AuthType.Show))
                             {
                                 if (User.IsInRole("Rulo", AuthType.Update) || User.IsInRole("Rulo", AuthType.Show) || User.IsInRole("Rulo", AuthType.Delete))

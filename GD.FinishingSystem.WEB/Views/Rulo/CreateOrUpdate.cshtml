@@ -151,7 +151,10 @@
                     }
                     else
                     {
-                        <button type="submit" class="btn btn-success"><i class="lni lni-save"></i> Save Changes</button>
+                        if (Model.TestResultID == null) //If test result is null show button processes
+                        {
+                            <button type="submit" class="btn btn-success"><i class="lni lni-save"></i> Save Changes</button>
+                        }
                     }
                 </div>
 

@@ -83,33 +83,48 @@
                 }
                 else
                 {
-            <td colspan="2">
-                @if (!item.IsMustSample)
-                {
-                    //if (User.IsInRole("FinishMetersManually", AuthType.Update) || User.IsInRole("FinishMetersManually", AuthType.Full))
-                    //{
-                        <a onclick="finish(@item.RuloProcessID)" class="btn input-xs btn-danger"> <i class="lni lni-flag"></i> Finish This</a>
-                    @*}
-                    else
-                    {
-                        <span style="color:red; font-weight:bold">Finish From Meter Counter</span>
-                    }*@
-                }
-                else
-                {
-                    if (item.ExistSample)
-                    {
-                        //if (User.IsInRole("FinishMetersManually", AuthType.Update) || User.IsInRole("FinishMetersManually", AuthType.Full))
-                        //{
-                            <a onclick="finish(@item.RuloProcessID)" class="btn input-xs btn-danger"> <i class="lni lni-flag"></i> Finish This</a>
-                        @*}
+                    <td colspan="2">
+                        @if (!item.IsMustSample)
+                        {
+                            if (item.DefinationProcessID == 8 || item.DefinationProcessID == 9) /*8 - KTM y 9 - Cibitex*/
+                            {
+                                if (User.IsInRole("FinishMetersManually", AuthType.Update) || User.IsInRole("FinishMetersManually", AuthType.Full))
+                                {
+                                    <a onclick="finish(@item.RuloProcessID)" class="btn input-xs btn-danger"> <i class="lni lni-flag"></i> Finish This</a>
+                                }
+                                else
+                                {
+                                    <span style="color:red; font-weight:bold">Finish From Meter Counter</span>
+                                }
+                            }
+                            else
+                            {
+                                <a onclick="finish(@item.RuloProcessID)" class="btn input-xs btn-danger"> <i class="lni lni-flag"></i> Finish This</a>
+                            }
+
+                        }
                         else
                         {
-                            <span style="color:red; font-weight:bold">Finish From Meter Counter</span>
-                        }*@
-                    }
-                }
-            </td>
+                            if (item.ExistSample)
+                            {
+                                if (item.DefinationProcessID == 8 || item.DefinationProcessID == 9) /*8 - KTM y 9 - Cibitex: Pending for meter counter  || item.DefinationProcessID == 9*/
+                                {
+                                    if (User.IsInRole("FinishMetersManually", AuthType.Update) || User.IsInRole("FinishMetersManually", AuthType.Full))
+                                    {
+                                        <a onclick="finish(@item.RuloProcessID)" class="btn input-xs btn-danger"> <i class="lni lni-flag"></i> Finish This</a>
+                                    }
+                                    else
+                                    {
+                                        <span style="color:red; font-weight:bold">Finish From Meter Counter</span>
+                                    }
+                                }
+                                else
+                                {
+                                    <a onclick="finish(@item.RuloProcessID)" class="btn input-xs btn-danger"> <i class="lni lni-flag"></i> Finish This</a>
+                                }
+                            }
+                        }
+                    </td>
                 }
 
                 <td>
@@ -150,15 +165,23 @@
                         {
                             if (User.IsInRole("RuloProcess", AuthType.Show) || User.IsInRole("RuloProcess", AuthType.Update))
                                 @Html.Raw(" | ")
-
+                            
+                            if (item.EndDate == null)
+                            {
                                 <a asp-action="Delete" asp-route-ruloprocessid="@item.RuloProcessID">
                                     <i class="lni lni-circle-minus"></i>
                                 </a>
                             }
+                        }
                         @if (User.IsInRole("RuloProcessShow") || User.IsInRole("RuloProcessFull") || User.IsInRole("AdminFull"))
                         {
                             if (User.IsInRole("RuloProcess", AuthType.Show) || User.IsInRole("RuloProcess", AuthType.Update) || User.IsInRole("RuloProcess", AuthType.Delete))
+                            {
+                                if (item.EndDate == null)
+                                {
                                 @Html.Raw(" | ")
+                                }
+                            }
 
                                 <a alt="Rulos" onclick="showRulo(@item.RuloID);" href="#" data-toggle="modal" data-target="#modalDialogRulos">
                                     <i class="lni lni-direction-alt"></i>
