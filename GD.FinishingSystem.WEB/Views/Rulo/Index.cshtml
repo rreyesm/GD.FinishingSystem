@@ -151,6 +151,9 @@
                 @Html.DisplayNameFor(model => model.VMRuloList[0].Machine)
             </th>
             <th>
+                @Html.DisplayNameFor(model => model.VMRuloList[0].OriginID)
+            </th>
+            <th>
                 @Html.DisplayNameFor(model => model.VMRuloList[0].EntranceLength)
             </th>
             <th>
@@ -204,6 +207,9 @@
                     <div style="display:block;width:100;">
                         @Html.DisplayFor(modelItem => item.Machine)
                     </div>
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.OriginID)
                 </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.EntranceLength)
@@ -272,7 +278,7 @@
                         {
                             if (item.TestResultID == null)
                                 @Html.Raw(" | ")
-                        }
+                            }
 
                         @if (User.IsInRole("RuloProcessShow") || User.IsInRole("AdminFull") || User.IsInRole("RuloProcessFull"))
                         {
@@ -329,12 +335,12 @@
                                 if (item.TestResultID == null) //If test result is null show button processes
                                 {
                                     if (User.IsInRole("Rulo", AuthType.Update) || User.IsInRole("Rulo", AuthType.Show))
-                                    @Html.Raw(" | ")
-                                    <a asp-controller="Rulo" asp-action="Delete" asp-route-ruloid="@item.RuloID">
-                                        <i class="lni lni-circle-minus"></i>
-                                    </a>
+                                        @Html.Raw(" | ")
+                                        <a asp-controller="Rulo" asp-action="Delete" asp-route-ruloid="@item.RuloID">
+                                            <i class="lni lni-circle-minus"></i>
+                                        </a>
+                                    }
                                 }
-                            }
                             @if (User.IsInRole("Rulo", AuthType.Show))
                             {
                                 if (User.IsInRole("Rulo", AuthType.Update) || User.IsInRole("Rulo", AuthType.Show) || User.IsInRole("Rulo", AuthType.Delete))

@@ -11,6 +11,7 @@ using System;
         {
             return User.IsInRole(GetAuthCode(Form, auth)) || User.IsInRole(GetAuthCode(Form, AuthType.Full)) || User.IsInRole(GetAuthCode("Admin", AuthType.Full));
         }
+
         static string GetAuthCode(string FormName, AuthType AuthorizeType)
         {
             string result = AuthorizeType switch

@@ -409,6 +409,9 @@ namespace GD.FinishingSystem.Bussines.Concrete
                                     dp.Name
                                 }).ToList();
             //////////////////////////
+            
+            //Add Origin
+            var originList = VMOriginType.ToList();
 
             var result = (from r in rulos
                           join tr in testResults.ToList() on r.TestResultID equals tr.TestResultID
@@ -421,6 +424,10 @@ namespace GD.FinishingSystem.Bussines.Concrete
                           join rp in resulRPAndDP.ToList() on r.RuloID equals rp.RuloID
                           into ljRP
                           from subRP in ljRP.DefaultIfEmpty()
+
+                          join o in originList on r.OriginID equals o.Value
+                          into ljO
+                          from subO in ljO.DefaultIfEmpty()
                           select new VMRulo
                           {
                               RuloID = r.RuloID,
@@ -447,7 +454,8 @@ namespace GD.FinishingSystem.Bussines.Concrete
                               CanContinue = subTR?.CanContinue ?? false,
                               TestCategoryID = subTC?.TestCategoryID ?? 0,
                               TestCategoryCode = subTC?.TestCode ?? string.Empty,
-                              Machine = subRP?.Name
+                              Machine = subRP?.Name,
+                              OriginID = subO?.Text
                           }).ToList();
 
             if (ruloFilters.numDefinitionProcess != 0)
