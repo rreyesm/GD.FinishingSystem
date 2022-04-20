@@ -692,6 +692,26 @@ namespace GD.FinishingSystem.Bussines.Concrete
             return tblCustomPerformanceForFinishingList;
         }
 
+        public async override Task<IEnumerable<TblCustomPerformanceMasiveForFinishing>> GetPerformanceTestResultMasive(List<int> testMasterList)
+        {
+            List<TblCustomPerformanceMasiveForFinishing> tblCustomPerformanceMasiveForFinishingList = new List<TblCustomPerformanceMasiveForFinishing>();
+            try
+            {
+                using (dbPerformanceStandardsContext context = new dbPerformanceStandardsContext())
+                {
+                    List<SqlParameter> sqlParameters = new List<SqlParameter>();
+                    sqlParameters.Add(new SqlParameter("@p0", string.Join(",", testMasterList)));
+
+                    tblCustomPerformanceMasiveForFinishingList = await context.TblCustomPerformanceMasiveForFinishing.FromSqlRaw("stpGetPerformanceMasiveForFinishing @p0", sqlParameters.ToArray()).ToListAsync();
+                }
+            }
+            catch (Exception ex)
+            {
+            }
+
+            return tblCustomPerformanceMasiveForFinishingList;
+        }
+
         public async override Task<IEnumerable<TblCustomReport>> GetCustomReportList(VMReportFilter reportFilter)
         {
             //reportFilter.dtEnd = reportFilter.dtEnd.AddDays(1).AddMilliseconds(-1);

@@ -39,6 +39,13 @@ namespace GD.FinishingSystem.Bussines.Concrete
             return result;
         }
 
+        public override async Task<IEnumerable<TestResult>> GetTestResultFromTestResultIDs(List<int> testResultIDs)
+        {
+            var result = await repository.GetWhereWithNoTrack(x => testResultIDs.Contains(x.TestResultID));
+
+            return result;
+        }
+
         public override async Task<IEnumerable<TestResult>> GetTestResultListFromBetweenDate(DateTime begin, DateTime end)
         {
             var result = await repository.GetWhere(o => !o.IsDeleted && (o.CreatedDate <= end && o.CreatedDate >= begin) || (o.CreatedDate <= begin && o.CreatedDate >= end));

@@ -131,6 +131,10 @@
                     {
                         <a onclick="exportToExcelAllStock();" class="btn btn-sm btn-danger"><i class="far fa-file-excel"></i> Export All Stock</a>
                     }
+                    @if (User.IsInRole("PerformanceTestReport", AuthType.Show) || User.IsInRole("PerformanceTestReport", AuthType.Full) || User.IsInRole("Admin", AuthType.Full))
+	                {
+		                 <a onclick="exportToExcelPerformanceTestReport();" class="btn btn-sm btn-info"><i class="far fa-file-excel"></i> Export Performance Test</a>
+	                }
                 </div>
             </th>
         </tr>
@@ -1000,6 +1004,11 @@
     function exportToExcelAllStock() {
 
         document.getElementById("formFilters").action = "/Rulo/ExportToExcelAllStock";
+        document.getElementById("formFilters").submit();
+    }
+
+    function exportToExcelPerformanceTestReport() {
+        document.getElementById("formFilters").action = "/Rulo/ExportToExcelPerformanceTestReport";
         document.getElementById("formFilters").submit();
     }
 

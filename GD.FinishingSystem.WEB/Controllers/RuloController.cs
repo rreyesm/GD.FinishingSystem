@@ -1102,5 +1102,57 @@ namespace GD.FinishingSystem.WEB.Controllers
             return fileResult.Item2;
         }
 
+        [HttpPost]
+        [Authorize(AuthenticationSchemes = SystemStatics.DefaultScheme, Roles = "PerformanceTestReportShow,PerformanceTestReportFull,AdminFull")]
+        public async Task<ActionResult> ExportToExcelPerformanceTestReport(VMRuloFilters ruloFilters)
+        {
+            ruloFilters.dtEnd = ruloFilters.dtEnd.AddDays(1).AddMilliseconds(-1);
+            var rulos = await factory.Rulos.GetRuloListFromFilters(ruloFilters);
+
+            if (rulos == null || rulos.Count() == 0)
+                return NotFound();
+
+            //Get only records that contain test result
+            List<int> testResultIDs = rulos.Where(x => x.TestResultID != null).Select(x => x.TestResultID.Value).ToList();
+
+            if (testResultIDs == null || testResultIDs.Count() == 0)
+                return NotFound();
+
+            var testResultList = await factory.TestResults.GetTestResultFromTestResultIDs(testResultIDs);
+            var testResultList2 = testResultList.Where(x => x.PerformanceID != null).Select(x => x.PerformanceID.Value).ToList();
+
+            if (testResultList2 == null || testResultList2.Count() == 0)
+                return NotFound();
+
+            var customePerformanceTestResultList = await factory.Rulos.GetPerformanceTestResultMasive(testResultList2);
+
+            List<VMPerformanceTestReport> performanceTestReportList = new List<VMPerformanceTestReport>();
+            performanceTestReportList = (from customPT in customePerformanceTestResultList
+                          join tr in testResultList on customPT.TestMasterId equals tr.PerformanceID
+                          join r in rulos on tr.TestResultID equals r.TestResultID
+                          select new VMPerformanceTestReport
+                          {
+                              RuloID = r.RuloID,
+                              Lote = r.Lote,
+                              Beam = r.Beam,
+                              Loom = r.Loom,
+                              ParameterName = customPT.ParameterName,
+                              MethodName = customPT.MethodName,
+                              Value = customPT.Value,
+                              Success = customPT.Success,
+                              Category = customPT.Category
+                          }).OrderBy(x => x.RuloID).ToList();
+
+            ExportToExcel export = new ExportToExcel();
+            string reportName = "Performance Test Report";
+            string fileName = $"Performance Test Report_{DateTime.Today.Year}_{DateTime.Today.Month.ToString().PadLeft(2, '0')}_{DateTime.Today.Day.ToString().PadLeft(2, '0')}.xlsx";
+
+            var fileResult = await export.ExportWithDisplayName<VMPerformanceTestReport>("Global Denim S.A. de C.V.", $"Finishing", reportName, fileName, performanceTestReportList.ToList());
+
+            if (!fileResult.Item1) return NotFound();
+
+            return fileResult.Item2;
+        }
+
     }
 }

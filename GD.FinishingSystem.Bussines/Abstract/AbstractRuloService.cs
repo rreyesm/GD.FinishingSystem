@@ -39,6 +39,8 @@ namespace GD.FinishingSystem.Bussines.Abstract
         public abstract Task<IEnumerable<TblCustomPerformanceForFinishing>> GetPerformanceTestResultByRuloId(int ruloId);
         public abstract Task<IEnumerable<TblCustomPerformanceForFinishing>> GetPerformanceTestResultById(int perfomanceId);
 
+        public abstract Task<IEnumerable<TblCustomPerformanceMasiveForFinishing>> GetPerformanceTestResultMasive(List<int> testMasterList);
+
         public abstract Task<IEnumerable<TblCustomReport>> GetCustomReportList(VMReportFilter reportFilter);
 
         public abstract Task<string> GetMachineByRuloId(int ruloId);

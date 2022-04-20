@@ -23,6 +23,8 @@ namespace GD.FinishingSystem.DAL.EFdbPerformanceStandards
         public virtual DbSet<TblTestMaster> TblTestMasters { get; set; }
 
         public virtual DbSet<TblCustomPerformanceForFinishing> TblCustomPerformanceForFinishings { get; set; }
+        public virtual DbSet<TblCustomPerformanceMasiveForFinishing> TblCustomPerformanceMasiveForFinishing { get; set; }
+
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -121,6 +123,7 @@ namespace GD.FinishingSystem.DAL.EFdbPerformanceStandards
 
             //Custom table
             modelBuilder.Entity<TblCustomPerformanceForFinishing>();
+            modelBuilder.Entity<TblCustomPerformanceMasiveForFinishing>();
 
             OnModelCreatingPartial(modelBuilder);
         }
