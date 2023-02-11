@@ -13,6 +13,14 @@
                 @Html.DisplayFor(model => model.FirstOrDefault().Category)
             </td>
         </tr>
+        <tr>
+            <th style="color: white; background: #808080;">
+                @Html.DisplayNameFor(model => model.Beam)
+            </th>
+            <th colspan="2">
+                @Html.DisplayFor(model => model.FirstOrDefault().Beam)
+            </th>
+        </tr>
         <tr style="color: #fff; background: black;">
             <th>
                 @Html.DisplayNameFor(model => model.ParameterName)

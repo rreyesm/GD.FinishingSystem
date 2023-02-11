@@ -127,7 +127,7 @@
                             </a>
                         }
 
-                        @if (User.IsInRole("AdminFull"))
+                        @if (User.IsInRole("TestCategoryFull") || User.IsInRole("TestCategoryShow") || User.IsInRole("AdminFull"))
                         {
                             <a class="nav-link" asp-controller="TestCategory" asp-action="Index">
                                 <div class="sb-nav-link-icon">

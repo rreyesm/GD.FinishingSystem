@@ -16,5 +16,6 @@ namespace GD.FinishingSystem.Entities.ViewModels
         public decimal Value { get; set; }
         public bool? Success { get; set; }
         public string Category { get; set; }
+        public int TestBeam { get; set; }
     }
 }

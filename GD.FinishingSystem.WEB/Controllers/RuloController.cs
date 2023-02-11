@@ -1011,20 +1011,7 @@ namespace GD.FinishingSystem.WEB.Controllers
         {
             if (!User.IsInRole("Rulo", AuthType.Show)) return Unauthorized();
 
-            //tblMaster.ID = 2352; //TODO: For test
-            //var performanceTestResultList = await factory.Rulos.GetPerformanceTestResultByRuloId(ruloId);
-
-            //if (performanceTestResultList == null || performanceTestResultList.Count() == 0)
-            //{
-            //    var ruloTemp = await factory.Rulos.GetRuloFromRuloID(ruloId);
-            //    var testResultTemp = await factory.TestResults.GetTestResultFromTestResultID((int)ruloTemp.TestResultID);
-            //    if (testResultTemp != null)
-            //    {
-            //        if (testResultTemp.PerformanceID != null)
-            //            performanceTestResultList = await factory.Rulos.GetPerformanceTestResultById((int)testResultTemp.PerformanceID);
-            //    }
-            //}
-
+            //Rulo ID = 50278, Bem: 327 //TODO: For test
             IEnumerable<TblCustomPerformanceForFinishing> performanceTestResultList = new List<TblCustomPerformanceForFinishing>();
 
             var ruloTemp = await factory.Rulos.GetRuloFromRuloID(ruloId);
@@ -1034,7 +1021,10 @@ namespace GD.FinishingSystem.WEB.Controllers
                 if (testResultTemp != null)
                 {
                     if (testResultTemp.PerformanceID != null)
+                    {
                         performanceTestResultList = await factory.Rulos.GetPerformanceTestResultById((int)testResultTemp.PerformanceID);
+                    }
+
                 }
             }
 
@@ -1095,7 +1085,7 @@ namespace GD.FinishingSystem.WEB.Controllers
             string fileName = $"Performance Test Result Report_{DateTime.Today.Year}_{DateTime.Today.Month.ToString().PadLeft(2, '0')}_{DateTime.Today.Day.ToString().PadLeft(2, '0')}.xlsx";
 
             var exclude = new List<string>() { "TestCategoryID" };
-            var fileResult = await export.ExportWithDisplayName<TblCustomPerformanceForFinishing>("Global Denim S.A. de C.V.", $"Finishing - Rulo: {ruloIdPerformance}, Lote: {ruloTemp.Lote}, Beam: {ruloTemp.Loom}", reportName, fileName, performanceTestResultList.ToList(), exclude);
+            var fileResult = await export.ExportWithDisplayName<TblCustomPerformanceForFinishing>("Global Denim S.A. de C.V.", $"Finishing - Rulo: {ruloIdPerformance}, Lote: {ruloTemp.Lote}, Beam: {ruloTemp.Beam}", reportName, fileName, performanceTestResultList.ToList(), exclude);
 
             if (!fileResult.Item1) return NotFound();
 
@@ -1140,7 +1130,8 @@ namespace GD.FinishingSystem.WEB.Controllers
                               MethodName = customPT.MethodName,
                               Value = customPT.Value,
                               Success = customPT.Success,
-                              Category = customPT.Category
+                              Category = customPT.Category,
+                              TestBeam = customPT.Beam
                           }).OrderBy(x => x.RuloID).ToList();
 
             ExportToExcel export = new ExportToExcel();

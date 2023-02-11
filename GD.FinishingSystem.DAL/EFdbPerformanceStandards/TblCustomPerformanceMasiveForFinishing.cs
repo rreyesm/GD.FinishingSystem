@@ -17,5 +17,6 @@ namespace GD.FinishingSystem.DAL.EFdbPerformanceStandards
         public decimal Value { get; set; }
         public bool? Success { get; set; }
         public string Category { get; set; }
+        public int Beam { get; set; }
     }
 }
