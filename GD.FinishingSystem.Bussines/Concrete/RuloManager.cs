@@ -25,6 +25,7 @@ namespace GD.FinishingSystem.Bussines.Concrete
         private IAsyncRepository<Sample> sampleRepository = null;
         private IAsyncRepository<VMRuloReport> ruloReportRepository = null;
         private IAsyncRepository<TblCustomReport> customReportRepository = null;
+        private IAsyncRepository<VMRuloBatch> ruloBatchRepository = null;
 
         public RuloManager(DbContext context)
         {
@@ -37,6 +38,7 @@ namespace GD.FinishingSystem.Bussines.Concrete
             this.sampleRepository = new GenericRepository<Sample>(context);
             this.ruloReportRepository = new GenericRepository<VMRuloReport>(context);
             this.customReportRepository = new GenericRepository<TblCustomReport>(context);
+            this.ruloBatchRepository = new GenericRepository<VMRuloBatch>(context);
         }
 
         public override async Task Add(Rulo RuloInformation, int adderRef)
@@ -452,6 +454,8 @@ namespace GD.FinishingSystem.Bussines.Concrete
                               IsWaitingAnswerFromTest = r.IsWaitingAnswerFromTest,
                               TestResultID = r.TestResultID,
                               CanContinue = subTR?.CanContinue ?? false,
+                              DateTestResult = subTR?.CreatedDate,
+                              BatchNumbers = null,
                               TestCategoryID = subTC?.TestCategoryID ?? 0,
                               TestCategoryCode = subTC?.TestCode ?? string.Empty,
                               Machine = subRP?.Name,
@@ -472,6 +476,14 @@ namespace GD.FinishingSystem.Bussines.Concrete
                 result = result.Where(x => x.TestCategoryID == ruloFilters.numTestCategory).ToList();
 
             var sql = query.ToQueryString();
+
+            //2023-02-15
+            var ruloBatch = await ruloBatchRepository.GetWithRawSql("stpGetBatchesFromGuven @p0", new[] { string.Join(",", result.Select(x => x.RuloID)) });
+
+            result.ForEach(x =>
+            {
+                x.BatchNumbers = string.Join(",", ruloBatch.Where(y => y.RuloID == x.RuloID).Select(y => y.BatchNumbers));
+            });
 
             return result.OrderByDescending(x => x.RuloID);
         }
@@ -580,6 +592,8 @@ namespace GD.FinishingSystem.Bussines.Concrete
                               TestResultObservations = subTR?.Details,
                               TestCategoryID = subTC?.TestCategoryID ?? 0,
                               TestCategoryCode = subTC?.TestCode ?? string.Empty,
+                              DateTestResult = subTR?.CreatedDate,
+                              BatchNumbers = null,
                               OriginID = subO?.Text,
                               TestResultAuthorizer = subuResultAutho?.UserName ?? string.Empty,
                               CreatorID = subuCreator?.UserName ?? string.Empty,
@@ -601,6 +615,14 @@ namespace GD.FinishingSystem.Bussines.Concrete
                 result = result.Where(x => x.TestCategoryID == ruloFilters.numTestCategory).ToList();
 
             var sql = query.ToQueryString();
+
+            //2023-02-15
+            var ruloBatch = await ruloBatchRepository.GetWithRawSql("stpGetBatchesFromGuven @p0", new[] { string.Join(",", result.Select(x => x.RuloID)) });
+
+            result.ForEach(x =>
+            {
+                x.BatchNumbers = string.Join(",", ruloBatch.Where(x=> x.RuloID == x.RuloID).Select(x => x.BatchNumbers));
+            });
 
             return result;
         }

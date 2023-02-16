@@ -101,7 +101,7 @@ namespace GD.FinishingSystem.DAL.Concrete.EntityFramework
         public DbSet<TestResult> TestResults { get; set; }
         public DbSet<User> Users { get; set; }
         public DbSet<UserRole> UserRoles { get; set; }
-        //public DbSet<TblCustomReport> TblCustomReports { get; set; }
+        public DbSet<VMRuloBatch> RuloBatches { get; set; }
         #endregion
 
         #region Settings
@@ -145,6 +145,8 @@ namespace GD.FinishingSystem.DAL.Concrete.EntityFramework
                 entity.Property(e => e.FinishMeterRP);
                 entity.Property(e => e.ExitLength);
             });
+
+            modelBuilder.Entity<VMRuloBatch>().HasNoKey();
         }
 
 

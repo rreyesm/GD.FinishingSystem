@@ -39,6 +39,10 @@ namespace GD.FinishingSystem.Entities.ViewModels
         public int TestCategoryID { get; set; }
         [Display(Name = "Test Result")]
         public string TestCategoryCode { get; set; }
+        [Display(Name = "Date Test")]
+        public DateTime? DateTestResult { get; set; }
+        [Display(Name = "Batch Numbers")]
+        public string BatchNumbers { get; set; }
         [Display(Name = "Origin")]
         public string OriginID { get; set; }
         [Display(Name = "Rulo Observations")]
