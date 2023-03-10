@@ -137,7 +137,7 @@ namespace GD.FinishingSystem.WEB.Classes
 
         }
 
-        public async Task<Tuple<bool, FileStreamResult>> ExportWithDisplayName<T>(string nameFabric, string area, string title, string fileName, List<T> list, List<string> excludeFieldList = null)
+        public async Task<Tuple<bool, FileStreamResult>> ExportWithDisplayName<T>(string nameFabric, string area, string title, string fileName, List<T> list, List<string> excludeFieldList = null, List<Tuple<int, string>> withColorList = null, string idFieldName = "")
         {
             bool isOk = true;
 
@@ -206,13 +206,32 @@ namespace GD.FinishingSystem.WEB.Classes
                 {
                     ++rowIni;
                     colIni = 0;
+
+                    //Added to set color 2023-02-17
+                    bool withColor = false;
+                    string color = string.Empty;
+                    if (withColorList != null)
+                    {
+                        var valueRuloID = elementType.GetProperties().Where(x => x.Name == idFieldName).FirstOrDefault().GetValue(item, null) ?? DBNull.Value;
+                        if (valueRuloID != null && withColorList.Any(x => x.Item1 == (int)valueRuloID))
+                        {
+                            withColor = true;
+                            color = withColorList.Where(x => x.Item1 == (int)valueRuloID).Select(x => x.Item2).FirstOrDefault();
+                        }
+                    }
+                    
                     foreach (var propInfo in elementType.GetProperties())
                     {
                         if (excludeFieldList?.Contains(propInfo.Name) ?? false)
                             continue;
 
                         var value = propInfo.GetValue(item, null) ?? DBNull.Value;
-                        workSheet.Cell(rowIni, ++colIni).Value = value;
+                        int col = ++colIni;
+                        workSheet.Cell(rowIni, col).Value = value;
+
+                        //Added to set color 2023-02-17
+                        if (withColor)
+                            workSheet.Cell(rowIni, col).Style.Fill.BackgroundColor = XLColor.FromArgb(int.Parse(color, NumberStyles.HexNumber));
 
                         Type propertyType = Nullable.GetUnderlyingType(propInfo.PropertyType) ?? propInfo.PropertyType;
                         TypeCode typeCode = Type.GetTypeCode(propertyType);

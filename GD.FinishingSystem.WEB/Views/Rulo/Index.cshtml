@@ -189,11 +189,11 @@
         {
             var color = "bgcolor=transparent";
             if (!string.IsNullOrWhiteSpace(item.BatchNumbers))
-                color = "bgcolor=FFC300";
+                color = "bgcolor=ffc300"; //Amarillo
             else if (item.CanContinue)
-                color = "bgcolor=66ff66";
+                color = "bgcolor=66ff66"; //Verde
             else if (item.TestCategoryCode.Contains(" X", StringComparison.InvariantCultureIgnoreCase)) //Ok X or Fail X
-                color = "bgcolor=ff6666";
+                color = "bgcolor=ff6666"; //Rojo
 
         <tr @color id="@("row" + @item.RuloID)">
             <td>

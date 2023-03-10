@@ -641,8 +641,20 @@ namespace GD.FinishingSystem.WEB.Controllers
             string reportName = "Finishing Report";
             string fileName = $"Finishing Report_{DateTime.Today.Year}_{DateTime.Today.Month.ToString().PadLeft(2, '0')}_{DateTime.Today.Day.ToString().PadLeft(2, '0')}.xlsx";
 
+            List<Tuple<int, string>> colorList = new List<Tuple<int, string>>();
+            result.ToList().ForEach(x =>
+            {
+                if (!string.IsNullOrWhiteSpace(x.BatchNumbers))
+                    colorList.Add(new Tuple<int, string>(x.RuloID, "ffc300"));
+                else if (x.CanContinue == "Yes")
+                    colorList.Add(new Tuple<int, string>(x.RuloID, "66ff66"));
+                else if (x.TestCategoryCode.Contains(" X", StringComparison.InvariantCultureIgnoreCase)) //Ok X or Fail X
+                    colorList.Add(new Tuple<int, string>(x.RuloID, "ff6666"));
+
+            });
+
             var exclude = new List<string>() { "TestCategoryID" };
-            var fileResult = await export.ExportWithDisplayName<VMRuloReport>("Global Denim S.A. de C.V.", "Finishing", reportName, fileName, result.ToList(), exclude);
+            var fileResult = await export.ExportWithDisplayName<VMRuloReport>("Global Denim S.A. de C.V.", "Finishing", reportName, fileName, result.ToList(), exclude, colorList, "RuloID");
 
             if (!fileResult.Item1) return NotFound();
 

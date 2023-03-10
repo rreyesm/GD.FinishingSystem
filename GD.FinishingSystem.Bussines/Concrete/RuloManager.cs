@@ -477,15 +477,15 @@ namespace GD.FinishingSystem.Bussines.Concrete
 
             var sql = query.ToQueryString();
 
-            //2023-02-15
-            var ruloBatch = await ruloBatchRepository.GetWithRawSql("stpGetBatchesFromGuven @p0", new[] { string.Join(",", result.Select(x => x.RuloID)) });
-
-            result.ForEach(x =>
-            {
-                x.BatchNumbers = string.Join(",", ruloBatch.Where(y => y.RuloID == x.RuloID).Select(y => y.BatchNumbers));
-            });
-
             return result.OrderByDescending(x => x.RuloID);
+        }
+
+        //2023-02-16
+        public override async Task<IEnumerable<VMRuloBatch>> GetGuvenInformation(IEnumerable<int> ruloIDs)
+        {
+            var ruloBatch = await ruloBatchRepository.GetWithRawSql("stpGetBatchesFromGuven @p0", new[] { string.Join(",", ruloIDs) });
+
+            return ruloBatch;
         }
 
         public override async Task<IEnumerable<VMRuloReport>> GetRuloReportListFromFilters(VMRuloFilters ruloFilters)
@@ -588,7 +588,7 @@ namespace GD.FinishingSystem.Bussines.Concrete
                               SenderID = r.Sender?.ToString(),
                               SentAuthorizerID = r.SentAuthorizer?.ToString(),
                               IsWaitingAnswerFromTest = r.IsWaitingAnswerFromTest ? "Yes" : "No",
-                              CanContinue = subTR?.CanContinue == null ? string.Empty : subTR?.CanContinue != null ? "Yes" : "No",
+                              CanContinue = subTR?.CanContinue == true ? "Yes" : "No",
                               TestResultObservations = subTR?.Details,
                               TestCategoryID = subTC?.TestCategoryID ?? 0,
                               TestCategoryCode = subTC?.TestCode ?? string.Empty,
@@ -616,13 +616,13 @@ namespace GD.FinishingSystem.Bussines.Concrete
 
             var sql = query.ToQueryString();
 
-            //2023-02-15
-            var ruloBatch = await ruloBatchRepository.GetWithRawSql("stpGetBatchesFromGuven @p0", new[] { string.Join(",", result.Select(x => x.RuloID)) });
+            ////2023-02-16: This code was comented because the process is very slow when it is getting data from Guven database
+            //var ruloBatch = await GetGuvenInformation(result.Select(x => x.RuloID));
 
-            result.ForEach(x =>
-            {
-                x.BatchNumbers = string.Join(",", ruloBatch.Where(x=> x.RuloID == x.RuloID).Select(x => x.BatchNumbers));
-            });
+            //result.ForEach(x =>
+            //{
+            //    x.BatchNumbers = string.Join(",", ruloBatch.Where(y=> y.RuloID == x.RuloID).Select(y => y.BatchNumbers));
+            //});
 
             return result;
         }
@@ -639,7 +639,6 @@ namespace GD.FinishingSystem.Bussines.Concrete
 
         public async override Task<IEnumerable<VMRuloReport>> GetAllVMRuloReportList(string query, params object[] parameters)
         {
-
             var ruloReportList = await ruloReportRepository.GetWithRawSql(query, parameters);
 
             return ruloReportList;
@@ -736,7 +735,6 @@ namespace GD.FinishingSystem.Bussines.Concrete
 
         public async override Task<IEnumerable<TblCustomReport>> GetCustomReportList(VMReportFilter reportFilter)
         {
-            //reportFilter.dtEnd = reportFilter.dtEnd.AddDays(1).AddMilliseconds(-1);
             string query = string.Empty;
 
             //Order in stored procedure

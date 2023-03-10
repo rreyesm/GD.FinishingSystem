@@ -41,6 +41,12 @@ namespace GD.FinishingSystem.WEB.Classes
 
             var pageSize = _appSettings.PageSize != 0 ? _appSettings.PageSize : 5;
             VMRuloList = PaginatedList<VMRulo>.CreatePaginated(result, pageIndex ?? 1, int.Parse(pageSize.ToString()));
+
+            var guvenInformation = await factory.Rulos.GetGuvenInformation(VMRuloList.Select(x => x.RuloID));
+            VMRuloList.ForEach(x =>
+            {
+                x.BatchNumbers = string.Join(",", guvenInformation.Where(y => y.RuloID == x.RuloID).Select(y => y.BatchNumbers));
+            });
         }
     }
 
