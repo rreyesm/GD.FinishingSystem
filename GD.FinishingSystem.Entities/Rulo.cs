@@ -28,6 +28,8 @@ namespace GD.FinishingSystem.Entities
         [Display(Name = "Style Name")]
         public string StyleName { get; set; }
         public decimal Width { get; set; }
+        [Display(Name = "Weaving Length")]
+        public decimal WeavingLength { get; set; }
         [Display(Name = "Entrance Length")]
         public decimal EntranceLength { get; set; }
         [Display(Name = "Exit Length")]

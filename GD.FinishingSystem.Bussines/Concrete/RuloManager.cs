@@ -10,6 +10,7 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 
 namespace GD.FinishingSystem.Bussines.Concrete
@@ -26,6 +27,7 @@ namespace GD.FinishingSystem.Bussines.Concrete
         private IAsyncRepository<VMRuloReport> ruloReportRepository = null;
         private IAsyncRepository<TblCustomReport> customReportRepository = null;
         private IAsyncRepository<VMRuloBatch> ruloBatchRepository = null;
+        private DbContext Context = null;
 
         public RuloManager(DbContext context)
         {
@@ -39,6 +41,7 @@ namespace GD.FinishingSystem.Bussines.Concrete
             this.ruloReportRepository = new GenericRepository<VMRuloReport>(context);
             this.customReportRepository = new GenericRepository<TblCustomReport>(context);
             this.ruloBatchRepository = new GenericRepository<VMRuloBatch>(context);
+            this.Context = context;
         }
 
         public override async Task Add(Rulo RuloInformation, int adderRef)
@@ -100,6 +103,7 @@ namespace GD.FinishingSystem.Bussines.Concrete
                 Style = rulo.Style,
                 StyleName = rulo.StyleName,
                 Width = rulo.Width,
+                WeavingLength = rulo.WeavingLength,
                 EntranceLength = rulo.EntranceLength,
                 ExitLength = rulo.ExitLength,
                 Shift = rulo.Shift,
@@ -160,6 +164,7 @@ namespace GD.FinishingSystem.Bussines.Concrete
                               Style = r.Style,
                               StyleName = r.StyleName,
                               Width = r.Width,
+                              WeavingLength = r.WeavingLength,
                               EntranceLength = r.EntranceLength,
                               ExitLength = r.ExitLength,
                               Shift = r.Shift,
@@ -221,6 +226,7 @@ namespace GD.FinishingSystem.Bussines.Concrete
                               Style = r.Style,
                               StyleName = r.StyleName,
                               Width = r.Width,
+                              WeavingLength = r.WeavingLength,
                               EntranceLength = r.EntranceLength,
                               ExitLength = r.ExitLength,
                               Shift = r.Shift,
@@ -442,6 +448,7 @@ namespace GD.FinishingSystem.Bussines.Concrete
                               Style = r.Style,
                               StyleName = r.StyleName,
                               Width = r.Width,
+                              WeavingLength = r.WeavingLength,
                               EntranceLength = r.EntranceLength,
                               ExitLength = r.ExitLength,
                               Shift = r.Shift,
@@ -455,6 +462,7 @@ namespace GD.FinishingSystem.Bussines.Concrete
                               TestResultID = r.TestResultID,
                               CanContinue = subTR?.CanContinue ?? false,
                               DateTestResult = subTR?.CreatedDate,
+                              InspectionLength = 0,
                               BatchNumbers = null,
                               TestCategoryID = subTC?.TestCategoryID ?? 0,
                               TestCategoryCode = subTC?.TestCode ?? string.Empty,
@@ -464,10 +472,15 @@ namespace GD.FinishingSystem.Bussines.Concrete
 
             if (ruloFilters.numDefinitionProcess != 0)
             {
-                var ruloProcess = ruloProcessRepository.GetQueryable(x => !x.IsDeleted && ((x.BeginningDate <= ruloFilters.dtEnd && x.BeginningDate >= ruloFilters.dtBegin) || (x.BeginningDate <= ruloFilters.dtBegin && x.BeginningDate >= ruloFilters.dtEnd)) && x.EndDate == null && x.DefinationProcessID == ruloFilters.numDefinitionProcess).ToList();
+                //var ruloProcess = ruloProcessRepository.GetQueryable(x => !x.IsDeleted && ((x.BeginningDate <= ruloFilters.dtEnd && x.BeginningDate >= ruloFilters.dtBegin) || (x.BeginningDate <= ruloFilters.dtBegin && x.BeginningDate >= ruloFilters.dtEnd)) && x.EndDate == null && x.DefinationProcessID == ruloFilters.numDefinitionProcess).ToList();
+
+                //result = (from r in result
+                //          join rp in ruloProcess on r.RuloID equals rp.RuloID
+                //          where rp.DefinationProcessID == ruloFilters.numDefinitionProcess
+                //          select r).ToList();
 
                 result = (from r in result
-                          join rp in ruloProcess on r.RuloID equals rp.RuloID
+                          join rp in resulRPAndDP on r.RuloID equals rp.RuloID
                           where rp.DefinationProcessID == ruloFilters.numDefinitionProcess
                           select r).ToList();
             }
@@ -483,149 +496,192 @@ namespace GD.FinishingSystem.Bussines.Concrete
         //2023-02-16
         public override async Task<IEnumerable<VMRuloBatch>> GetGuvenInformation(IEnumerable<int> ruloIDs)
         {
-            var ruloBatch = await ruloBatchRepository.GetWithRawSql("stpGetBatchesFromGuven @p0", new[] { string.Join(",", ruloIDs) });
+            IEnumerable<VMRuloBatch> ruloBatch = null;
+            if (ruloIDs != null && ruloIDs.Count() > 0)
+                ruloBatch = await ruloBatchRepository.GetWithRawSql("stpGetBatchesFromGuven @p0", new[] { string.Join(",", ruloIDs) });
+            else
+                ruloBatch = new List<VMRuloBatch>();
 
             return ruloBatch;
         }
 
         public override async Task<IEnumerable<VMRuloReport>> GetRuloReportListFromFilters(VMRuloFilters ruloFilters)
         {
-            var query = repository.GetQueryable(x => !x.IsDeleted && ((x.CreatedDate <= ruloFilters.dtEnd && x.CreatedDate >= ruloFilters.dtBegin) || (x.CreatedDate <= ruloFilters.dtBegin && x.CreatedDate >= ruloFilters.dtEnd)));
+            IEnumerable<VMRuloReport> result = null;
 
-            var rulos = (
-                from r in query
-                where
-                (!(ruloFilters.numLote > 0) || r.Lote == ruloFilters.numLote.ToString()) &&
-                (!(ruloFilters.numBeam > 0) || r.Beam == ruloFilters.numBeam) &&
-                (!(ruloFilters.numLoom > 0) || r.Loom == ruloFilters.numLoom) &&
-                (!(ruloFilters.numPiece > 0) || r.PieceCount == ruloFilters.numPiece) &&
-                (!(ruloFilters.FolioNumber > 0) || r.FolioNumber == ruloFilters.FolioNumber) &&
-                 ((string.IsNullOrWhiteSpace(ruloFilters.txtStyle)) || r.Style.Contains(ruloFilters.txtStyle))
+            string query = string.Empty;
 
-                select r
+            //Order in stored procedure
+            string numLote = ruloFilters.numLote != 0 ? ruloFilters.numLote.ToString() : null;
+            int? numBeam = ruloFilters.numBeam != 0 ? (int?)ruloFilters.numBeam : null;
+            int? numLoom = ruloFilters.numLoom != 0 ? (int?)ruloFilters.numLoom : null;
+            int? numPiece = ruloFilters.numPiece != 0 ? (int?)ruloFilters.numPiece : null;
+            int? folioNumber = ruloFilters.FolioNumber != 0 ? (int?)ruloFilters.FolioNumber : null;
+            string txtStyle = !string.IsNullOrWhiteSpace(ruloFilters.txtStyle) ? ruloFilters.txtStyle : null;
+            int? numDefinitionProcess = ruloFilters.numDefinitionProcess != 0 ? (int?)ruloFilters.numDefinitionProcess : null;
+            int? numTestCategory = ruloFilters.numTestCategory != 0 ? (int?)ruloFilters.numTestCategory : null;
+            bool withBatches = ruloFilters.withBatches;
 
-                ).AsNoTracking().ToList();
+            object[] parameters = new object[] {
+            ruloFilters.dtBegin.ToString("yyyy-MM-dd HH:mm:ss"),
+            ruloFilters.dtEnd.ToString("yyyy-MM-dd HH:mm:ss"),
+            numLote,
+            numBeam,
+            numLoom,
+            numPiece,
+            folioNumber,
+            txtStyle,
+            numDefinitionProcess,
+            numTestCategory,
+            withBatches
+            };
 
-            var testResults = await testResultRepository.GetWhere(x => !x.IsDeleted);
-            var testCategories = await testCategoryRepository.GetWhere(x => x.TestCategoryID != 0);
-            var userList = await userRepository.GetWhere(x => !x.IsDeleted);
-            var originList = VMOriginType.ToList();
-            var definationsProcess = await definationProcessRepository.GetWhereWithNoTrack(x => !x.IsDeleted);
-
-            var ruloProcessGroup = await ruloProcessRepository.GetWhereWithNoTrack(x => !x.IsDeleted && ((x.BeginningDate <= ruloFilters.dtEnd && x.BeginningDate >= ruloFilters.dtBegin) || (x.BeginningDate <= ruloFilters.dtBegin && x.BeginningDate >= ruloFilters.dtEnd)));
-            IEnumerable<IGrouping<int, RuloProcess>> ruloProcessesListGroup = ruloProcessGroup.GroupBy(x => x.RuloID).ToList();
-            List<RuloProcess> ruloProcessesList = new List<RuloProcess>();
-
-            foreach (var key in ruloProcessesListGroup)
-            {
-                ruloProcessesList.Add(key.Where(x=> !x.IsDeleted).MaxBy(x => x.RuloProcessID));
-            }
-
-            //Get value rama
-            List<RuloProcess> ruloProcessRamaList = new List<RuloProcess>();
-            foreach (var key in ruloProcessesListGroup)
-            {
-                var temp = key.Where(x => x.DefinationProcessID == 6).FirstOrDefault();
-                if (temp != null)
-                    ruloProcessRamaList.Add(temp);
-            }
-
-            var resulRPAndDP = (from rp in ruloProcessesList
-                                join dp in definationsProcess.ToList() on rp.DefinationProcessID equals dp.DefinationProcessID
-                                select new
-                                {
-                                    rp.RuloID,
-                                    rp.RuloProcessID,
-                                    dp.DefinationProcessID,
-                                    dp.ProcessCode,
-                                    dp.Name
-                                }).ToList();
-
-
-            var result = (from r in rulos
-                          join rp in resulRPAndDP.ToList() on r.RuloID equals rp.RuloID
-                          into ljRP
-                          from subRP in ljRP.DefaultIfEmpty()
-
-                          join rprama in ruloProcessRamaList on r.RuloID equals rprama.RuloID
-                          into ljRPRAMA
-                          from subRPRAMA in ljRPRAMA.DefaultIfEmpty()
-
-                          join tr in testResults.ToList() on r.TestResultID equals tr.TestResultID
-                          into ljTR
-                          from subTR in ljTR.DefaultIfEmpty()
-                          join tc in testCategories.ToList() on subTR?.TestCategoryID equals tc.TestCategoryID
-                          into ljTC
-                          from subTC in ljTC.DefaultIfEmpty()
-                          join uResultAutho in userList on r.TestResultAuthorizer equals uResultAutho.UserID
-                          into ljuResultAutho
-                          from subuResultAutho in ljuResultAutho.DefaultIfEmpty()
-                          join uCreator in userList on r.CreatorID equals uCreator.UserID
-                          into ljuCreator
-                          from subuCreator in ljuCreator.DefaultIfEmpty()
-                          join o in originList on r.OriginID equals o.Value
-                          into ljO
-                          from subO in ljO.DefaultIfEmpty()
-                          select new VMRuloReport
-                          {
-                              RuloID = r.RuloID,
-                              Lote = r.Lote,
-                              Beam = r.Beam,
-                              BeamStop = r.BeamStop,
-                              Loom = r.Loom,
-                              IsToyota = r.IsToyota ? "Yes" : "No",
-                              PieceCount = r.PieceCount,
-                              Style = r.Style,
-                              StyleName = r.StyleName,
-                              Width = r.Width,
-                              EntranceLength = r.EntranceLength,
-                              ExitLengthRama = subRPRAMA?.FinishMeter ?? 0,
-                              ExitLength = r.ExitLength,
-                              Shift = r.Shift,
-                              FolioNumber = r.FolioNumber,
-                              RuloObservations = r.Observations,
-                              SentDate = r.SentDate,
-                              SenderID = r.Sender?.ToString(),
-                              SentAuthorizerID = r.SentAuthorizer?.ToString(),
-                              IsWaitingAnswerFromTest = r.IsWaitingAnswerFromTest ? "Yes" : "No",
-                              CanContinue = subTR?.CanContinue == true ? "Yes" : "No",
-                              TestResultObservations = subTR?.Details,
-                              TestCategoryID = subTC?.TestCategoryID ?? 0,
-                              TestCategoryCode = subTC?.TestCode ?? string.Empty,
-                              DateTestResult = subTR?.CreatedDate,
-                              BatchNumbers = null,
-                              OriginID = subO?.Text,
-                              TestResultAuthorizer = subuResultAutho?.UserName ?? string.Empty,
-                              CreatorID = subuCreator?.UserName ?? string.Empty,
-                              CreatedDate = r.CreatedDate,
-                              LastRuloProcess = subRP?.Name
-                          }).ToList();
-
-            if (ruloFilters.numDefinitionProcess != 0)
-            {
-                var ruloProcess = ruloProcessRepository.GetQueryable(x => !x.IsDeleted && ((x.BeginningDate <= ruloFilters.dtEnd && x.BeginningDate >= ruloFilters.dtBegin) || (x.BeginningDate <= ruloFilters.dtBegin && x.BeginningDate >= ruloFilters.dtEnd)) && x.EndDate == null && x.DefinationProcessID == ruloFilters.numDefinitionProcess).ToList();
-
-                result = (from r in result
-                          join rp in ruloProcess on r.RuloID equals rp.RuloID
-                          where rp.DefinationProcessID == ruloFilters.numDefinitionProcess
-                          select r).ToList();
-            }
-
-            if (ruloFilters.numTestCategory != 0)
-                result = result.Where(x => x.TestCategoryID == ruloFilters.numTestCategory).ToList();
-
-            var sql = query.ToQueryString();
-
-            ////2023-02-16: This code was comented because the process is very slow when it is getting data from Guven database
-            //var ruloBatch = await GetGuvenInformation(result.Select(x => x.RuloID));
-
-            //result.ForEach(x =>
-            //{
-            //    x.BatchNumbers = string.Join(",", ruloBatch.Where(y=> y.RuloID == x.RuloID).Select(y => y.BatchNumbers));
-            //});
-
+            int? time = Context.Database.GetCommandTimeout();
+            Context.Database.SetCommandTimeout(0);
+            result = await ruloReportRepository.GetWithRawSql("stpRuloReport @p0,@p1,@p2,@p3,@p4,@p5,@p6,@p7,@p8,@p9,@p10", parameters);
+            Context.Database.SetCommandTimeout(time);
             return result;
         }
+
+        //public override async Task<IEnumerable<VMRuloReport>> GetRuloReportListFromFilters2(VMRuloFilters ruloFilters)
+        //{
+        //    var query = repository.GetQueryable(x => !x.IsDeleted && ((x.CreatedDate <= ruloFilters.dtEnd && x.CreatedDate >= ruloFilters.dtBegin) || (x.CreatedDate <= ruloFilters.dtBegin && x.CreatedDate >= ruloFilters.dtEnd)));
+
+        //    var rulos = (
+        //        from r in query
+        //        where
+        //        (!(ruloFilters.numLote > 0) || r.Lote == ruloFilters.numLote.ToString()) &&
+        //        (!(ruloFilters.numBeam > 0) || r.Beam == ruloFilters.numBeam) &&
+        //        (!(ruloFilters.numLoom > 0) || r.Loom == ruloFilters.numLoom) &&
+        //        (!(ruloFilters.numPiece > 0) || r.PieceCount == ruloFilters.numPiece) &&
+        //        (!(ruloFilters.FolioNumber > 0) || r.FolioNumber == ruloFilters.FolioNumber) &&
+        //         ((string.IsNullOrWhiteSpace(ruloFilters.txtStyle)) || r.Style.Contains(ruloFilters.txtStyle))
+
+        //        select r
+
+        //        ).AsNoTracking().ToList();
+
+        //    var testResults = await testResultRepository.GetWhere(x => !x.IsDeleted);
+        //    var testCategories = await testCategoryRepository.GetWhere(x => x.TestCategoryID != 0);
+        //    var userList = await userRepository.GetWhere(x => !x.IsDeleted);
+        //    var originList = VMOriginType.ToList();
+        //    var definationsProcess = await definationProcessRepository.GetWhereWithNoTrack(x => !x.IsDeleted);
+
+        //    var ruloProcessGroup = await ruloProcessRepository.GetWhereWithNoTrack(x => !x.IsDeleted && ((x.BeginningDate <= ruloFilters.dtEnd && x.BeginningDate >= ruloFilters.dtBegin) || (x.BeginningDate <= ruloFilters.dtBegin && x.BeginningDate >= ruloFilters.dtEnd)));
+        //    IEnumerable<IGrouping<int, RuloProcess>> ruloProcessesListGroup = ruloProcessGroup.GroupBy(x => x.RuloID).ToList();
+        //    List<RuloProcess> ruloProcessesList = new List<RuloProcess>();
+
+        //    foreach (var key in ruloProcessesListGroup)
+        //    {
+        //        ruloProcessesList.Add(key.Where(x => !x.IsDeleted).MaxBy(x => x.RuloProcessID));
+        //    }
+
+        //    Get value rama
+        //    List<RuloProcess> ruloProcessRamaList = new List<RuloProcess>();
+        //    foreach (var key in ruloProcessesListGroup)
+        //    {
+        //        var temp = key.Where(x => x.DefinationProcessID == 6 || x.DefinationProcessID == 10).FirstOrDefault();
+        //        if (temp != null)
+        //            ruloProcessRamaList.Add(temp);
+        //    }
+
+        //    var resulRPAndDP = (from rp in ruloProcessesList
+        //                        join dp in definationsProcess.ToList() on rp.DefinationProcessID equals dp.DefinationProcessID
+        //                        select new
+        //                        {
+        //                            rp.RuloID,
+        //                            rp.RuloProcessID,
+        //                            dp.DefinationProcessID,
+        //                            dp.ProcessCode,
+        //                            dp.Name
+        //                        }).ToList();
+
+
+        //    var result = (from r in rulos
+        //                  join rp in resulRPAndDP.ToList() on r.RuloID equals rp.RuloID
+        //                  into ljRP
+        //                  from subRP in ljRP.DefaultIfEmpty()
+
+        //                  join rprama in ruloProcessRamaList on r.RuloID equals rprama.RuloID
+        //                  into ljRPRAMA
+        //                  from subRPRAMA in ljRPRAMA.DefaultIfEmpty()
+
+        //                  join tr in testResults.ToList() on r.TestResultID equals tr.TestResultID
+        //                  into ljTR
+        //                  from subTR in ljTR.DefaultIfEmpty()
+        //                  join tc in testCategories.ToList() on subTR?.TestCategoryID equals tc.TestCategoryID
+        //                  into ljTC
+        //                  from subTC in ljTC.DefaultIfEmpty()
+        //                  join uResultAutho in userList on r.TestResultAuthorizer equals uResultAutho.UserID
+        //                  into ljuResultAutho
+        //                  from subuResultAutho in ljuResultAutho.DefaultIfEmpty()
+        //                  join uCreator in userList on r.CreatorID equals uCreator.UserID
+        //                  into ljuCreator
+        //                  from subuCreator in ljuCreator.DefaultIfEmpty()
+        //                  join o in originList on r.OriginID equals o.Value
+        //                  into ljO
+        //                  from subO in ljO.DefaultIfEmpty()
+        //                  select new VMRuloReport
+        //                  {
+        //                      RuloID = r.RuloID,
+        //                      Lote = r.Lote,
+        //                      Beam = r.Beam,
+        //                      BeamStop = r.BeamStop,
+        //                      Loom = r.Loom,
+        //                      IsToyota = r.IsToyota ? "Yes" : "No",
+        //                      PieceCount = r.PieceCount,
+        //                      Style = r.Style,
+        //                      StyleName = r.StyleName,
+        //                      Width = r.Width,
+        //                      WeavingLength = r.WeavingLength,
+        //                      EntranceLength = r.EntranceLength,
+        //                      ExitLengthRama = subRPRAMA?.FinishMeter ?? 0,
+        //                      ExitLength = r.ExitLength,
+        //                      Shift = r.Shift,
+        //                      FolioNumber = r.FolioNumber,
+        //                      RuloObservations = r.Observations,
+        //                      SentDate = r.SentDate,
+        //                      Sender = r.Sender?.ToString(),
+        //                      SentAuthorizer = r.SentAuthorizer?.ToString(),
+        //                      IsWaitingAnswerFromTest = r.IsWaitingAnswerFromTest ? "Yes" : "No",
+        //                      CanContinue = subTR?.CanContinue == true ? "Yes" : "No",
+        //                      TestResultObservations = subTR?.Details,
+        //                      TestCategoryID = subTC?.TestCategoryID ?? 0,
+        //                      TestCategoryCode = subTC?.TestCode ?? string.Empty,
+        //                      DateTestResult = subTR?.CreatedDate,
+        //                      BatchNumbers = null,
+        //                      Origin = subO?.Text,
+        //                      TestResultAuthorizer = subuResultAutho?.UserName ?? string.Empty,
+        //                      Creator = subuCreator?.UserName ?? string.Empty,
+        //                      CreatedDate = r.CreatedDate,
+        //                      Machine = subRP?.Name
+        //                  }).ToList();
+
+        //    if (ruloFilters.numDefinitionProcess != 0)
+        //    {
+        //        var ruloProcess = ruloProcessRepository.GetQueryable(x => !x.IsDeleted && ((x.BeginningDate <= ruloFilters.dtEnd && x.BeginningDate >= ruloFilters.dtBegin) || (x.BeginningDate <= ruloFilters.dtBegin && x.BeginningDate >= ruloFilters.dtEnd)) && x.EndDate == null && x.DefinationProcessID == ruloFilters.numDefinitionProcess).ToList();
+
+        //        result = (from r in result
+        //                  join rp in ruloProcess on r.RuloID equals rp.RuloID
+        //                  where rp.DefinationProcessID == ruloFilters.numDefinitionProcess
+        //                  select r).ToList();
+        //    }
+
+        //    if (ruloFilters.numTestCategory != 0)
+        //        result = result.Where(x => x.TestCategoryID == ruloFilters.numTestCategory).ToList();
+
+        //    var sql = query.ToQueryString();
+
+        //    2023 - 02 - 16: This code was comented because the process is very slow when it is getting data from Guven database
+        //    var ruloBatch = await GetGuvenInformation(result.Select(x => x.RuloID));
+
+        //    result.ForEach(x =>
+        //    {
+        //        x.BatchNumbers = string.Join(",", ruloBatch.Where(y => y.RuloID == x.RuloID).Select(y => y.BatchNumbers));
+        //    });
+
+        //    return result;
+        //}
 
         public override async Task DeleteRuloProcessFromRuloProcessID(int RuloProcessID, int deleterRef)
         {

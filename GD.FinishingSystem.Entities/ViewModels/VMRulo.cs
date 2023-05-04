@@ -20,6 +20,8 @@ namespace GD.FinishingSystem.Entities.ViewModels
         [Display(Name = "Style Name")]
         public string StyleName { get; set; }
         public decimal Width { get; set; }
+        [Display(Name = "Weaving Length")]
+        public decimal WeavingLength { get; set; }
         [Display(Name = "Entrance Length")]
         public decimal EntranceLength { get; set; }
         [Display(Name = "Exit Length")]
@@ -35,6 +37,8 @@ namespace GD.FinishingSystem.Entities.ViewModels
         public string TestCategoryCode { get; set; }
         [Display(Name = "Date Test")]
         public DateTime? DateTestResult { get; set; }
+        [Display(Name = "Inspection Length")]
+        public decimal InspectionLength { get; set; }
         [Display(Name = "Batch Numbers")]
         public string BatchNumbers { get; set; }
         [Display(Name = "Origin")]

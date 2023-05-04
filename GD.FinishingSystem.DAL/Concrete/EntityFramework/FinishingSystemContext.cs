@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore.ChangeTracking;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
@@ -20,9 +21,9 @@ namespace GD.FinishingSystem.DAL.Concrete.EntityFramework
         public string ConnectionStringProp { private get; set; }
 
 //#if DEBUG
-//        string LocalSqlServer = $"Server=.;Database={DatabaseName};User Id=SA;Password=0545696sS*;";
+//        string LocalSqlServer = $"Server=.;Database={DatabaseName};User Id=SA;Password=0545696sS*;Connection Timeout=0";
 //#else
-    string LocalSqlServer = $"Server=192.168.7.242;Database={DatabaseName};User Id=EMY;Password=0545696s;";
+    string LocalSqlServer = $"Server=192.168.7.242;Database={DatabaseName};User Id=EMY;Password=0545696s;Connection Timeout=0";
 //#endif
 
         string LocalSqlite = $"Data Source=C://Users//Sistemas//{DatabaseName}.db";
@@ -130,21 +131,21 @@ namespace GD.FinishingSystem.DAL.Concrete.EntityFramework
             modelBuilder.Entity<VMRuloReport>().HasNoKey();
 
             //Custom table
-            //modelBuilder.Entity<TblCustomReport>().HasNoKey();
+            modelBuilder.Entity<TblCustomReport>().HasNoKey();
 
-            modelBuilder.Entity<TblCustomReport>(entity =>
-            {
-                entity.HasNoKey();
-                entity.ToTable("TblCustomReport");
-                entity.Property(e => e.Name).HasMaxLength(150);
-                entity.Property(e => e.Shift);
-                entity.Property(e => e.Style).HasMaxLength(20);
-                entity.Property(e => e.StyleName).HasMaxLength(150);
-                entity.Property(e => e.Lote).HasMaxLength(10);
-                entity.Property(e => e.FinishMeterRama);
-                entity.Property(e => e.FinishMeterRP);
-                entity.Property(e => e.ExitLength);
-            });
+            ////modelBuilder.Entity<TblCustomReport>(entity =>
+            ////{
+            ////    entity.HasNoKey();
+            ////    entity.ToTable("TblCustomReport");
+            ////    entity.Property(e => e.Name).HasMaxLength(150);
+            ////    entity.Property(e => e.Shift);
+            ////    entity.Property(e => e.Style).HasMaxLength(20);
+            ////    entity.Property(e => e.StyleName).HasMaxLength(150);
+            ////    entity.Property(e => e.Lote).HasMaxLength(10);
+            ////    entity.Property(e => e.FinishMeterRama);
+            ////    entity.Property(e => e.FinishMeterRP);
+            ////    entity.Property(e => e.ExitLength);
+            ////});
 
             modelBuilder.Entity<VMRuloBatch>().HasNoKey();
         }

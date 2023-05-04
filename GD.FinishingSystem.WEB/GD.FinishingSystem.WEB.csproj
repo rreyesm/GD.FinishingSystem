@@ -38,7 +38,7 @@
     <PackageReference Include="FastReport.OpenSource" Version="2020.4.6" />
     <PackageReference Include="FastReport.OpenSource.Data.MsSQL" Version="2020.4.6" />
     <PackageReference Include="FastReport.OpenSource.Export.PdfSimple" Version="2020.4.6" />
-    <PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="5.0.2" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="5.0.5" />
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="3.8.0" />
     <PackageReference Include="Microsoft.CodeAnalysis.VisualBasic" Version="3.8.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="5.0.4">

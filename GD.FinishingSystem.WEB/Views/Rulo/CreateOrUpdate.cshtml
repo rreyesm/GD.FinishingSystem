@@ -98,6 +98,13 @@
             </div>
             <div class="col-lg-3 col-md-4 col-sm-12">
                 <div class="form-group">
+                    <label asp-for="WeavingLength" class="control-label"></label>
+                    <input asp-for="WeavingLength" class="form-control" type="number" />
+                    <span asp-validation-for="WeavingLength" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-4 col-sm-12">
+                <div class="form-group">
                     <label asp-for="EntranceLength" class="control-label"></label>
                     <input asp-for="EntranceLength" class="form-control" type="number" />
                     <span asp-validation-for="EntranceLength" class="text-danger"></span>

@@ -180,7 +180,7 @@ namespace GD.FinishingSystem.WEB.Classes
             //////Server
             //resultIP.IP = "192.168.182.193";
             ////local
-            resultIP.IP = "172.25.16.1";
+            resultIP.IP = "192.168.182.193"; //This IPs is for simulate capture from KTM machine
 #endif
 
             var systemPrinterList = await factory.SystemPrinters.GetSystemPrinterList();

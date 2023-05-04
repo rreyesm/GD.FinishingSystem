@@ -11,6 +11,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -346,6 +347,7 @@ namespace GD.FinishingSystem.WEB.Controllers
                 //}
                 foundRulo.StyleName = rulo.StyleName;
                 foundRulo.Width = rulo.Width;
+                foundRulo.WeavingLength = rulo.WeavingLength;
                 foundRulo.EntranceLength = rulo.EntranceLength;
                 foundRulo.Shift = rulo.Shift;
                 foundRulo.OriginID = rulo.OriginID;
@@ -658,7 +660,8 @@ namespace GD.FinishingSystem.WEB.Controllers
 
             if (!fileResult.Item1) return NotFound();
 
-            return fileResult.Item2;
+            //return fileResult.Item2;
+            return File(fileResult.Item2.FileStream, fileResult.Item2.ContentType, fileName = fileResult.Item2.FileDownloadName);
         }
 
         [HttpPost]

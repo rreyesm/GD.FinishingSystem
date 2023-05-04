@@ -1,4 +1,5 @@
 ﻿using GD.FinishingSystem.Entities;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -8,6 +9,8 @@ using System.Threading.Tasks;
 
 namespace GD.FinishingSystem.Entities.ViewModels
 {
+    [NotMapped]
+    [Keyless]
     [Table("tblRuloReports")]
     public class VMRuloReport
     {
@@ -24,12 +27,16 @@ namespace GD.FinishingSystem.Entities.ViewModels
         [Display(Name = "Style Name")]
         public string StyleName { get; set; }
         public decimal Width { get; set; }
+        [Display(Name = "Weaving Length")]
+        public decimal WeavingLength { get; set; }
         [Display(Name = "Entrance Length")]
         public decimal EntranceLength { get; set; }
         [Display(Name = "Exit Length Rama")]
         public decimal ExitLengthRama { get; set; }
         [Display(Name = "Exit Length")]
         public decimal ExitLength { get; set; }
+        [Display(Name = "Inspection Length")]
+        public decimal InspectionLength { get; set; }
         public int Shift { get; set; }
         [Display(Name = "Is Waiting Answer From Test")]
         public string IsWaitingAnswerFromTest { get; set; }
@@ -44,7 +51,7 @@ namespace GD.FinishingSystem.Entities.ViewModels
         [Display(Name = "Batch Numbers")]
         public string BatchNumbers { get; set; }
         [Display(Name = "Origin")]
-        public string OriginID { get; set; }
+        public string Origin { get; set; }
         [Display(Name = "Rulo Observations")]
         public string RuloObservations { get; set; }
         [Display(Name = "Test Result Authorizer")]
@@ -56,14 +63,14 @@ namespace GD.FinishingSystem.Entities.ViewModels
         [Display(Name = "Sent Date")]
         public DateTime? SentDate { get; set; }
         [Display(Name = "Sender")]
-        public string SenderID { get; set; }
+        public string Sender { get; set; }
         [Display(Name = "Sent Authorizer")]
-        public string SentAuthorizerID { get; set; }
+        public string SentAuthorizer { get; set; }
         [Display(Name = "Creator")]
-        public string CreatorID { get; set; }
+        public string Creator { get; set; }
         [Display(Name = "Created Date")]
         public DateTime CreatedDate { get; set; }
-        [Display(Name = "Last Rulo Process")]
-        public string LastRuloProcess { get; set; }
+        [Display(Name = "Machine")]
+        public string Machine { get; set; }
     }
 }

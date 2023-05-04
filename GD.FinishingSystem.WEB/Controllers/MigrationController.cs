@@ -363,6 +363,7 @@ namespace GD.FinishingSystem.WEB.Controllers
             newRulo.Style = foundRuloMigration.Style;
             newRulo.StyleName = foundRuloMigration.StyleName;
 
+            newRulo.WeavingLength = foundRuloMigration.Meters;
             newRulo.EntranceLength = foundRuloMigration.Meters;
 
             //newRulo.Shift = foundRuloMigration.Shift; //This Shift is from Loom

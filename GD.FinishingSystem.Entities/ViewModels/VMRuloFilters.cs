@@ -22,6 +22,7 @@ namespace GD.FinishingSystem.Entities.ViewModels
 
         //For Rulo Raw
         public int numMigrationCategory { get; set; }
+        public bool withBatches { get; set; }
 
     }
 

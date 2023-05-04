@@ -96,7 +96,7 @@
         </div>
         <div class="col-md-2">
             <div class="form-group">
-                <label for="numDefinitionProcess">Def. Process</label><br />
+                <label for="numDefinitionProcess">Machine</label><br />
                 <select style="width:100% !important;" id="numDefinitionProcess" name="numDefinitionProcess" asp-items="@ViewBag.DefinitionProcessList"></select>
             </div>
         </div>
@@ -114,6 +114,8 @@
             <a onclick="clearFilters();" class="btn btn-sm btn-outline-info"><i class="lni lni-brush"></i> Clear Filters</a>
         </div>
     </div>
+    
+    <input  type="hidden" id="withBatches" name="withBatches" />
 </form>
 
 <form id="form2">
@@ -123,10 +125,11 @@
 <table id="tableRulos" class="table table-sm table-hover table-responsive-lg">
     <thead>
         <tr>
-            <th colspan="10">
+            <th colspan="16">
                 <div>
                     Rulo List
-                    <a onclick="exportToExcel();" class="btn btn-sm btn-success"><i class="far fa-file-excel"></i> Export to Excel</a>
+                        <a id="btnExportToExcel" onclick="exportToExcel();" class="btn btn-sm btn-success"><i class="far fa-file-excel"></i> Export to Excel</a>
+                        <Label><input id="chkWithBatchesTmp" type="checkbox" name="chkWithBatchesTmp" />Report with Batches</label>
                     @if (User.IsInRole("Authorize", AuthType.Full))
                     {
                         <a onclick="exportToExcelAllStock();" class="btn btn-sm btn-danger"><i class="far fa-file-excel"></i> Export All Stock</a>
@@ -158,10 +161,17 @@
                 @Html.DisplayNameFor(model => model.VMRuloList[0].OriginID)
             </th>
             <th>
+                @Html.DisplayNameFor(model => model.VMRuloList[0].WeavingLength)
+            </th>
+            <th>
                 @Html.DisplayNameFor(model => model.VMRuloList[0].EntranceLength)
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.VMRuloList[0].ExitLength)
+            </th>
+            <th>
+                @*Guven Inspection Length*@
+                @Html.DisplayNameFor(model => model.VMRuloList[0].InspectionLength)
             </th>
             @*<th></th>
         <th>
@@ -173,13 +183,15 @@
 
             <th></th>
             <th></th> @*Eye icon*@
-            <th> 
+            <th>
                 Test Result
             </th>
-            <th> @*Date Test Result*@
+            <th>
+                @*Date Test Result*@
                 @Html.DisplayNameFor(model => model.VMRuloList[0].DateTestResult)
             </th>
-            <th> @*Batch number*@
+            <th>
+                @*Guven Batch number*@
                 @Html.DisplayNameFor(model => model.VMRuloList[0].BatchNumbers)
             </th>
         </tr>
@@ -228,10 +240,16 @@
                 @Html.DisplayFor(modelItem => item.OriginID)
             </td>
             <td>
+                @Html.DisplayFor(modelItem => item.WeavingLength)
+            </td>
+            <td>
                 @Html.DisplayFor(modelItem => item.EntranceLength)
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.ExitLength)
+            </td>
+             <td>
+                @Html.DisplayFor(modelItem => item.InspectionLength)
             </td>
             @*<td>
             @if (!string.IsNullOrEmpty(item.TestCategoryCode))
@@ -559,6 +577,8 @@
     <button type="button" class="btn btn-sm btn-dark"><i class="fa fa-vial"></i> Test Result</button>
 </div>
 
+<div class="loader" id="divLoader"></div>
+
 @section scripts{
     <script>
         $(document).ready(function () {
@@ -570,6 +590,37 @@
         }
 
         });
+
+        //$(document).ready(function () {
+        //    $('#formFilters').submit(function (event) {
+        //        // Evitar que el formulario se envíe de forma normal
+        //        event.preventDefault();
+
+        //        // Obtener la acción y el método del formulario
+        //        var url = $(this).attr('action');
+        //        var method = $(this).attr('method');
+
+        //        // Obtener los datos del formulario
+        //        var formData = $(this).serialize();
+
+        //        // Enviar la solicitud Ajax
+        //        $.ajax({
+        //            url: url,
+        //            method: method,
+        //            data: formData,
+        //            success: function (response) {
+        //                // Manejar la respuesta del servidor
+        //                $("#divLoader").hide();
+        //                console.log(response);
+        //            },
+        //            error: function (xhr, status, error) {
+        //                // Manejar el error de la solicitud
+        //                $("#divLoader").hide();
+        //                console.log(error);
+        //            }
+        //        });
+        //    });
+        //});
     </script>
 }
 
@@ -1018,7 +1069,44 @@
     function exportToExcel() {
 
         document.getElementById("formFilters").action = "/Rulo/ExportToExcel";
-        document.getElementById("formFilters").submit();
+        @*document.getElementById("formFilters").submit();*@
+        var withBatches = document.getElementById("chkWithBatchesTmp");
+
+        if (withBatches.checked == true)
+            document.getElementById("withBatches").value = true
+        else
+            document.getElementById("withBatches").value = false
+
+        // Obtener los datos del formulario
+        var formData = $(this).serialize();
+
+        $("#divLoader").show();
+        // Enviar la solicitud Ajax
+        $.ajax({
+            url: $('#formFilters').attr('action'),
+            method: 'POST',
+            processData: false,
+            xhrFields: {
+              responseType: 'blob'
+            },
+            data: $('#formFilters').serialize(),
+            success: function (response, status, xhr) {
+            // Manejar la respuesta del servidor
+                $("#divLoader").hide();
+                var fileName = xhr.getResponseHeader('Content-Disposition').match(/filename="(.+)"/)[1];
+                var url = URL.createObjectURL(response);
+                var a = document.createElement("a");
+                a.href = url;
+                a.download = fileName;
+                a.click();
+            },
+            error: function(xhr, status, error) {
+            // Manejar el error de la solicitud
+            $("#divLoader").hide();
+                alert("Something went wrong!");
+            }
+        });
+
     }
 
     function clearFilters() {
