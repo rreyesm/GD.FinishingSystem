@@ -635,33 +635,39 @@ namespace GD.FinishingSystem.WEB.Controllers
         [Authorize(AuthenticationSchemes = SystemStatics.DefaultScheme, Roles = "RuloShow,RuloFull,AdminFull")]
         public async Task<IActionResult> ExportToExcel(VMRuloFilters ruloFilters)
         {
-
-            ruloFilters.dtEnd = ruloFilters.dtEnd.AddDays(1).AddMilliseconds(-1);
-            var result = await factory.Rulos.GetRuloReportListFromFilters(ruloFilters);
-
-            ExportToExcel export = new ExportToExcel();
-            string reportName = "Finishing Report";
-            string fileName = $"Finishing Report_{DateTime.Today.Year}_{DateTime.Today.Month.ToString().PadLeft(2, '0')}_{DateTime.Today.Day.ToString().PadLeft(2, '0')}.xlsx";
-
-            List<Tuple<int, string>> colorList = new List<Tuple<int, string>>();
-            result.ToList().ForEach(x =>
+            try
             {
-                if (!string.IsNullOrWhiteSpace(x.BatchNumbers))
-                    colorList.Add(new Tuple<int, string>(x.RuloID, "ffc300"));
-                else if (x.CanContinue == "Yes")
-                    colorList.Add(new Tuple<int, string>(x.RuloID, "66ff66"));
-                else if (x.TestCategoryCode.Contains(" X", StringComparison.InvariantCultureIgnoreCase)) //Ok X or Fail X
+                ruloFilters.dtEnd = ruloFilters.dtEnd.AddDays(1).AddMilliseconds(-1);
+                var result = await factory.Rulos.GetRuloReportListFromFilters(ruloFilters);
+
+                ExportToExcel export = new ExportToExcel();
+                string reportName = "Finishing Report";
+                string fileName = $"Finishing Report_{DateTime.Today.Year}_{DateTime.Today.Month.ToString().PadLeft(2, '0')}_{DateTime.Today.Day.ToString().PadLeft(2, '0')}.xlsx";
+
+                List<Tuple<int, string>> colorList = new List<Tuple<int, string>>();
+                result.ToList().ForEach(x =>
+                {
+                    if (!string.IsNullOrWhiteSpace(x.BatchNumbers))
+                        colorList.Add(new Tuple<int, string>(x.RuloID, "ffc300"));
+                    else if (x.CanContinue == "Yes")
+                        colorList.Add(new Tuple<int, string>(x.RuloID, "66ff66"));
+                    else if (x.TestCategoryCode.Contains(" X", StringComparison.InvariantCultureIgnoreCase)) //Ok X or Fail X
                     colorList.Add(new Tuple<int, string>(x.RuloID, "ff6666"));
 
-            });
+                });
 
-            var exclude = new List<string>() { "TestCategoryID" };
-            var fileResult = await export.ExportWithDisplayName<VMRuloReport>("Global Denim S.A. de C.V.", "Finishing", reportName, fileName, result.ToList(), exclude, colorList, "RuloID");
+                var exclude = new List<string>() { "TestCategoryID" };
+                var fileResult = await export.ExportWithDisplayName<VMRuloReport>("Global Denim S.A. de C.V.", "Finishing", reportName, fileName, result.ToList(), exclude, colorList, "RuloID");
 
-            if (!fileResult.Item1) return NotFound();
+                if (!fileResult.Item1) return NotFound();
 
-            //return fileResult.Item2;
-            return File(fileResult.Item2.FileStream, fileResult.Item2.ContentType, fileName = fileResult.Item2.FileDownloadName);
+                //return fileResult.Item2;
+                return File(fileResult.Item2.FileStream, fileResult.Item2.ContentType, fileName = fileResult.Item2.FileDownloadName);
+            }
+            catch (Exception ex)
+            {
+            }
+            return null;
         }
 
         [HttpPost]
@@ -1133,21 +1139,21 @@ namespace GD.FinishingSystem.WEB.Controllers
 
             List<VMPerformanceTestReport> performanceTestReportList = new List<VMPerformanceTestReport>();
             performanceTestReportList = (from customPT in customePerformanceTestResultList
-                          join tr in testResultList on customPT.TestMasterId equals tr.PerformanceID
-                          join r in rulos on tr.TestResultID equals r.TestResultID
-                          select new VMPerformanceTestReport
-                          {
-                              RuloID = r.RuloID,
-                              Lote = r.Lote,
-                              Beam = r.Beam,
-                              Loom = r.Loom,
-                              ParameterName = customPT.ParameterName,
-                              MethodName = customPT.MethodName,
-                              Value = customPT.Value,
-                              Success = customPT.Success,
-                              Category = customPT.Category,
-                              TestBeam = customPT.Beam
-                          }).OrderBy(x => x.RuloID).ToList();
+                                         join tr in testResultList on customPT.TestMasterId equals tr.PerformanceID
+                                         join r in rulos on tr.TestResultID equals r.TestResultID
+                                         select new VMPerformanceTestReport
+                                         {
+                                             RuloID = r.RuloID,
+                                             Lote = r.Lote,
+                                             Beam = r.Beam,
+                                             Loom = r.Loom,
+                                             ParameterName = customPT.ParameterName,
+                                             MethodName = customPT.MethodName,
+                                             Value = customPT.Value,
+                                             Success = customPT.Success,
+                                             Category = customPT.Category,
+                                             TestBeam = customPT.Beam
+                                         }).OrderBy(x => x.RuloID).ToList();
 
             ExportToExcel export = new ExportToExcel();
             string reportName = "Performance Test Report";

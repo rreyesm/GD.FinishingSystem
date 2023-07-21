@@ -26,6 +26,8 @@ namespace GD.FinishingSystem.Entities.ViewModels
         public decimal EntranceLength { get; set; }
         [Display(Name = "Exit Length")]
         public decimal ExitLength { get; set; }
+        [Display(Name = "Exit Minus Samples")]
+        public decimal ExitLengthMinusSamples { get; set; }
         public int Shift { get; set; }
         [Display(Name = "Is Waiting Answer From Test")]
         public bool IsWaitingAnswerFromTest { get; set; }
@@ -39,6 +41,8 @@ namespace GD.FinishingSystem.Entities.ViewModels
         public DateTime? DateTestResult { get; set; }
         [Display(Name = "Inspection Length")]
         public decimal InspectionLength { get; set; }
+        [Display(Name = "Insp. Cutting Length")]
+        public decimal InspectionCuttingLength { get; set; }
         [Display(Name = "Batch Numbers")]
         public string BatchNumbers { get; set; }
         [Display(Name = "Origin")]

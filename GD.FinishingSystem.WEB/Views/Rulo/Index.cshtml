@@ -170,13 +170,20 @@
                 @Html.DisplayNameFor(model => model.VMRuloList[0].ExitLength)
             </th>
             <th>
+                   @Html.DisplayNameFor(model => model.VMRuloList[0].ExitLengthMinusSamples)
+            </th>
+            <th>
                 @*Guven Inspection Length*@
                 @Html.DisplayNameFor(model => model.VMRuloList[0].InspectionLength)
             </th>
-            @*<th></th>
-        <th>
-            Test Result
-        </th>*@
+            <th>
+                @*Guven Cutting Length - Total Sum From Batches*@
+                @Html.DisplayNameFor(model => model.VMRuloList[0].InpectionCuttingLength)
+            </th>
+            <!--<th>-->
+            @*Shrinkage manual from finishing*@
+            <!--@Html.DisplayNameFor(model => model.VMRuloList[0].Shrinkage)
+            </th>-->
             <th>
                 Processes
             </th>
@@ -248,8 +255,14 @@
             <td>
                 @Html.DisplayFor(modelItem => item.ExitLength)
             </td>
-             <td>
+            <td>
+                @Html.DisplayFor(model => item.ExitLengthMinusSamples)
+            </td>
+            <td>
                 @Html.DisplayFor(modelItem => item.InspectionLength)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.InpectionCuttingLength)
             </td>
             @*<td>
             @if (!string.IsNullOrEmpty(item.TestCategoryCode))

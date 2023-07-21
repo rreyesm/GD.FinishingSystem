@@ -35,8 +35,12 @@ namespace GD.FinishingSystem.Entities.ViewModels
         public decimal ExitLengthRama { get; set; }
         [Display(Name = "Exit Length")]
         public decimal ExitLength { get; set; }
+        [Display(Name = "Exit Minus Samples")]
+        public decimal ExitLengthMinusSamples { get; set; }
         [Display(Name = "Inspection Length")]
         public decimal InspectionLength { get; set; }
+        [Display(Name = "Insp. Cutting Length")]
+        public decimal InspectionCuttingLength { get; set; }
         public int Shift { get; set; }
         [Display(Name = "Is Waiting Answer From Test")]
         public string IsWaitingAnswerFromTest { get; set; }

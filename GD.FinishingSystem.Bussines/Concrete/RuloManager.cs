@@ -417,7 +417,7 @@ namespace GD.FinishingSystem.Bussines.Concrete
                                     dp.Name
                                 }).ToList();
             //////////////////////////
-            
+
             //Add Origin
             var originList = VMOriginType.ToList();
 
@@ -451,6 +451,7 @@ namespace GD.FinishingSystem.Bussines.Concrete
                               WeavingLength = r.WeavingLength,
                               EntranceLength = r.EntranceLength,
                               ExitLength = r.ExitLength,
+                              ExitLengthMinusSamples = 0,
                               Shift = r.Shift,
                               FolioNumber = r.FolioNumber,
                               Observations = r.Observations,
@@ -463,6 +464,7 @@ namespace GD.FinishingSystem.Bussines.Concrete
                               CanContinue = subTR?.CanContinue ?? false,
                               DateTestResult = subTR?.CreatedDate,
                               InspectionLength = 0,
+                              InspectionCuttingLength = 0,
                               BatchNumbers = null,
                               TestCategoryID = subTC?.TestCategoryID ?? 0,
                               TestCategoryCode = subTC?.TestCode ?? string.Empty,
@@ -505,11 +507,20 @@ namespace GD.FinishingSystem.Bussines.Concrete
             return ruloBatch;
         }
 
+        public override decimal GetSumSamples(int ruloID)
+        {
+            var sumSamples = (from r in repository.GetQueryable()
+                           join rp in ruloProcessRepository.GetQueryable() on r.RuloID equals rp.RuloID
+                           join s in sampleRepository.GetQueryable() on rp.RuloProcessID equals s.RuloProcessID
+                           where r.RuloID == ruloID
+                           select s.Meter).Sum(x => x);
+
+            return sumSamples;
+        }
+
         public override async Task<IEnumerable<VMRuloReport>> GetRuloReportListFromFilters(VMRuloFilters ruloFilters)
         {
             IEnumerable<VMRuloReport> result = null;
-
-            string query = string.Empty;
 
             //Order in stored procedure
             string numLote = ruloFilters.numLote != 0 ? ruloFilters.numLote.ToString() : null;

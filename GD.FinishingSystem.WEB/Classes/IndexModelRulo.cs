@@ -47,6 +47,8 @@ namespace GD.FinishingSystem.WEB.Classes
             {
                 x.BatchNumbers = string.Join(",", guvenInformation.Where(y => y.RuloID == x.RuloID).Select(y => y.BatchNumbers));
                 x.InspectionLength = guvenInformation.Where(y => y.RuloID == x.RuloID).Sum(y => y.Inspectionlength);
+                x.InspectionCuttingLength = guvenInformation.Where(y => y.RuloID == x.RuloID).Sum(y => y.CuttingLenght);
+                x.ExitLengthMinusSamples = x.ExitLength - factory.Rulos.GetSumSamples(x.RuloID);
             });
         }
     }
