@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
@@ -45,7 +46,7 @@ namespace GD.FinishingSystem.WEB.Controllers
             {
                 ruloFilters = new VMRuloFilters();
                 ruloFilters.dtBegin = DateTime.Today.AddDays(-15);
-                ruloFilters.dtEnd = DateTime.Today.AddDays(1).AddMilliseconds(-1);
+                ruloFilters.dtEnd = DateTime.Today.RealDateEndDate();
             }
             else
             {
@@ -65,7 +66,7 @@ namespace GD.FinishingSystem.WEB.Controllers
         [Authorize(AuthenticationSchemes = SystemStatics.DefaultScheme, Roles = "RuloShow,RuloFull,AdminFull")]
         public async Task<IActionResult> Index(VMRuloFilters ruloFilters)
         {
-            ruloFilters.dtEnd = ruloFilters.dtEnd.AddDays(1).AddMilliseconds(-1);
+            ruloFilters.dtEnd = ruloFilters.dtEnd.RealDateEndDate();
             //var result = await factory.Rulos.GetRuloListFromFilters(ruloFilters);
             await SetViewBagsForDates(ruloFilters);
 
@@ -76,8 +77,20 @@ namespace GD.FinishingSystem.WEB.Controllers
 
         private async Task SetViewBagsForDates(VMRuloFilters ruloFilters, int positionRuloId = 0)
         {
-            ViewBag.dtBegin = ruloFilters.dtBegin.ToString("yyyy-MM-dd");
-            ViewBag.dtEnd = ruloFilters.dtEnd.ToString("yyyy-MM-dd");
+            ViewBag.dtBegin = ruloFilters.dtBegin.ToString("yyyy-MM-ddTHH:mm:ss");
+            ViewBag.dtEnd = ruloFilters.dtEnd.ToString("yyyy-MM-ddTHH:mm:ss");
+
+            if (ruloFilters.IsAccountingDate)
+            {
+                ruloFilters.dtBegin = ruloFilters.dtBegin.AccountStartDate();
+                ruloFilters.dtEnd = ruloFilters.dtEnd.AccountEndDate();
+            }
+
+            ViewBag.isAccountingDate = ruloFilters.IsAccountingDate;
+            ViewBag.realBeginDate = DateTime.Today.AddDays(-15).RealDateStartDate().ToString("yyyy-MM-ddTHH:mm:ss");
+            ViewBag.realDate = DateTime.Today.RealDateEndDate().ToString("yyyy-MM-ddTHH:mm:ss");
+            ViewBag.accountingBeginDate = DateTime.Now.AddDays(-15).AccountStartDate().ToString("yyyy-MM-ddTHH:mm:ss");
+            ViewBag.accountingDate = DateTime.Now.AccountEndDate().ToString("yyyy-MM-ddTHH:mm:ss");
 
             var testCategoryList = await factory.TestCategories.GetTestCategoryList();
 
@@ -99,6 +112,9 @@ namespace GD.FinishingSystem.WEB.Controllers
             ViewBag.numTestCategory = ruloFilters.numTestCategory;
             ViewBag.numDefinitionProcess = ruloFilters.numDefinitionProcess;
             ViewBag.folioNumber = ruloFilters.FolioNumber;
+
+            ViewBag.withBatches = ruloFilters.withBatches;
+            ViewBag.numRuloID = ruloFilters.numRuloID;
 
             //Style list
             var styleDataList = await factory.Rulos.GetRuloStyleStringForProductionLoteList();
@@ -637,7 +653,6 @@ namespace GD.FinishingSystem.WEB.Controllers
         {
             try
             {
-                ruloFilters.dtEnd = ruloFilters.dtEnd.AddDays(1).AddMilliseconds(-1);
                 var result = await factory.Rulos.GetRuloReportListFromFilters(ruloFilters);
 
                 ExportToExcel export = new ExportToExcel();
@@ -656,8 +671,8 @@ namespace GD.FinishingSystem.WEB.Controllers
 
                 });
 
-                var exclude = new List<string>() { "TestCategoryID" };
-                var fileResult = await export.ExportWithDisplayName<VMRuloReport>("Global Denim S.A. de C.V.", "Finishing", reportName, fileName, result.ToList(), exclude, colorList, "RuloID");
+                var exclude = new List<string>() { "IsToyotaValue", "TestCategoryID", "IsWaitingAnswerFromTestValue", "CanContinueValue", "OriginID" };
+                var fileResult = await export.ExportWithDisplayName<VMRulo>("Global Denim S.A. de C.V.", "Finishing", reportName, fileName, result.ToList(), exclude, colorList, "RuloID");
 
                 if (!fileResult.Item1) return NotFound();
 
@@ -674,7 +689,7 @@ namespace GD.FinishingSystem.WEB.Controllers
         [Authorize(AuthenticationSchemes = SystemStatics.DefaultScheme, Roles = "RuloShow,RuloFull,AdminFull")]
         public async Task<IActionResult> ExportToExcelAllStock(VMRuloFilters ruloFilters)
         {
-            ruloFilters.dtEnd = ruloFilters.dtEnd.AddDays(1).AddMilliseconds(-1);
+            //ruloFilters.dtEnd = ruloFilters.dtEnd.AddDays(1).AddMilliseconds(-1);
             var result = await factory.Rulos.GetAllVMRuloReportList("spGetAllStock @p0", new[] { ruloFilters.dtEnd.ToString("yyyy-MM-ddTHH:mm:ss") });
 
             ExportToExcel export = new ExportToExcel();
@@ -682,7 +697,7 @@ namespace GD.FinishingSystem.WEB.Controllers
             string fileName = $"Finishing Report All_{DateTime.Today.Year}_{DateTime.Today.Month.ToString().PadLeft(2, '0')}_{DateTime.Today.Day.ToString().PadLeft(2, '0')}.xlsx";
 
             var exclude = new List<string>() { "TestCategoryID" };
-            var fileResult = await export.ExportWithDisplayName<VMRuloReport>("Global Denim S.A. de C.V.", "Finishing", reportName, fileName, result.ToList(), exclude);
+            var fileResult = await export.ExportWithDisplayName<VMRulo>("Global Denim S.A. de C.V.", "Finishing", reportName, fileName, result.ToList(), exclude);
 
             if (!fileResult.Item1) return NotFound();
 
@@ -1012,7 +1027,7 @@ namespace GD.FinishingSystem.WEB.Controllers
         public async Task<IActionResult> GetReportStock()
         {
             VMRuloFilters ruloFilters = new VMRuloFilters();
-            ruloFilters.dtEnd = ruloFilters.dtEnd.AddDays(1).AddMilliseconds(-1);
+            //ruloFilters.dtEnd = ruloFilters.dtEnd.AddDays(1).AddMilliseconds(-1);
             var result = await factory.Rulos.GetAllVMRuloReportList("spGetAllStock @p0", new[] { ruloFilters.dtEnd.ToString("yyyy-MM-ddTHH:mm:ss") });
 
             ExportToExcel export = new ExportToExcel();
@@ -1020,7 +1035,7 @@ namespace GD.FinishingSystem.WEB.Controllers
             string fileName = $"Finishing Report Stock_{DateTime.Today.Year}_{DateTime.Today.Month.ToString().PadLeft(2, '0')}_{DateTime.Today.Day.ToString().PadLeft(2, '0')}.xlsx";
 
             var exclude = new List<string>() { "TestCategoryID" };
-            var fileResult = await export.ExportWithDisplayName<VMRuloReport>("Global Denim S.A. de C.V.", "Finishing", reportName, fileName, result.ToList(), exclude);
+            var fileResult = await export.ExportWithDisplayName<VMRulo>("Global Denim S.A. de C.V.", "Finishing", reportName, fileName, result.ToList(), exclude);
 
             if (!fileResult.Item1) return NotFound();
 
@@ -1117,8 +1132,8 @@ namespace GD.FinishingSystem.WEB.Controllers
         [Authorize(AuthenticationSchemes = SystemStatics.DefaultScheme, Roles = "PerformanceTestReportShow,PerformanceTestReportFull,AdminFull")]
         public async Task<ActionResult> ExportToExcelPerformanceTestReport(VMRuloFilters ruloFilters)
         {
-            ruloFilters.dtEnd = ruloFilters.dtEnd.AddDays(1).AddMilliseconds(-1);
-            var rulos = await factory.Rulos.GetRuloListFromFilters(ruloFilters);
+            //ruloFilters.dtEnd = ruloFilters.dtEnd.AddDays(1).AddMilliseconds(-1);
+            var rulos = await factory.Rulos.GetRuloListFromFilters(ruloFilters, 0, 0);
 
             if (rulos == null || rulos.Count() == 0)
                 return NotFound();
@@ -1130,7 +1145,7 @@ namespace GD.FinishingSystem.WEB.Controllers
                 return NotFound();
 
             var testResultList = await factory.TestResults.GetTestResultFromTestResultIDs(testResultIDs);
-            var testResultList2 = testResultList.Where(x => x.PerformanceID != null).Select(x => x.PerformanceID.Value).ToList();
+            var testResultList2 = testResultList.Where(x => x.PerformanceID != null).Select(x => x.PerformanceID.Value).Distinct().ToList();
 
             if (testResultList2 == null || testResultList2.Count() == 0)
                 return NotFound();
@@ -1164,6 +1179,83 @@ namespace GD.FinishingSystem.WEB.Controllers
             if (!fileResult.Item1) return NotFound();
 
             return fileResult.Item2;
+        }
+
+        [HttpGet]
+        public async Task<ActionResult> GetShrinkage(int ruloId)
+        {
+            ViewBag.Error = false;
+            ViewBag.ErrorMessage = "";
+
+            if (!User.IsInRole("Rulo", AuthType.Update)) return Unauthorized();
+
+            await SetViewBagsForCreateOrEdit();
+
+            var foundRulo = await factory.Rulos.GetRuloFromRuloID(ruloId);
+
+            if (foundRulo == null) return NotFound();
+
+            return PartialView(foundRulo);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> SaveShrinkage(int ruloId, decimal shrinkage)
+        {
+            ViewBag.Error = false;
+            ViewBag.ErrorMessage = "";
+            string errorMessage = string.Empty;
+
+            if (!User.IsInRole("Rulo", AuthType.Update)) return Unauthorized();
+
+            var ruloTemp = new Rulo();
+            ruloTemp.RuloID = ruloId;
+            ruloTemp.Shrinkage = shrinkage;
+
+            if (ruloId <= 0)
+            {
+                ViewBag.Error = true;
+                ViewBag.ErrorMessage = "Rulo not found!";
+                return PartialView("GetShrinkage", ruloTemp);
+            }
+
+            if (shrinkage <= 0)
+            {
+                ViewBag.Error = true;
+                errorMessage += "Shrinkage no valid!" + "<br>";
+            }
+
+            if ((bool)ViewBag.Error)
+            {
+                ViewBag.ErrorMessage = errorMessage;
+                return PartialView("GetShrinkage", ruloTemp);
+            }
+
+            var foundRulo = await factory.Rulos.GetRuloFromRuloID(ruloId);
+
+            //Validate rulo process
+            var ruloProcesses = await factory.Rulos.GetVMRuloProcessesFromRuloID(ruloId);
+
+            if (ruloProcesses == null || ruloProcesses.Count() == 0)
+            {
+                ViewBag.Error = true;
+                ViewBag.ErrorMessage = "You cannot assign Shrinkage if there are no assigned processes.";
+                return PartialView("GetShrinkage", foundRulo);
+            }
+
+            //Validate pieces
+            var pieces = await factory.Pieces.GetPiecesFromRuloID(ruloId);
+            if (pieces == null || pieces.Count() == 0)
+            {
+                ViewBag.Error = true;
+                ViewBag.ErrorMessage = "You cannot assign folio and terminate if there are no created pieces";
+                return PartialView("GetShrinkage", foundRulo);
+            }
+
+            foundRulo.Shrinkage = shrinkage;
+
+            await factory.Rulos.Update(foundRulo, int.Parse(User.Identity.Name));
+
+            return Ok();
         }
 
     }

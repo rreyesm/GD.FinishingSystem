@@ -29,27 +29,36 @@ namespace GD.FinishingSystem.WEB.Classes
 
         public PaginatedList<VMRulo> VMRuloList { get; set; }
 
+        public int TotalPages { get; set; }
+
         public async Task OnGetAsync(string sortOrder, int? pageIndex, VMRuloFilters ruloFilters)
         {
             CurrentSort = sortOrder;
             NameSort = String.IsNullOrEmpty(sortOrder) ? "name_desc" : "";
             DateSort = sortOrder == "Date" ? "date_desc" : "Date";
 
+            int currentPageIngex = pageIndex ?? 1;
+            int pageSize = _appSettings.PageSize != 0 ? _appSettings.PageSize : 5;
+            int totalRecords = await factory.Rulos.GetRuloTotalRecords(ruloFilters);
+            var result = await factory.Rulos.GetRuloListFromFilters(ruloFilters, currentPageIngex, pageSize);
+
+            if (ruloFilters.IsAccountingDate)
+            {
+                ruloFilters.dtEnd = ruloFilters.dtEnd.AccountEndDate();
+            }
             CurrentVMRuloFilters = ruloFilters;
 
-            var result = await factory.Rulos.GetRuloListFromFilters(ruloFilters);
+            VMRuloList = PaginatedList<VMRulo>.CreatePaginated(result, totalRecords, currentPageIngex, pageSize);
 
-            var pageSize = _appSettings.PageSize != 0 ? _appSettings.PageSize : 5;
-            VMRuloList = PaginatedList<VMRulo>.CreatePaginated(result, pageIndex ?? 1, int.Parse(pageSize.ToString()));
-
-            var guvenInformation = await factory.Rulos.GetGuvenInformation(VMRuloList.Select(x => x.RuloID));
-            VMRuloList.ForEach(x =>
-            {
-                x.BatchNumbers = string.Join(",", guvenInformation.Where(y => y.RuloID == x.RuloID).Select(y => y.BatchNumbers));
-                x.InspectionLength = guvenInformation.Where(y => y.RuloID == x.RuloID).Sum(y => y.Inspectionlength);
-                x.InspectionCuttingLength = guvenInformation.Where(y => y.RuloID == x.RuloID).Sum(y => y.CuttingLenght);
-                x.ExitLengthMinusSamples = x.ExitLength - factory.Rulos.GetSumSamples(x.RuloID);
-            });
+            ////Ya no sería necesario obtener por separado la información de Guven
+            //var guvenInformation = await factory.Rulos.GetGuvenInformation(VMRuloList.Select(x => x.RuloID));
+            //VMRuloList.ForEach(x =>
+            //{
+            //    x.BatchNumbers = string.Join(",", guvenInformation.Where(y => y.RuloID == x.RuloID).Select(y => y.BatchNumbers));
+            //    x.InspectionLength = guvenInformation.Where(y => y.RuloID == x.RuloID).Sum(y => y.Inspectionlength);
+            //    x.InspectionCuttingLength = guvenInformation.Where(y => y.RuloID == x.RuloID).Sum(y => y.CuttingLenght);
+            //    x.ExitLengthMinusSamples = x.ExitLength - factory.Rulos.GetSumSamples(x.RuloID);
+            //});
         }
     }
 

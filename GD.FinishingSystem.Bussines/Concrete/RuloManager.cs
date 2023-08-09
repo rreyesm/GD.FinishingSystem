@@ -9,6 +9,7 @@ using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
@@ -24,9 +25,10 @@ namespace GD.FinishingSystem.Bussines.Concrete
         private IAsyncRepository<TestCategory> testCategoryRepository = null;
         private IAsyncRepository<User> userRepository = null;
         private IAsyncRepository<Sample> sampleRepository = null;
-        private IAsyncRepository<VMRuloReport> ruloReportRepository = null;
+        private IAsyncRepository<VMRulo> ruloReportRepository = null;
         private IAsyncRepository<TblCustomReport> customReportRepository = null;
         private IAsyncRepository<VMRuloBatch> ruloBatchRepository = null;
+        //private IAsyncRepository<TotalResult> repositoryTotals = null;
         private DbContext Context = null;
 
         public RuloManager(DbContext context)
@@ -38,9 +40,10 @@ namespace GD.FinishingSystem.Bussines.Concrete
             this.testCategoryRepository = new GenericRepository<TestCategory>(context);
             this.userRepository = new GenericRepository<User>(context);
             this.sampleRepository = new GenericRepository<Sample>(context);
-            this.ruloReportRepository = new GenericRepository<VMRuloReport>(context);
+            this.ruloReportRepository = new GenericRepository<VMRulo>(context);
             this.customReportRepository = new GenericRepository<TblCustomReport>(context);
             this.ruloBatchRepository = new GenericRepository<VMRuloBatch>(context);
+            //this.repositoryTotals = new GenericRepository<TotalResult>(context);
             this.Context = context;
         }
 
@@ -99,7 +102,7 @@ namespace GD.FinishingSystem.Bussines.Concrete
                 Beam = rulo.Beam,
                 BeamStop = rulo.BeamStop,
                 Loom = rulo.Loom,
-                IsToyota = rulo.IsToyota,
+                IsToyotaValue = rulo.IsToyota,
                 Style = rulo.Style,
                 StyleName = rulo.StyleName,
                 Width = rulo.Width,
@@ -108,17 +111,18 @@ namespace GD.FinishingSystem.Bussines.Concrete
                 ExitLength = rulo.ExitLength,
                 Shift = rulo.Shift,
                 FolioNumber = rulo.FolioNumber,
-                Observations = rulo.Observations,
+                RuloObservations = rulo.Observations,
                 SentDate = rulo.SentDate,
-                Sender = senderUser,
-                SentAuthorizer = sentAuthorizer,
+                //Sender = senderUser,
+                //SentAuthorizer = sentAuthorizer,
                 SentAuthorizerID = rulo.SentAuthorizerID,
-                IsWaitingAnswerFromTest = rulo.IsWaitingAnswerFromTest,
+                IsWaitingAnswerFromTestValue = rulo.IsWaitingAnswerFromTest,
                 TestResultID = rulo.TestResultID,
-                CanContinue = testResults.FirstOrDefault()?.CanContinue ?? false,
+                CanContinueValue = testResults.FirstOrDefault()?.CanContinue ?? false,
+                CanContinue = (testResults.FirstOrDefault()?.CanContinue ?? false) == true ? "YES" : "NO",
                 TestCategoryID = testCategory?.TestCategoryID ?? 0,
                 TestCategoryCode = testCategory?.TestCode ?? string.Empty,
-                OriginID = sOriginType,
+                Origin = sOriginType,
                 TestResultAuthorizer = testResultAuthorizerUser?.UserName ?? string.Empty,
             };
 
@@ -169,17 +173,18 @@ namespace GD.FinishingSystem.Bussines.Concrete
                               ExitLength = r.ExitLength,
                               Shift = r.Shift,
                               FolioNumber = r.FolioNumber,
-                              Observations = r.Observations,
+                              RuloObservations = r.Observations,
                               SentDate = r.SentDate,
-                              Sender = subuSender,
-                              SentAuthorizer = subuSentAutho,
+                              //Sender = subuSender,
+                              ////SentAuthorizer = subuSentAutho,
                               SentAuthorizerID = r.SentAuthorizerID,
-                              IsWaitingAnswerFromTest = r.IsWaitingAnswerFromTest,
+                              IsWaitingAnswerFromTestValue = r.IsWaitingAnswerFromTest,
                               TestResultID = r.TestResultID,
-                              CanContinue = subTR?.CanContinue ?? false,
+                              CanContinueValue = subTR?.CanContinue ?? false,
+                              CanContinue = (subTR?.CanContinue ?? false) == true ? "YES" : "NO",
                               TestCategoryID = subTC?.TestCategoryID ?? 0,
                               TestCategoryCode = subTC?.TestCode ?? string.Empty,
-                              OriginID = subO?.Text,
+                              Origin = subO?.Text,
                               TestResultAuthorizer = subuResultAutho?.UserName ?? string.Empty
                           }).ToList();
 
@@ -222,7 +227,7 @@ namespace GD.FinishingSystem.Bussines.Concrete
                               Beam = r.Beam,
                               BeamStop = r.BeamStop,
                               Loom = r.Loom,
-                              IsToyota = r.IsToyota,
+                              IsToyotaValue = r.IsToyota,
                               Style = r.Style,
                               StyleName = r.StyleName,
                               Width = r.Width,
@@ -231,17 +236,17 @@ namespace GD.FinishingSystem.Bussines.Concrete
                               ExitLength = r.ExitLength,
                               Shift = r.Shift,
                               FolioNumber = r.FolioNumber,
-                              Observations = r.Observations,
+                              RuloObservations = r.Observations,
                               SentDate = r.SentDate,
-                              Sender = subuSender,
-                              SentAuthorizer = subuSentAutho,
+                              ////Sender = subuSender,
+                              ////SentAuthorizer = subuSentAutho,
                               SentAuthorizerID = r.SentAuthorizerID,
-                              IsWaitingAnswerFromTest = r.IsWaitingAnswerFromTest,
+                              IsWaitingAnswerFromTestValue = r.IsWaitingAnswerFromTest,
                               TestResultID = r.TestResultID,
-                              CanContinue = subTR?.CanContinue ?? false,
+                              CanContinueValue = subTR?.CanContinue ?? false,
                               TestCategoryID = subTC?.TestCategoryID ?? 0,
                               TestCategoryCode = subTC?.TestCode ?? string.Empty,
-                              OriginID = subO?.Text,
+                              Origin = subO?.Text,
                               TestResultAuthorizer = subuResultAutho?.UserName ?? string.Empty,
                           }).ToList();
 
@@ -378,122 +383,346 @@ namespace GD.FinishingSystem.Bussines.Concrete
             return styleData;
         }
 
-        public override async Task<IEnumerable<VMRulo>> GetRuloListFromFilters(VMRuloFilters ruloFilters)
+        //public async override Task<int> GetRuloTotalRecords(VMRuloFilters ruloFilters)
+        //{
+        //    //Order in stored procedure
+        //    string numLote = ruloFilters.numLote != 0 ? ruloFilters.numLote.ToString() : null;
+        //    int? numBeam = ruloFilters.numBeam != 0 ? (int?)ruloFilters.numBeam : null;
+        //    int? numLoom = ruloFilters.numLoom != 0 ? (int?)ruloFilters.numLoom : null;
+        //    int? numPiece = ruloFilters.numPiece != 0 ? (int?)ruloFilters.numPiece : null;
+        //    int? folioNumber = ruloFilters.FolioNumber != 0 ? (int?)ruloFilters.FolioNumber : null;
+        //    string txtStyle = !string.IsNullOrWhiteSpace(ruloFilters.txtStyle) ? ruloFilters.txtStyle : null;
+        //    int? numDefinitionProcess = ruloFilters.numDefinitionProcess != 0 ? (int?)ruloFilters.numDefinitionProcess : null;
+        //    int? numTestCategory = ruloFilters.numTestCategory != 0 ? (int?)ruloFilters.numTestCategory : null;
+        //    bool withBatches = ruloFilters.withBatches;
+        //    int? numRuloID = ruloFilters.numRuloID;
+        //    bool isAccountDate = ruloFilters.IsAccountingDate;
+        //    bool isCount = true; //Se pasa como true, ya que se va a obetener el total de registros
+        //    int? pag = 0; //Si se va a obtener todos los registros pasar estos valores como 0
+        //    int? tammPag = 0;
+
+        //    SqlParameter p1 = new SqlParameter("@dtBegin", SqlDbType.NVarChar);
+        //    SqlParameter p2 = new SqlParameter("@dtEnd", SqlDbType.NVarChar);
+        //    SqlParameter p3 = new SqlParameter("@numLote", SqlDbType.NVarChar);
+        //    SqlParameter p4 = new SqlParameter("@numBeam", SqlDbType.Int);
+        //    SqlParameter p5 = new SqlParameter("@numLoom", SqlDbType.Int);
+        //    SqlParameter p6 = new SqlParameter("@numPiece", SqlDbType.Int);
+        //    SqlParameter p7 = new SqlParameter("@folioNumber", SqlDbType.Int);
+        //    SqlParameter p8 = new SqlParameter("@style", SqlDbType.NVarChar, 200);
+        //    SqlParameter p9 = new SqlParameter("@numDefinitionProcess", SqlDbType.Int);
+        //    SqlParameter p10 = new SqlParameter("@numTestCategory", SqlDbType.Int);
+        //    SqlParameter p11 = new SqlParameter("@withBatches", SqlDbType.Bit);
+        //    SqlParameter p12 = new SqlParameter("@numRuloID", SqlDbType.Int);
+        //    SqlParameter p13 = new SqlParameter("@isAccountingDate", SqlDbType.Bit);
+        //    SqlParameter p14 = new SqlParameter("@isCount", SqlDbType.Bit);
+        //    SqlParameter p15 = new SqlParameter("@pag", SqlDbType.Int);
+        //    SqlParameter p16 = new SqlParameter("@tamPag", SqlDbType.Int);
+
+        //    p1.Value = ruloFilters.dtBegin.ToString("yyyy-MM-dd HH:mm:ss");
+        //    p2.Value = ruloFilters.dtEnd.ToString("yyyy-MM-dd HH:mm:ss");
+        //    p3.Value = numLote;
+        //    p4.Value = numBeam;
+        //    p5.Value = numLoom;
+        //    p6.Value = numPiece;
+        //    p7.Value = folioNumber;
+        //    p8.Value = txtStyle;
+        //    p9.Value = numDefinitionProcess;
+        //    p10.Value = numTestCategory;
+        //    p11.Value = withBatches;
+        //    p12.Value = numRuloID;
+        //    p13.Value = isAccountDate;
+        //    p14.Value = isCount;
+        //    p15.Value = pag;
+        //    p16.Value = tammPag;
+
+        //    int totalRecords = 0;
+
+        //    object[] parameters = new object[] {
+        //    ruloFilters.dtBegin.ToString("yyyy-MM-dd HH:mm:ss"),
+        //    ruloFilters.dtEnd.ToString("yyyy-MM-dd HH:mm:ss"),
+        //    numLote,
+        //    numBeam,
+        //    numLoom,
+        //    numPiece,
+        //    folioNumber,
+        //    txtStyle,
+        //    numDefinitionProcess,
+        //    numTestCategory,
+        //    withBatches,
+        //    numRuloID,
+        //    isAccountDate,
+        //    isCount,
+        //    pag,
+        //    tammPag
+        //    };
+
+        //    try
+        //    {
+        //        //string str = $"stpRuloReport2 '{ruloFilters.dtBegin.ToString("yyyy-MM-dd HH:mm:ss")}','{ruloFilters.dtEnd.ToString("yyyy-MM-dd HH:mm:ss")}',{numLote},{numBeam},{numLoom},{numPiece},{folioNumber},{txtStyle},{numDefinitionProcess},{numTestCategory},{withBatches},{numRuloID},{isAccountDate},{isCount},{pag},{tammPag}";
+        //        //cmd.CommandType = CommandType.Text;
+        //        //cmd.CommandText = str
+
+        //        //var a = Context.Database.ExecuteSqlRaw("EXEC stpRuloReport2 @p0,@p1,@p2,@p3,@p4,@p5,@p6,@p7,@p8,@p9,@p10,@p11,@p12,@p13,@p14,@p15", parameters);
+        //        //using (IDbConnection connection = Context.Database.GetDbConnection())
+        //        //{
+        //        IDbConnection connection = Context.Database.GetDbConnection();
+        //            connection.Open();
+        //            IDbCommand cmd = connection.CreateCommand();
+        //            cmd.CommandType = CommandType.StoredProcedure;
+        //            cmd.CommandText = "stpRuloReport2";
+        //            cmd.Parameters.Add(p1);
+        //            cmd.Parameters.Add(p2);
+        //            cmd.Parameters.Add(p3);
+        //            cmd.Parameters.Add(p4);
+        //            cmd.Parameters.Add(p5);
+        //            cmd.Parameters.Add(p6);
+        //            cmd.Parameters.Add(p7);
+        //            cmd.Parameters.Add(p8);
+        //            cmd.Parameters.Add(p9);
+        //            cmd.Parameters.Add(p10);
+        //            cmd.Parameters.Add(p11);
+        //            cmd.Parameters.Add(p12);
+        //            cmd.Parameters.Add(p13);
+        //            cmd.Parameters.Add(p14);
+        //            cmd.Parameters.Add(p15);
+        //            cmd.Parameters.Add(p16);
+
+        //            var a = cmd.ExecuteScalar();
+        //            connection.Close();
+        //        //}
+
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //    }
+
+
+        //    return totalRecords;
+        //}
+
+        public override async Task<int> GetRuloTotalRecords(VMRuloFilters ruloFilters)
         {
-            var query = repository.GetQueryable(x => !x.IsDeleted && ((x.CreatedDate <= ruloFilters.dtEnd && x.CreatedDate >= ruloFilters.dtBegin) || (x.CreatedDate <= ruloFilters.dtBegin && x.CreatedDate >= ruloFilters.dtEnd)));
+            //TotalResult result = null;
 
-            var rulos = (
-                from r in query
-                where
-                (!(ruloFilters.numLote > 0) || r.Lote == ruloFilters.numLote.ToString()) &&
-                (!(ruloFilters.numBeam > 0) || r.Beam == ruloFilters.numBeam) &&
-                (!(ruloFilters.numLoom > 0) || r.Loom == ruloFilters.numLoom) &&
-                (!(ruloFilters.numPiece > 0) || r.PieceCount == ruloFilters.numPiece) &&
-                (!(ruloFilters.FolioNumber > 0) || r.FolioNumber == ruloFilters.FolioNumber) &&
-                 ((string.IsNullOrWhiteSpace(ruloFilters.txtStyle)) || r.Style.Contains(ruloFilters.txtStyle))
+            //Order in stored procedure
+            string numLote = ruloFilters.numLote != 0 ? ruloFilters.numLote.ToString() : null;
+            int? numBeam = ruloFilters.numBeam != 0 ? (int?)ruloFilters.numBeam : null;
+            int? numLoom = ruloFilters.numLoom != 0 ? (int?)ruloFilters.numLoom : null;
+            int? numPiece = ruloFilters.numPiece != 0 ? (int?)ruloFilters.numPiece : null;
+            int? folioNumber = ruloFilters.FolioNumber != 0 ? (int?)ruloFilters.FolioNumber : null;
+            string txtStyle = !string.IsNullOrWhiteSpace(ruloFilters.txtStyle) ? ruloFilters.txtStyle : null;
+            int? numDefinitionProcess = ruloFilters.numDefinitionProcess != 0 ? (int?)ruloFilters.numDefinitionProcess : null;
+            int? numTestCategory = ruloFilters.numTestCategory != 0 ? (int?)ruloFilters.numTestCategory : null;
+            bool withBatches = false; //Pasamos por dafult el valor de false o 0 ya que sólo requerimos contar los regitros sin información de Guven;
+            int? numRuloID = ruloFilters.numRuloID != 0 ? (int?)ruloFilters.numRuloID : null;
+            bool isAccountDate = ruloFilters.IsAccountingDate;
+            bool isCount = true; //Se pasa como true, ya que se va a obetener el total de registros
+            int? pag = 0; //Si se va a obtener todos los registros pasar estos valores como 0
+            int? tammPag = 0;
 
-                select r
+            object[] parameters = new object[] {
+            ruloFilters.dtBegin.ToString("yyyy-MM-dd HH:mm:ss"),
+            ruloFilters.dtEnd.ToString("yyyy-MM-dd HH:mm:ss"),
+            numLote,
+            numBeam,
+            numLoom,
+            numPiece,
+            folioNumber,
+            txtStyle,
+            numDefinitionProcess,
+            numTestCategory,
+            withBatches,
+            numRuloID,
+            isAccountDate,
+            isCount,
+            pag,
+            tammPag
+            };
 
-                ).ToList();
+            var result = Context.Set<TotalResult>().FromSqlRaw("exec stpRuloReport @p0,@p1,@p2,@p3,@p4,@p5,@p6,@p7,@p8,@p9,@p10,@p11,@p12,@p13,@p14,@p15", parameters)
+                                         .AsEnumerable().FirstOrDefault();
 
-            var testResults = await testResultRepository.GetWhere(x => !x.IsDeleted);
-            var testCategories = await testCategoryRepository.GetWhere(x => x.TestCategoryID != 0);
-
-            //Add machine by rulo
-            var definationsProcess = await definationProcessRepository.GetWhereWithNoTrack(x => !x.IsDeleted);
-
-            var ruloProcessGroup = await ruloProcessRepository.GetWhereWithNoTrack(x => !x.IsDeleted && ((x.BeginningDate <= ruloFilters.dtEnd && x.BeginningDate >= ruloFilters.dtBegin) || (x.BeginningDate <= ruloFilters.dtBegin && x.BeginningDate >= ruloFilters.dtEnd)));
-            List<RuloProcess> ruloProcessesList = new List<RuloProcess>();
-            ruloProcessesList = ruloProcessGroup.Where(x => !x.IsDeleted).GroupBy(x => x.RuloID, (key, g) => g.OrderByDescending(e => e.RuloProcessID).FirstOrDefault()).ToList();
-
-            var resulRPAndDP = (from rp in ruloProcessesList
-                                join dp in definationsProcess.ToList() on rp.DefinationProcessID equals dp.DefinationProcessID
-                                select new
-                                {
-                                    rp.RuloID,
-                                    rp.RuloProcessID,
-                                    dp.DefinationProcessID,
-                                    dp.ProcessCode,
-                                    dp.Name
-                                }).ToList();
-            //////////////////////////
-
-            //Add Origin
-            var originList = VMOriginType.ToList();
-
-            var result = (from r in rulos
-                          join tr in testResults.ToList() on r.TestResultID equals tr.TestResultID
-                          into ljTR
-                          from subTR in ljTR.DefaultIfEmpty()
-                          join tc in testCategories.ToList() on subTR?.TestCategoryID equals tc.TestCategoryID
-                          into ljTC
-                          from subTC in ljTC.DefaultIfEmpty()
-
-                          join rp in resulRPAndDP.ToList() on r.RuloID equals rp.RuloID
-                          into ljRP
-                          from subRP in ljRP.DefaultIfEmpty()
-
-                          join o in originList on r.OriginID equals o.Value
-                          into ljO
-                          from subO in ljO.DefaultIfEmpty()
-                          select new VMRulo
-                          {
-                              RuloID = r.RuloID,
-                              Lote = r.Lote,
-                              Beam = r.Beam,
-                              BeamStop = r.BeamStop,
-                              Loom = r.Loom,
-                              IsToyota = r.IsToyota,
-                              PieceCount = r.PieceCount,
-                              Style = r.Style,
-                              StyleName = r.StyleName,
-                              Width = r.Width,
-                              WeavingLength = r.WeavingLength,
-                              EntranceLength = r.EntranceLength,
-                              ExitLength = r.ExitLength,
-                              ExitLengthMinusSamples = 0,
-                              Shift = r.Shift,
-                              FolioNumber = r.FolioNumber,
-                              Observations = r.Observations,
-                              SentDate = r.SentDate,
-                              Sender = r.Sender,
-                              SentAuthorizer = r.SentAuthorizer,
-                              SentAuthorizerID = r.SentAuthorizerID,
-                              IsWaitingAnswerFromTest = r.IsWaitingAnswerFromTest,
-                              TestResultID = r.TestResultID,
-                              CanContinue = subTR?.CanContinue ?? false,
-                              DateTestResult = subTR?.CreatedDate,
-                              InspectionLength = 0,
-                              InspectionCuttingLength = 0,
-                              BatchNumbers = null,
-                              TestCategoryID = subTC?.TestCategoryID ?? 0,
-                              TestCategoryCode = subTC?.TestCode ?? string.Empty,
-                              Machine = subRP?.Name,
-                              OriginID = subO?.Text
-                          }).ToList();
-
-            if (ruloFilters.numDefinitionProcess != 0)
-            {
-                //var ruloProcess = ruloProcessRepository.GetQueryable(x => !x.IsDeleted && ((x.BeginningDate <= ruloFilters.dtEnd && x.BeginningDate >= ruloFilters.dtBegin) || (x.BeginningDate <= ruloFilters.dtBegin && x.BeginningDate >= ruloFilters.dtEnd)) && x.EndDate == null && x.DefinationProcessID == ruloFilters.numDefinitionProcess).ToList();
-
-                //result = (from r in result
-                //          join rp in ruloProcess on r.RuloID equals rp.RuloID
-                //          where rp.DefinationProcessID == ruloFilters.numDefinitionProcess
-                //          select r).ToList();
-
-                result = (from r in result
-                          join rp in resulRPAndDP on r.RuloID equals rp.RuloID
-                          where rp.DefinationProcessID == ruloFilters.numDefinitionProcess
-                          select r).ToList();
-            }
-
-            if (ruloFilters.numTestCategory != 0)
-                result = result.Where(x => x.TestCategoryID == ruloFilters.numTestCategory).ToList();
-
-            var sql = query.ToQueryString();
-
-            return result.OrderByDescending(x => x.RuloID);
+            return result.TotalRecords;
         }
+
+        public override async Task<IEnumerable<VMRulo>> GetRuloListFromFilters(VMRuloFilters ruloFilters, int currentPaindex, int pageSize)
+        {
+            IEnumerable<VMRulo> result = null;
+
+            //Order in stored procedure
+            string numLote = ruloFilters.numLote != 0 ? ruloFilters.numLote.ToString() : null;
+            int? numBeam = ruloFilters.numBeam != 0 ? (int?)ruloFilters.numBeam : null;
+            int? numLoom = ruloFilters.numLoom != 0 ? (int?)ruloFilters.numLoom : null;
+            int? numPiece = ruloFilters.numPiece != 0 ? (int?)ruloFilters.numPiece : null;
+            int? folioNumber = ruloFilters.FolioNumber != 0 ? (int?)ruloFilters.FolioNumber : null;
+            string txtStyle = !string.IsNullOrWhiteSpace(ruloFilters.txtStyle) ? ruloFilters.txtStyle : null;
+            int? numDefinitionProcess = ruloFilters.numDefinitionProcess != 0 ? (int?)ruloFilters.numDefinitionProcess : null;
+            int? numTestCategory = ruloFilters.numTestCategory != 0 ? (int?)ruloFilters.numTestCategory : null;
+            bool withBatches = currentPaindex > 0 || pageSize > 0 ? true : ruloFilters.withBatches; //Pasamos este valor por default en True o 1 ya que es para obtener los registros por pagina y debe venir con toda la información de Guven
+            int? numRuloID = ruloFilters.numRuloID != 0 ? (int?)ruloFilters.numRuloID : null;
+            bool isAccountDate = ruloFilters.IsAccountingDate;
+            bool isCount = false; //Se pasa como false ya que aquí nunca se va a usar el count para contar el total de registros
+            int? pag = currentPaindex; //Si se va a obtener todos los registros pasar estos valores como 0
+            int? tammPag = pageSize;
+
+            object[] parameters = new object[] {
+            ruloFilters.dtBegin.ToString("yyyy-MM-dd HH:mm:ss"),
+            ruloFilters.dtEnd.ToString("yyyy-MM-dd HH:mm:ss"),
+            numLote,
+            numBeam,
+            numLoom,
+            numPiece,
+            folioNumber,
+            txtStyle,
+            numDefinitionProcess,
+            numTestCategory,
+            withBatches,
+            numRuloID,
+            isAccountDate,
+            isCount,
+            pag,
+            tammPag
+            };
+
+            int? time = Context.Database.GetCommandTimeout();
+            Context.Database.SetCommandTimeout(0);
+            result = await ruloReportRepository.GetWithRawSql("stpRuloReport @p0,@p1,@p2,@p3,@p4,@p5,@p6,@p7,@p8,@p9,@p10,@p11,@p12,@p13,@p14,@p15", parameters);
+            Context.Database.SetCommandTimeout(time);
+            return result;
+        }
+
+
+        //public override async Task<IEnumerable<VMRulo>> GetRuloListFromFilters(VMRuloFilters ruloFilters)
+        //{
+        //    IQueryable<Rulo> query = null;
+
+        //    if (ruloFilters.IsAccountingDate)
+        //        query = repository.GetQueryable(x => !x.IsDeleted && ((x.LastUpdateDate <= ruloFilters.dtEnd && x.LastUpdateDate >= ruloFilters.dtBegin) || (x.LastUpdateDate <= ruloFilters.dtBegin && x.LastUpdateDate >= ruloFilters.dtEnd)));
+        //    else
+        //        query = repository.GetQueryable(x => !x.IsDeleted && ((x.CreatedDate <= ruloFilters.dtEnd && x.CreatedDate >= ruloFilters.dtBegin) || (x.CreatedDate <= ruloFilters.dtBegin && x.CreatedDate >= ruloFilters.dtEnd)));
+
+        //    IQueryable<Rulo> rulos = null;
+        //    if (ruloFilters.numRuloID > 0)
+        //    {
+        //        rulos = (from r in query
+        //                 where
+        //                  r.RuloID == ruloFilters.numRuloID
+        //                 select r);
+        //    }
+        //    else
+        //    {
+        //        rulos = (
+        //        from r in query
+        //        where
+        //        (!(ruloFilters.numLote > 0) || r.Lote == ruloFilters.numLote.ToString()) &&
+        //        (!(ruloFilters.numBeam > 0) || r.Beam == ruloFilters.numBeam) &&
+        //        (!(ruloFilters.numLoom > 0) || r.Loom == ruloFilters.numLoom) &&
+        //        (!(ruloFilters.numPiece > 0) || r.PieceCount == ruloFilters.numPiece) &&
+        //        (!(ruloFilters.FolioNumber > 0) || r.FolioNumber == ruloFilters.FolioNumber) &&
+        //         ((string.IsNullOrWhiteSpace(ruloFilters.txtStyle)) || r.Style.Contains(ruloFilters.txtStyle)
+        //         )
+        //        select r);
+        //    }
+
+        //    var testResults = await testResultRepository.GetWhere(x => !x.IsDeleted);
+        //    var testCategories = await testCategoryRepository.GetWhere(x => x.TestCategoryID != 0);
+
+        //    //Add machine by rulo
+        //    var definationsProcess = await definationProcessRepository.GetWhereWithNoTrack(x => !x.IsDeleted);
+
+        //    var ruloProcessGroup = await ruloProcessRepository.GetWhereWithNoTrack(x => !x.IsDeleted && ((x.BeginningDate <= ruloFilters.dtEnd && x.BeginningDate >= ruloFilters.dtBegin) || (x.BeginningDate <= ruloFilters.dtBegin && x.BeginningDate >= ruloFilters.dtEnd)));
+        //    List<RuloProcess> ruloProcessesList = new List<RuloProcess>();
+        //    ruloProcessesList = ruloProcessGroup.Where(x => !x.IsDeleted).GroupBy(x => x.RuloID, (key, g) => g.OrderByDescending(e => e.RuloProcessID).FirstOrDefault()).ToList();
+
+        //    var resulRPAndDP = (from rp in ruloProcessesList
+        //                        join dp in definationsProcess.ToList() on rp.DefinationProcessID equals dp.DefinationProcessID
+        //                        select new
+        //                        {
+        //                            rp.RuloID,
+        //                            rp.RuloProcessID,
+        //                            dp.DefinationProcessID,
+        //                            dp.ProcessCode,
+        //                            dp.Name
+        //                        }).ToList();
+        //    //////////////////////////
+
+        //    //Add Origin
+        //    var originList = VMOriginType.ToList();
+
+        //    var result = (from r in rulos.ToList()
+        //                  join tr in testResults.ToList() on r.TestResultID equals tr.TestResultID
+        //                  into ljTR
+        //                  from subTR in ljTR.DefaultIfEmpty()
+        //                  join tc in testCategories.ToList() on subTR?.TestCategoryID equals tc.TestCategoryID
+        //                  into ljTC
+        //                  from subTC in ljTC.DefaultIfEmpty()
+
+        //                  join rp in resulRPAndDP.ToList() on r.RuloID equals rp.RuloID
+        //                  into ljRP
+        //                  from subRP in ljRP.DefaultIfEmpty()
+
+        //                  join o in originList on r.OriginID equals o.Value
+        //                  into ljO
+        //                  from subO in ljO.DefaultIfEmpty()
+        //                  select new VMRulo
+        //                  {
+        //                      RuloID = r.RuloID,
+        //                      Lote = r.Lote,
+        //                      Beam = r.Beam,
+        //                      BeamStop = r.BeamStop,
+        //                      Loom = r.Loom,
+        //                      IsToyotaValue = r.IsToyota,
+        //                      PieceCount = r.PieceCount,
+        //                      Style = r.Style,
+        //                      StyleName = r.StyleName,
+        //                      Width = r.Width,
+        //                      WeavingLength = r.WeavingLength,
+        //                      EntranceLength = r.EntranceLength,
+        //                      ExitLength = r.ExitLength,
+        //                      ExitLengthMinusSamples = 0,
+        //                      Shrinkage = r.Shrinkage,
+        //                      Shift = r.Shift,
+        //                      FolioNumber = r.FolioNumber,
+        //                      RuloObservations = r.Observations,
+        //                      SentDate = r.SentDate,
+        //                      //Sender = r.Sender,
+        //                      //SentAuthorizer = r.SentAuthorizer,
+        //                      SentAuthorizerID = r.SentAuthorizerID,
+        //                      IsWaitingAnswerFromTestValue = r.IsWaitingAnswerFromTest,
+        //                      TestResultID = r.TestResultID,
+        //                      CanContinueValue = subTR?.CanContinue ?? false,
+        //                      DateTestResult = subTR?.CreatedDate,
+        //                      InspectionLength = 0,
+        //                      InspectionCuttingLength = 0,
+        //                      BatchNumbers = null,
+        //                      TestCategoryID = subTC?.TestCategoryID ?? 0,
+        //                      TestCategoryCode = subTC?.TestCode ?? string.Empty,
+        //                      Machine = subRP?.Name,
+        //                      OriginID = subO?.Text
+        //                  }).ToList();
+
+        //    if (ruloFilters.numDefinitionProcess != 0)
+        //    {
+        //        //var ruloProcess = ruloProcessRepository.GetQueryable(x => !x.IsDeleted && ((x.BeginningDate <= ruloFilters.dtEnd && x.BeginningDate >= ruloFilters.dtBegin) || (x.BeginningDate <= ruloFilters.dtBegin && x.BeginningDate >= ruloFilters.dtEnd)) && x.EndDate == null && x.DefinationProcessID == ruloFilters.numDefinitionProcess).ToList();
+
+        //        //result = (from r in result
+        //        //          join rp in ruloProcess on r.RuloID equals rp.RuloID
+        //        //          where rp.DefinationProcessID == ruloFilters.numDefinitionProcess
+        //        //          select r).ToList();
+
+        //        result = (from r in result
+        //                  join rp in resulRPAndDP on r.RuloID equals rp.RuloID
+        //                  where rp.DefinationProcessID == ruloFilters.numDefinitionProcess
+        //                  select r).ToList();
+        //    }
+
+        //    if (ruloFilters.numTestCategory != 0)
+        //        result = result.Where(x => x.TestCategoryID == ruloFilters.numTestCategory).ToList();
+
+        //    var sql = query.ToQueryString();
+
+        //    return result.OrderByDescending(x => x.RuloID);
+        //}
 
         //2023-02-16
         public override async Task<IEnumerable<VMRuloBatch>> GetGuvenInformation(IEnumerable<int> ruloIDs)
@@ -510,17 +739,17 @@ namespace GD.FinishingSystem.Bussines.Concrete
         public override decimal GetSumSamples(int ruloID)
         {
             var sumSamples = (from r in repository.GetQueryable()
-                           join rp in ruloProcessRepository.GetQueryable() on r.RuloID equals rp.RuloID
-                           join s in sampleRepository.GetQueryable() on rp.RuloProcessID equals s.RuloProcessID
-                           where r.RuloID == ruloID
-                           select s.Meter).Sum(x => x);
+                              join rp in ruloProcessRepository.GetQueryable() on r.RuloID equals rp.RuloID
+                              join s in sampleRepository.GetQueryable() on rp.RuloProcessID equals s.RuloProcessID
+                              where r.RuloID == ruloID
+                              select s.Meter).Sum(x => x);
 
             return sumSamples;
         }
 
-        public override async Task<IEnumerable<VMRuloReport>> GetRuloReportListFromFilters(VMRuloFilters ruloFilters)
+        public override async Task<IEnumerable<VMRulo>> GetRuloReportListFromFilters(VMRuloFilters ruloFilters)
         {
-            IEnumerable<VMRuloReport> result = null;
+            IEnumerable<VMRulo> result = null;
 
             //Order in stored procedure
             string numLote = ruloFilters.numLote != 0 ? ruloFilters.numLote.ToString() : null;
@@ -532,6 +761,11 @@ namespace GD.FinishingSystem.Bussines.Concrete
             int? numDefinitionProcess = ruloFilters.numDefinitionProcess != 0 ? (int?)ruloFilters.numDefinitionProcess : null;
             int? numTestCategory = ruloFilters.numTestCategory != 0 ? (int?)ruloFilters.numTestCategory : null;
             bool withBatches = ruloFilters.withBatches;
+            int? numRuloID = ruloFilters.numRuloID;
+            bool isAccountDate = ruloFilters.IsAccountingDate;
+            bool isCount = false;
+            int? pag = 0; //Si se va a obtener todos los registros pasar estos valores como 0
+            int? tammPag = 0;
 
             object[] parameters = new object[] {
             ruloFilters.dtBegin.ToString("yyyy-MM-dd HH:mm:ss"),
@@ -544,12 +778,17 @@ namespace GD.FinishingSystem.Bussines.Concrete
             txtStyle,
             numDefinitionProcess,
             numTestCategory,
-            withBatches
+            withBatches,
+            numRuloID,
+            isAccountDate,
+            isCount,
+            pag,
+            tammPag
             };
 
             int? time = Context.Database.GetCommandTimeout();
             Context.Database.SetCommandTimeout(0);
-            result = await ruloReportRepository.GetWithRawSql("stpRuloReport @p0,@p1,@p2,@p3,@p4,@p5,@p6,@p7,@p8,@p9,@p10", parameters);
+            result = await ruloReportRepository.GetWithRawSql("stpRuloReport @p0,@p1,@p2,@p3,@p4,@p5,@p6,@p7,@p8,@p9,@p10,@p11,@p12,@p13,@p14,@p15", parameters);
             Context.Database.SetCommandTimeout(time);
             return result;
         }
@@ -704,7 +943,7 @@ namespace GD.FinishingSystem.Bussines.Concrete
             return await repository.FirstOrDefault(x => !x.IsDeleted && x.FolioNumber == folioNumber);
         }
 
-        public async override Task<IEnumerable<VMRuloReport>> GetAllVMRuloReportList(string query, params object[] parameters)
+        public async override Task<IEnumerable<VMRulo>> GetAllVMRuloReportList(string query, params object[] parameters)
         {
             var ruloReportList = await ruloReportRepository.GetWithRawSql(query, parameters);
 

@@ -44,5 +44,14 @@ namespace GD.FinishingSystem.WEB.Classes
                 .Take(pageSize).ToList();
             return new PaginatedList<T>(items, count, pageIndex, pageSize);
         }
+
+        public static PaginatedList<T> CreatePaginated(IEnumerable<T> source, int totalRecords, int pageIndex, int pageSize)
+        {
+            //var count = source.Count();
+            //var items = source.Skip(
+            //    (pageIndex - 1) * pageSize)
+            //    .Take(pageSize).ToList();
+            return new PaginatedList<T>(source.ToList(), totalRecords, pageIndex, pageSize);
+        }
     }
 }

@@ -28,6 +28,8 @@ namespace GD.FinishingSystem.Entities.ViewModels
         public decimal ExitLength { get; set; }
         [Display(Name = "Exit Minus Samples")]
         public decimal ExitLengthMinusSamples { get; set; }
+        [Display(Name = "Shrinkage")]
+        public decimal Shrinkage { get; set; }
         public int Shift { get; set; }
         [Display(Name = "Is Waiting Answer From Test")]
         public bool IsWaitingAnswerFromTest { get; set; }

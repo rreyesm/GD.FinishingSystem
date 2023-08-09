@@ -29,11 +29,12 @@ namespace GD.FinishingSystem.Bussines.Abstract
         public abstract Task<IEnumerable<string>> GetRuloStyleStringForProductionLoteList();
         public abstract Task<IEnumerable<VMStyleData>> GetRuloStyleForProductionLoteList();
         public abstract Task<VMStyleData> GetRuloStyle(string lote);
-        public abstract Task<IEnumerable<VMRulo>> GetRuloListFromFilters(VMRuloFilters ruloFilters);
+        public abstract Task<int> GetRuloTotalRecords(VMRuloFilters ruloFilters);
+        public abstract Task<IEnumerable<VMRulo>> GetRuloListFromFilters(VMRuloFilters ruloFilters, int currentPaindex, int pageSize);
         public abstract Task<IEnumerable<VMRuloBatch>> GetGuvenInformation(IEnumerable<int> ruloIDs);
         public abstract decimal GetSumSamples(int ruloID);
-        public abstract Task<IEnumerable<VMRuloReport>> GetRuloReportListFromFilters(VMRuloFilters ruloFilters);
-        public abstract Task<IEnumerable<VMRuloReport>> GetAllVMRuloReportList(string query, params object[] parameters);
+        public abstract Task<IEnumerable<VMRulo>> GetRuloReportListFromFilters(VMRuloFilters ruloFilters);
+        public abstract Task<IEnumerable<VMRulo>> GetAllVMRuloReportList(string query, params object[] parameters);
 
         public abstract Task DeleteRuloProcessFromRuloProcessID(int ruloProcessID, int deleterRef);
 

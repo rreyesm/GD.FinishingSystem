@@ -1,0 +1,63 @@
+﻿@model GD.FinishingSystem.Entities.Rulo
+
+<h4>Rulo</h4>
+<hr />
+
+<div class="alert alert-success">
+    <form asp-action="GetShrinkcage">
+        @Html.HiddenFor(x => x.RuloID)
+        
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+        <div class="row">
+            <div class="col-lg-12 col-md-12 col-sm-12">
+                <div class="form-group">
+                    <label asp-for="RuloID" class="control-label">Rulo ID: </label>
+                    <span style=" font-weight:bold">
+                    <label asp-for="RuloID" class="control-label">@Html.Raw(Model.RuloID)</label>
+                    </span>
+                </div>
+            </div>
+
+            <div class="col-lg-12 col-md-12 col-sm-12">
+                <div class="form-group">
+                    <label asp-for="Style" class="control-label">Style: </label>
+                    <span style=" font-weight:bold">
+                    <label asp-for="Style" class="control-label">@Html.Raw(Model.Style)</label>
+                    </span>
+                </div>
+            </div>
+
+            <div class="col-lg-12 col-md-12 col-sm-12">
+                <div class="form-group">
+                    <label asp-for="StyleName" class="control-label">Style Name: </label>
+                    <span style=" font-weight:bold">
+                    <label asp-for="StyleName" class="control-label">@Html.Raw(Model.StyleName)</label>
+                    </span>
+                </div>
+            </div>
+            
+            <div class="col-lg-12 col-md-12 col-sm-12">
+                <div class="form-group">
+                    <label asp-for="Shrinkage" class="control-label"></label>
+                    <input id="Shrinkage" asp-for="Shrinkage" class="form-control" />
+                    <span asp-validation-for="Shrinkage" class="text-danger"></span>
+                </div>
+            </div>
+
+            <div class="col-12">
+                @if ((bool)ViewBag.Error)
+                {
+                    <hr />
+                    <div class="alert alert-danger">
+                        @Html.Raw(ViewBag.ErrorMessage)
+                    </div>
+
+                }
+
+                <button type="button" class="btn btn-primary" onclick="saveShrinkage(@Model.RuloID);" role="button" data-backdrop="static" data-keyboard="false" href="#" data-target="#modalDialogGeneral">Save changes</button>
+            </div>
+
+        </div>
+    </form>
+</div>
+

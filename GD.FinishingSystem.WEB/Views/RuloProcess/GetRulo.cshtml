@@ -36,7 +36,8 @@
             @Html.DisplayNameFor(model => model.IsToyota)
         </dt>
         <dd class="col-sm-6">
-            @Html.Raw(Model.IsToyota ? "YES" : "NO")
+@*            @Html.Raw(Model.IsToyota ? "YES" : "NO")*@
+            @Html.DisplayFor(model => model.IsToyota)
         </dd>
         <dt class="col-sm-4">
             @Html.DisplayNameFor(model => model.Style)
@@ -78,7 +79,8 @@
             @Html.DisplayNameFor(model => model.IsWaitingAnswerFromTest)
         </dt>
         <dd class="col-sm-6">
-            @Html.Raw(Model.IsWaitingAnswerFromTest ? "YES" : "NO")
+            @*@Html.Raw(Model.IsWaitingAnswerFromTest ? "YES" : "NO")*@
+            @Html.DisplayFor(model => model.IsWaitingAnswerFromTest)
         </dd>
         <dt class="col-sm-4">
             @Html.DisplayNameFor(model => model.TestResultID)
@@ -90,7 +92,8 @@
             @Html.DisplayNameFor(model => model.CanContinue)
         </dt>
         <dd class="col-sm-6">
-            @Html.Raw(Model.CanContinue ? "YES" : "NO")
+            @*@Html.Raw(Model.CanContinue ? "YES" : "NO")*@
+            @Html.DisplayFor(model => model.CanContinue)
         </dd>
         <dt class="col-sm-4">
             @Html.DisplayNameFor(model => model.TestCategoryCode)
@@ -99,16 +102,16 @@
             @Html.DisplayFor(model => model.TestCategoryCode)
         </dd>
         <dt class="col-sm-4">
-            @Html.DisplayNameFor(model => model.OriginID)
+            @Html.DisplayNameFor(model => model.Origin)
         </dt>
         <dd class="col-sm-6">
-            @Html.DisplayFor(model => model.OriginID)
+            @Html.DisplayFor(model => model.Origin)
         </dd>
         <dt class="col-sm-4">
-            @Html.DisplayNameFor(model => model.Observations)
+            @Html.DisplayNameFor(model => model.RuloObservations)
         </dt>
         <dd class="col-sm-6">
-            @Html.DisplayFor(model => model.Observations)
+            @Html.DisplayFor(model => model.RuloObservations)
         </dd>
         <dt class="col-sm-4">
             @Html.DisplayNameFor(model => model.FolioNumber)

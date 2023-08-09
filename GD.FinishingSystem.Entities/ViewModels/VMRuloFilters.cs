@@ -10,6 +10,7 @@ namespace GD.FinishingSystem.Entities.ViewModels
     {
         public DateTime dtBegin { get; set; }
         public DateTime dtEnd { get; set; }
+        public bool IsAccountingDate { get; set; }
         public int numLote { get; set; }
         public int numBeam { get; set; }
         public int numLoom { get; set; }
@@ -23,6 +24,7 @@ namespace GD.FinishingSystem.Entities.ViewModels
         //For Rulo Raw
         public int numMigrationCategory { get; set; }
         public bool withBatches { get; set; }
+        public int numRuloID { get; set;}
 
     }
 

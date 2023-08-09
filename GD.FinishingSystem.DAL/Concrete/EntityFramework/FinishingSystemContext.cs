@@ -94,7 +94,7 @@ namespace GD.FinishingSystem.DAL.Concrete.EntityFramework
         public DbSet<Rulo> Rulos { get; set; }
         public DbSet<RuloProcess> RuloProcesses { get; set; }
         public DbSet<RuloMigration> RuloMigrations { get; set; }
-        public DbSet<VMRuloReport> RuloReports { get; set; }
+        public DbSet<VMRulo> RuloReports { get; set; }
         public DbSet<Sample> Samples { get; set; }
         public DbSet<Shift> Shifts { get; set; }
         public DbSet<TestCategory> TestCategories { get; set; }
@@ -128,7 +128,7 @@ namespace GD.FinishingSystem.DAL.Concrete.EntityFramework
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<VMRuloReport>().HasNoKey();
+            modelBuilder.Entity<VMRulo>().HasNoKey();
 
             //Custom table
             modelBuilder.Entity<TblCustomReport>().HasNoKey();
@@ -148,6 +148,8 @@ namespace GD.FinishingSystem.DAL.Concrete.EntityFramework
             ////});
 
             modelBuilder.Entity<VMRuloBatch>().HasNoKey();
+
+            modelBuilder.Entity<TotalResult>().HasNoKey();
         }
 
 

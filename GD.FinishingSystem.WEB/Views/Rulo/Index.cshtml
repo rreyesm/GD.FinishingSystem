@@ -18,15 +18,15 @@
 
 @if (User.IsInRole("RuloAdd") || User.IsInRole("AdminFull") || User.IsInRole("RuloFull"))
 {
-    <p>
-        <a onclick="validateCreateRulo()" class="btn btn-sm btn-outline-light border-dark btn-dark">
-            <i class="lni lni-circle-plus"></i> Create New
-        </a>
+<p>
+    <a onclick="validateCreateRulo()" class="btn btn-sm btn-outline-light border-dark btn-dark">
+        <i class="lni lni-circle-plus"></i> Create New
+    </a>
 
-        @*        <a asp-action="Create" class="btn btn-sm btn-outline-light border-dark btn-dark">
-                <i class="lni lni-circle-plus"></i> Create New
-            </a>*@
-    </p>
+    @*        <a asp-action="Create" class="btn btn-sm btn-outline-light border-dark btn-dark">
+            <i class="lni lni-circle-plus"></i> Create New
+        </a>*@
+</p>
 }
 
 <form asp-action="Index" method="post" id="formFilters">
@@ -36,13 +36,16 @@
         <div class="col-md-2">
             <div class="form-group">
                 <label for="dtBegin">Begin</label><br>
-                <input type="date" style="width:100% !important;" id="dtBegin" name="dtBegin">
+                <input type="datetime-local" style="width:100% !important;" id="dtBegin" name="dtBegin">
             </div>
         </div>
         <div class="col-md-2">
             <div class="form-group">
                 <label for="dtEnd">End</label><br>
-                <input type="date" style="width:100% !important;" id="dtEnd" name="dtEnd">
+                <input type="datetime-local" style="width:100% !important;" id="dtEnd" name="dtEnd">
+                <div style ="width:100% !important;"><label><input type="radio" id="RealDate" name="EndDateType" onclick="changeDate(1);" value="Real Date" checked /> Real Date</label>
+                <label><input type="radio" id="AccountingDate" name="EndDateType" onclick="changeDate(2);" value="Accounting Date" /> Accounting Date</label></div>
+                <input type="hidden" id="isAccountingDate" name="isAccountingDate" />
             </div>
         </div>
         <div class="col-md-2">
@@ -77,7 +80,7 @@
                 <datalist id="styleList">
                     @foreach (var item in styleList)
                     {
-                        <option value="@item"></option>
+                    <option value="@item"></option>
                     }
                 </datalist>
             </div>
@@ -106,6 +109,12 @@
                 <input type="number" onfocusout="controlForSmallerThanZero('folioNumber')" min="0" style="width:100% !important;" id="folioNumber" name="folioNumber">
             </div>
         </div>
+        <div class="col-md-2">
+            <div class="form-group">
+                <label for="numRuloID">Rulo ID</label>
+                <input type="number" onfocus="controlForSmallerThanZero('numRuloID')" min="0" style="width: 100% !important" id="numRuloID" name="numRuloID" />
+            </div>
+        </diV>
     </div>
 
     <div class="row">
@@ -114,8 +123,8 @@
             <a onclick="clearFilters();" class="btn btn-sm btn-outline-info"><i class="lni lni-brush"></i> Clear Filters</a>
         </div>
     </div>
-    
-    <input  type="hidden" id="withBatches" name="withBatches" />
+
+    <input type="hidden" id="withBatches" name="withBatches" />
 </form>
 
 <form id="form2">
@@ -128,15 +137,15 @@
             <th colspan="16">
                 <div>
                     Rulo List
-                        <a id="btnExportToExcel" onclick="exportToExcel();" class="btn btn-sm btn-success"><i class="far fa-file-excel"></i> Export to Excel</a>
-                        <Label><input id="chkWithBatchesTmp" type="checkbox" name="chkWithBatchesTmp" />Report with Batches</label>
+                    <a id="btnExportToExcel" onclick="exportToExcel();" class="btn btn-sm btn-success"><i class="far fa-file-excel"></i> Export to Excel</a>
+                    <Label><input id="chkWithBatchesTmp" type="checkbox" name="chkWithBatchesTmp" onclick="chageWithBatches();" />Report with Batches</Label>
                     @if (User.IsInRole("Authorize", AuthType.Full))
                     {
-                        <a onclick="exportToExcelAllStock();" class="btn btn-sm btn-danger"><i class="far fa-file-excel"></i> Export All Stock</a>
+                    <a onclick="exportToExcelAllStock();" class="btn btn-sm btn-danger"><i class="far fa-file-excel"></i> Export All Stock</a>
                     }
                     @if (User.IsInRole("PerformanceTestReport", AuthType.Show) || User.IsInRole("PerformanceTestReport", AuthType.Full) || User.IsInRole("Admin", AuthType.Full))
 	                {
-		                 <a onclick="exportToExcelPerformanceTestReport();" class="btn btn-sm btn-info"><i class="far fa-file-excel"></i> Export Performance Test</a>
+                    <a onclick="exportToExcelPerformanceTestReport();" class="btn btn-sm btn-info"><i class="far fa-file-excel"></i> Export Performance Test</a>
 	                }
                 </div>
             </th>
@@ -145,6 +154,15 @@
             <th>
                 <i class="lni lni-line-dashed"></i>
             </th>
+
+            
+            <th>
+                Processes
+            </th>
+
+            <th></th>
+
+
             <th>
                 Lote - Beam - Loom
             </th>
@@ -158,7 +176,7 @@
                 @Html.DisplayNameFor(model => model.VMRuloList[0].Machine)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.VMRuloList[0].OriginID)
+                @Html.DisplayNameFor(model => model.VMRuloList[0].Origin)
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.VMRuloList[0].WeavingLength)
@@ -170,7 +188,17 @@
                 @Html.DisplayNameFor(model => model.VMRuloList[0].ExitLength)
             </th>
             <th>
-                   @Html.DisplayNameFor(model => model.VMRuloList[0].ExitLengthMinusSamples)
+                @Html.DisplayNameFor(model => model.VMRuloList[0].ExitLengthMinusSamples)
+            </th>
+            <th>
+                @*Shrinkage manual from finishing*@
+                @Html.DisplayNameFor(model => model.VMRuloList[0].Shrinkage)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.VMRuloList[0].MeterContraction)
+            </th>
+             <th>
+                @Html.DisplayNameFor(model => model.VMRuloList[0].ContractionWeavingExitFinish)
             </th>
             <th>
                 @*Guven Inspection Length*@
@@ -178,17 +206,9 @@
             </th>
             <th>
                 @*Guven Cutting Length - Total Sum From Batches*@
-                @Html.DisplayNameFor(model => model.VMRuloList[0].InpectionCuttingLength)
-            </th>
-            <!--<th>-->
-            @*Shrinkage manual from finishing*@
-            <!--@Html.DisplayNameFor(model => model.VMRuloList[0].Shrinkage)
-            </th>-->
-            <th>
-                Processes
+                @Html.DisplayNameFor(model => model.VMRuloList[0].InspectionCuttingLength)
             </th>
 
-            <th></th>
             <th></th> @*Eye icon*@
             <th>
                 Test Result
@@ -209,15 +229,153 @@
             var color = "bgcolor=transparent";
             if (!string.IsNullOrWhiteSpace(item.BatchNumbers))
                 color = "bgcolor=ffc300"; //Amarillo
-            else if (item.CanContinue)
+            else if (item.CanContinueValue)
                 color = "bgcolor=66ff66"; //Verde
             else if (item.TestCategoryCode.Contains(" X", StringComparison.InvariantCultureIgnoreCase)) //Ok X or Fail X
                 color = "bgcolor=ff6666"; //Rojo
 
         <tr @color id="@("row" + @item.RuloID)">
             <td>
-                @Html.DisplayFor(modelItem => item.RuloID)
+                 <span style="font-weight:bold">
+                    @Html.DisplayFor(modelItem => item.RuloID)
+                </span>
             </td>
+
+
+            <td>
+
+                <div style="display:block;width:120px;">
+                    @if (item.SentAuthorizerID == null && item.FolioNumber == 0)
+                    {
+                    @if (User.IsInRole("Rulo", AuthType.Update))
+                        {
+                    <a onclick="showFolioNumber(@item.RuloID)" class="btn input-xs btn-success" data-backdrop="static" data-keyboard="false" href="#" data-toggle="modal" data-target="#modalDialogGeneral">
+                        <i class="lni lni-arrow-right-circle"></i>
+                    </a>
+
+                    @Html.Raw(" | ")
+                        }
+                    }
+                    else
+                    {
+                    @if (User.IsInRole("Authorize", AuthType.Full))
+                        {
+                    @if (item.SentAuthorizerID == null)
+                            {
+                    <a onclick="authorizeRulo(@item.RuloID)" class="btn input-xs btn-danger">
+                        <i class="lni lni-checkmark-circle"></i>
+                    </a>
+
+                    @Html.Raw(" | ")
+                            }
+
+                        }
+                    }
+
+                    @*@if (User.IsInRole("Authorize", AuthType.Show))
+                        {
+                            if (item.SentAuthorizerID == null && item.FolioNumber == 0)
+                            {
+                                @Html.Raw(" | ")
+                            }
+                        }*@
+
+                    @if (User.IsInRole("Piece", AuthType.Show))
+                    {
+                    <a onclick="showPieces(@item.RuloID)" alt="Pieces" class="btn input-xs btn-secondary" data-backdrop="static" data-keyboard="false" href="#" data-toggle="modal" data-target="#modalDialogPieces">
+                        <i alt="Pieces" class="lni lni-slice"></i>
+                    </a>
+                    }
+
+                    @if (User.IsInRole("Authorize", AuthType.Show) || User.IsInRole("Piece", AuthType.Show))
+                    {
+                        if (item.TestResultID == null)
+                    @Html.Raw(" | ")
+                        }
+
+                    @if (User.IsInRole("RuloProcessShow") || User.IsInRole("AdminFull") || User.IsInRole("RuloProcessFull"))
+                    {
+                        if (item.TestResultID == null) //If test result is null show button processes
+                        {
+                    <a asp-controller="RuloProcess" asp-action="Index" asp-route-ruloid="@item.RuloID" class="btn input-xs btn-info">
+                        <i class="lni lni-list "></i>
+                    </a>
+                        }
+                    }
+
+                    @if (User.IsInRole("Authorize", AuthType.Show) || User.IsInRole("Piece", AuthType.Show) || User.IsInRole("RuloProcess", AuthType.Show))
+
+
+                    @if (User.IsInRole("TestResult", AuthType.Add))
+                        {
+                            if (item.SentAuthorizerID != null)
+                            {
+                    @if (item.TestResultID == null || item.TestResultID == 0 || item.IsWaitingAnswerFromTestValue)
+                                {
+                    @Html.Raw(" | ")
+                    @*<a onclick="testResultValidateInfo(@item.RuloID)" class="btn  input-xs btn-dark"><i class="fa fa-vial"></i></a>*@
+                    <a onclick="testResult(@item.RuloID)" class="btn  input-xs btn-dark" data-toggle="modal" data-target="#modalDialog"><i class="lni lni-flag"></i></a>
+                                }
+                            }
+                        }
+
+
+                </div>
+
+            </td>
+
+            <td>
+                <div style="display:block;width:170px;">
+                    @if (User.IsInRole("Rulo", AuthType.Update))
+                        {
+                    <a asp-controller="Rulo" asp-action="Edit" asp-route-ruloid="@item.RuloID">
+                        <i class="lni lni-slice"></i>
+                    </a>
+                        }
+
+                    @if (User.IsInRole("Rulo", AuthType.Show))
+                        {
+                            if (User.IsInRole("Rulo", AuthType.Update))
+                    @Html.Raw(" | ")
+
+                    <a asp-controller="Rulo" asp-action="Details" asp-route-ruloid="@item.RuloID">
+                        <i class="lni lni-question-circle"></i>
+                    </a>
+                            }
+
+                    @if (User.IsInRole("Rulo", AuthType.Delete))
+                        {
+                            if (item.TestResultID == null) //If test result is null show button processes
+                            {
+                                if (User.IsInRole("Rulo", AuthType.Update) || User.IsInRole("Rulo", AuthType.Show))
+                    @Html.Raw(" | ")
+                    <a asp-controller="Rulo" asp-action="Delete" asp-route-ruloid="@item.RuloID">
+                        <i class="lni lni-circle-minus"></i>
+                    </a>
+                                }
+                            }
+                    @if (User.IsInRole("Rulo", AuthType.Show))
+                        {
+                            if (User.IsInRole("Rulo", AuthType.Update) || User.IsInRole("Rulo", AuthType.Show) || User.IsInRole("Rulo", AuthType.Delete))
+                    @Html.Raw(" | ")
+
+                    <a alt="Processes" onclick="showProcesses(@item.RuloID);" href="#" data-toggle="modal" data-target="#modalDialogprocesses">
+                        <i class="lni lni-direction-alt"></i>
+                    </a>
+                    @Html.Raw(" | ")
+
+                    <a href="#" onclick="printLabel(@item.RuloID)" data-toggle="modal" data-target="#modalDialogGeneral"><i class="lni lni-printer"></i></a>
+
+                    @Html.Raw(" | ");
+
+                    @*<a onclick="showPerfomanceTestResult(@item.RuloID)" data-toggle="modal" href="#" data-target="#modalDialogGeneral"><i class="fa fa-vials"></i></a>*@
+                    <a onclick="showPerfomanceTestResult(@item.RuloID)" data-toggle="modal" href="#" data-target="#modalDialogPerformanceTestResult"><i class="fa fa-vials"></i></a>
+                            }
+                </div>
+
+            </td>
+
+
             <td>
                 <div style="display:block;width:170px;">
 
@@ -225,7 +383,7 @@
                     -
                     @Html.DisplayFor(modelItem => item.Beam)@Html.DisplayFor(modelItem => item.BeamStop)
                     -
-                    @Html.DisplayFor(modelItem => item.Loom)@Html.Raw(item.IsToyota ? "T" : "")
+                    @Html.DisplayFor(modelItem => item.Loom)@Html.Raw(item.IsToyotaValue ? "T" : "")
                 </div>
             </td>
             <td>
@@ -244,7 +402,7 @@
                 </div>
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.OriginID)
+                @Html.DisplayFor(modelItem => item.Origin)
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.WeavingLength)
@@ -259,178 +417,55 @@
                 @Html.DisplayFor(model => item.ExitLengthMinusSamples)
             </td>
             <td>
+                @if (item.Shrinkage <= 0)
+                {
+                     @if (User.IsInRole("Rulo", AuthType.Update))
+                     {
+                        <a onclick="showShrinkage(@item.RuloID)" class="btn input-xs btn-dark" data-toggle="modal" data-target="#modalDialogGeneral"><i class="lni lni-arrows-horizontal"></i></a>
+                     }
+                }
+                else
+                {
+                    @Html.DisplayFor(model => item.Shrinkage)
+                }
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.MeterContraction)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.ContractionWeavingExitFinish)
+            </td>
+            <td>
                 @Html.DisplayFor(modelItem => item.InspectionLength)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.InpectionCuttingLength)
+                @Html.DisplayFor(modelItem => item.InspectionCuttingLength)
             </td>
-            @*<td>
-            @if (!string.IsNullOrEmpty(item.TestCategoryCode))
-            {
+
+
+            <td>
+                @if (!string.IsNullOrEmpty(item.TestCategoryCode))
+                    {
                 <a alt="Test Result" onclick="showTestResultObservations(@item.RuloID);" href="#" data-toggle="modal" data-target="#modalDialogGeneral">
                     <i class="lni lni-eye"></i>
                 </a>
-            }
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.TestCategoryCode)
-        </td>*@
-
+                    }
+            </td>
             <td>
+                @Html.DisplayFor(modelItem => item.TestCategoryCode)
+            </td>
+            <td>
+                @*Date test result*@
+                <div style="display:block;width:130px;">
+                    @Html.Raw(item.DateTestResult?.ToString("yyyy-MM-dd HH:mm"))
+                </div>
+            </td>
+            <td>
+                @*Batch number*@
+                @Html.DisplayFor(modelItem => item.BatchNumbers)
+            </td>
 
-                <div style="display:block;width:120px;">
-                    @if (item.SentAuthorizerID == null && item.FolioNumber == 0)
-                    {
-                        @if (User.IsInRole("Rulo", AuthType.Update))
-                        {
-                            <a onclick="showFolioNumber(@item.RuloID)" class="btn input-xs btn-success" data-backdrop="static" data-keyboard="false" href="#" data-toggle="modal" data-target="#modalDialogGeneral">
-                                <i class="lni lni-arrow-right-circle"></i>
-                            </a>
-
-                            @Html.Raw(" | ")
-                        }
-                    }
-                    else
-                    {
-                        @if (User.IsInRole("Authorize", AuthType.Full))
-                        {
-                            @if (item.SentAuthorizerID == null)
-                            {
-                                <a onclick="authorizeRulo(@item.RuloID)" class="btn input-xs btn-danger">
-                                    <i class="lni lni-checkmark-circle"></i>
-                                </a>
-
-                                @Html.Raw(" | ")
-                            }
-
-                        }
-                    }
-
-                    @*@if (User.IsInRole("Authorize", AuthType.Show))
-                {
-                    if (item.SentAuthorizerID == null && item.FolioNumber == 0)
-                    {
-                        @Html.Raw(" | ")
-                    }
-                }*@
-
-                    @if (User.IsInRole("Piece", AuthType.Show))
-                    {
-                        <a onclick="showPieces(@item.RuloID)" alt="Pieces" class="btn input-xs btn-secondary" data-backdrop="static" data-keyboard="false" href="#" data-toggle="modal" data-target="#modalDialogPieces">
-                            <i alt="Pieces" class="lni lni-slice"></i>
-                        </a>
-                    }
-
-                    @if (User.IsInRole("Authorize", AuthType.Show) || User.IsInRole("Piece", AuthType.Show))
-                    {
-                        if (item.TestResultID == null)
-                            @Html.Raw(" | ")
-                        }
-
-                    @if (User.IsInRole("RuloProcessShow") || User.IsInRole("AdminFull") || User.IsInRole("RuloProcessFull"))
-                    {
-                        if (item.TestResultID == null) //If test result is null show button processes
-                        {
-                            <a asp-controller="RuloProcess" asp-action="Index" asp-route-ruloid="@item.RuloID" class="btn input-xs btn-info">
-                                <i class="lni lni-list "></i>
-                            </a>
-                        }
-                    }
-
-                    @if (User.IsInRole("Authorize", AuthType.Show) || User.IsInRole("Piece", AuthType.Show) || User.IsInRole("RuloProcess", AuthType.Show))
-
-
-                        @if (User.IsInRole("TestResult", AuthType.Add))
-                        {
-                            if (item.SentAuthorizerID != null)
-                            {
-                                @if (item.TestResultID == null || item.TestResultID == 0 || item.IsWaitingAnswerFromTest)
-                                {
-                                    @Html.Raw(" | ")
-                                    @*<a onclick="testResultValidateInfo(@item.RuloID)" class="btn  input-xs btn-dark"><i class="fa fa-vial"></i></a>*@
-                                    <a onclick="testResult(@item.RuloID)" class="btn  input-xs btn-dark" data-toggle="modal" data-target="#modalDialog"><i class="lni lni-flag"></i></a>
-                                }
-                            }
-                        }
-
-
-                    </div>
-
-                </td>
-
-                <td>
-                    <div style="display:block;width:170px;">
-                        @if (User.IsInRole("Rulo", AuthType.Update))
-                        {
-                            <a asp-controller="Rulo" asp-action="Edit" asp-route-ruloid="@item.RuloID">
-                                <i class="lni lni-slice"></i>
-                            </a>
-                        }
-
-                        @if (User.IsInRole("Rulo", AuthType.Show))
-                        {
-                            if (User.IsInRole("Rulo", AuthType.Update))
-                                @Html.Raw(" | ")
-
-                                <a asp-controller="Rulo" asp-action="Details" asp-route-ruloid="@item.RuloID">
-                                    <i class="lni lni-question-circle"></i>
-                                </a>
-                            }
-
-                        @if (User.IsInRole("Rulo", AuthType.Delete))
-                        {
-                            if (item.TestResultID == null) //If test result is null show button processes
-                            {
-                                if (User.IsInRole("Rulo", AuthType.Update) || User.IsInRole("Rulo", AuthType.Show))
-                                    @Html.Raw(" | ")
-                                    <a asp-controller="Rulo" asp-action="Delete" asp-route-ruloid="@item.RuloID">
-                                        <i class="lni lni-circle-minus"></i>
-                                    </a>
-                                }
-                            }
-                        @if (User.IsInRole("Rulo", AuthType.Show))
-                        {
-                            if (User.IsInRole("Rulo", AuthType.Update) || User.IsInRole("Rulo", AuthType.Show) || User.IsInRole("Rulo", AuthType.Delete))
-                                @Html.Raw(" | ")
-
-                                <a alt="Processes" onclick="showProcesses(@item.RuloID);" href="#" data-toggle="modal" data-target="#modalDialogprocesses">
-                                    <i class="lni lni-direction-alt"></i>
-                                </a>
-                                @Html.Raw(" | ")
-
-                                <a href="#" onclick="printLabel(@item.RuloID)" data-toggle="modal" data-target="#modalDialogGeneral"><i class="lni lni-printer"></i></a>
-
-                                @Html.Raw(" | ");
-
-                                @*<a onclick="showPerfomanceTestResult(@item.RuloID)" data-toggle="modal" href="#" data-target="#modalDialogGeneral"><i class="fa fa-vials"></i></a>*@
-                                <a onclick="showPerfomanceTestResult(@item.RuloID)" data-toggle="modal" href="#" data-target="#modalDialogPerformanceTestResult"><i class="fa fa-vials"></i></a>
-                            }
-                    </div>
-
-                </td>
-                <td>
-                    @if (!string.IsNullOrEmpty(item.TestCategoryCode))
-                    {
-                        <a alt="Test Result" onclick="showTestResultObservations(@item.RuloID);" href="#" data-toggle="modal" data-target="#modalDialogGeneral">
-                            <i class="lni lni-eye"></i>
-                        </a>
-                    }
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.TestCategoryCode)
-                </td>
-                <td>
-                    @*Date test result*@
-                    <div style="display:block;width:130px;">
-                        @Html.Raw(item.DateTestResult?.ToString("yyyy-MM-dd HH:mm"))
-                    </div>
-                </td>
-                <td>
-                    @*Batch number*@
-                    @Html.DisplayFor(modelItem => item.BatchNumbers)
-                </td>
-
-            </tr>
+        </tr>
             }
     </tbody>
 </table>
@@ -640,6 +675,13 @@
 <script>
     document.getElementById("dtBegin").value = '@ViewBag.dtBegin.ToString()';
     document.getElementById("dtEnd").value = '@ViewBag.dtEnd.ToString()';
+    document.getElementById("isAccountingDate").value = '@ViewBag.isAccountingDate';
+
+    var isAccountValue = '@ViewBag.isAccountingDate' == 'True' ? true : false;
+
+    document.getElementById("RealDate").checked = !isAccountValue;
+    document.getElementById("AccountingDate").checked = isAccountValue;
+    @*NO ES NECESARIO PASAR A ALGÚN CONTROL accountingDate y realDate SÓLO SE MANTIENE EL VALOR EN EL VIEW BAG PARA CUANDO SEA REQUERIDO*@
 
     document.getElementById("numLote").value = '@ViewBag.numLote';
     document.getElementById("numBeam").value = '@ViewBag.numBeam';
@@ -647,8 +689,32 @@
     //document.getElementById("numPiece").value = '@ViewBag.numPiece';
     document.getElementById("txtStyle").value = '@ViewBag.txtStyle';
     document.getElementById("numTestCategory").value = '@ViewBag.numTestCategory';
-    document.getElementById("numDefinitionProcess").value = '@ViewBag.numDefinitionProcess'
-    document.getElementById("folioNumber").value = '@ViewBag.FolioNumber'
+    document.getElementById("numDefinitionProcess").value = '@ViewBag.numDefinitionProcess';
+    document.getElementById("folioNumber").value = '@ViewBag.FolioNumber';
+    document.getElementById("withBatches").value = '@ViewBag.withBatches';
+    document.getElementById("chkWithBatchesTmp").value = '@ViewBag.withBatches';
+    document.getElementById("numRuloID").value = '@ViewBag.numRuloID';
+
+    function changeDate(option){
+        if (option == 1)
+        {
+            document.getElementById("dtBegin").value = '@ViewBag.realBeginDate.ToString()';
+            document.getElementById("dtEnd").value = '@ViewBag.realDate.ToString()';
+            document.getElementById("isAccountingDate").value = false;
+        }
+        else if (option == 2)
+        {
+            document.getElementById("dtBegin").value = '@ViewBag.accountingBeginDate.ToString()';
+            document.getElementById("dtEnd").value = '@ViewBag.accountingDate.ToString()';
+            document.getElementById("isAccountingDate").value = true;
+        }
+    }
+
+    function chageWithBatches()
+    {
+        var selectedValue = document.getElementById("chkWithBatchesTmp");
+        document.getElementById("withBatches").value = selectedValue.checked == true ? true : false;
+    }
 
     function authorizeRulo(ruloId) {
         if (confirm('Are you sure you want to authorize this rulo?')) {
@@ -1082,13 +1148,13 @@
     function exportToExcel() {
 
         document.getElementById("formFilters").action = "/Rulo/ExportToExcel";
-        @*document.getElementById("formFilters").submit();*@
-        var withBatches = document.getElementById("chkWithBatchesTmp");
+
+@*      var withBatches = document.getElementById("chkWithBatchesTmp");
 
         if (withBatches.checked == true)
             document.getElementById("withBatches").value = true
         else
-            document.getElementById("withBatches").value = false
+            document.getElementById("withBatches").value = false*@
 
         // Obtener los datos del formulario
         var formData = $(this).serialize();
@@ -1131,6 +1197,7 @@
         document.getElementById("numTestCategory").value = 0;
         document.getElementById("numDefinitionProcess").value = 0;
         document.getElementById("folioNumber").value = 0;
+        document.getElementById("numRuloID").value = 0;
 
         document.getElementById("formFilters").action = "/Rulo/Index";
         document.getElementById("formFilters").submit();
@@ -1252,6 +1319,48 @@
                 }
                 else
                     alert("Something went wrong!")
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                alert("404 Not found!");
+            }
+        });
+    }
+
+    function showShrinkage(ruloId) {
+        $.ajax({
+            url: "/Rulo/GetShrinkage",
+            type: "GET",
+            data:
+            {
+                RuloId: ruloId
+            },
+            success: function (data) {
+                document.getElementById('generalInfo').innerHTML = data;
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                alert("404 Not found!");
+            }
+        });
+    }
+
+    function saveShrinkage(ruloId) {
+        var shrinkage = $("#Shrinkage").val();
+
+        $.ajax({
+            url: "/Rulo/SaveShrinkage",
+            type: "POST",
+            data:
+            {
+                RuloId: ruloId,
+                Shrinkage: shrinkage,
+            },
+            success: function (data) {
+                if (data == '') {
+                    location.reload();
+                }
+                else {
+                    document.getElementById('generalInfo').innerHTML = data;
+                }
             },
             error: function (xhr, ajaxOptions, thrownError) {
                 alert("404 Not found!");
