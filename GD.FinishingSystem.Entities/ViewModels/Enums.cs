@@ -25,6 +25,9 @@ namespace GD.FinishingSystem.Entities.ViewModels
         PF01 = 5,
         //From inspection stock or integration stock
         [Description("PF02")]
-        PF02 = 6
+        PF02 = 6,
+        //For factory tests
+        [Description("DES0")]
+        DES0 = 7
     }
 }
