@@ -1,10 +1,17 @@
-﻿using System;
+﻿using GD.FinishingSystem.Entities;
+using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Text;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace GD.FinishingSystem.Entities.ViewModels
 {
+    [NotMapped]
+    [Keyless]
+    [Table("tblRuloReports")]
     public class VMRulo
     {
         public int RuloID { get; set; }
@@ -13,8 +20,9 @@ namespace GD.FinishingSystem.Entities.ViewModels
         [Display(Name = "Beam Stop")]
         public string BeamStop { get; set; }
         public int Loom { get; set; }
+        public bool IsToyotaValue { get; set; }
         [Display(Name = "Is Toyota")]
-        public bool IsToyota { get; set; }
+        public string IsToyota { get; set; }
         public int PieceCount { get; set; }
         public string Style { get; set; }
         [Display(Name = "Style Name")]
@@ -24,42 +32,65 @@ namespace GD.FinishingSystem.Entities.ViewModels
         public decimal WeavingLength { get; set; }
         [Display(Name = "Entrance Length")]
         public decimal EntranceLength { get; set; }
+        [Display(Name = "Exit Length Rama")]
+        public decimal ExitLengthRama { get; set; }
         [Display(Name = "Exit Length")]
         public decimal ExitLength { get; set; }
         [Display(Name = "Exit Minus Samples")]
         public decimal ExitLengthMinusSamples { get; set; }
-        [Display(Name = "Shrinkage")]
+        [Display(Name = "Shrinkage %")]
         public decimal Shrinkage { get; set; }
+        [Display(Name = "Meter Contraction %")]
+        public decimal MeterContraction { get; set; }
+        [Display(Name = "Contraction Weaving-Exit Finish")]
+        public decimal ContractionWeavingExitFinish { get; set; }
+        [Display(Name = "Inspection Length")]
+        public decimal InspectionLength { get; set; }
+        [Display(Name = "Insp. Cutting Length")]
+        public decimal InspectionCuttingLength { get; set; }
         public int Shift { get; set; }
+        public bool IsWaitingAnswerFromTestValue { get; set; } //Agregado de VMRulo
         [Display(Name = "Is Waiting Answer From Test")]
-        public bool IsWaitingAnswerFromTest { get; set; }
-        public int? TestResultID { get; set; }
+        public string IsWaitingAnswerFromTest { get; set; }
+        public int? TestResultID { get; set; } //Agregado de VMRulo
+        public bool CanContinueValue { get; set; }//Agregado de VMRulo
         [Display(Name = "Can Continue")]
-        public bool CanContinue { get; set; }
+        public string CanContinue { get; set; }
+        [NotMapped]
         public int TestCategoryID { get; set; }
         [Display(Name = "Test Result")]
         public string TestCategoryCode { get; set; }
         [Display(Name = "Date Test")]
         public DateTime? DateTestResult { get; set; }
-        [Display(Name = "Inspection Length")]
-        public decimal InspectionLength { get; set; }
-        [Display(Name = "Insp. Cutting Length")]
-        public decimal InspectionCuttingLength { get; set; }
         [Display(Name = "Batch Numbers")]
         public string BatchNumbers { get; set; }
+        [Display(Name = "OriginID")]
+        public int OriginID { get; set; } //Agregado de VMRulo
         [Display(Name = "Origin")]
-        public string OriginID { get; set; }
-        public string Observations { get; set; }
+        public string OriginCode { get; set; }
+        [Display(Name = "Rulo Observations")]
+        public string RuloObservations { get; set; }
         [Display(Name = "Test Result Authorizer")]
         public string TestResultAuthorizer { get; set; }
+        [Display(Name = "Test Result Observations")]
+        public string TestResultObservations { get; set; }
         [Display(Name = "Folio Number")]
         public int FolioNumber { get; set; }
         [Display(Name = "Sent Date")]
         public DateTime? SentDate { get; set; }
-        public User Sender { get; set; }
-        public User SentAuthorizer { get; set; }
-        public int? SentAuthorizerID { get; set; }
+        [Display(Name = "Sender")]
+        public string Sender { get; set; }
+        [Display(Name = "Sent Authorizer")]
+        public string SentAuthorizer { get; set; }
+        public int? SentAuthorizerID { get; set; }  //Agregado de VMRulo
+        [Display(Name = "Creator")]
+        public string Creator { get; set; }
+        [Display(Name = "Created Date")]
+        public DateTime CreatedDate { get; set; }
+        public DateTime? FinishingDate { get; set; }
+        [Display(Name = "Machine")]
         public string Machine { get; set; }
-
+        [Display(Name = "Warehouse")]
+        public string WarehouseCode { get; set; }
     }
 }

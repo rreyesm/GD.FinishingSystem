@@ -49,6 +49,8 @@ namespace GD.FinishingSystem.Bussines
             TestCategories = new TestCategoryManager(context);
             TestResults = new TestResultManager(context);
             Users = new UserManager(context);
+            OriginCategories = new OriginCategoryManager(context);
+            WarehouseCategories = new WarehouseCategoryManager(context);
 
         }
 
@@ -64,5 +66,7 @@ namespace GD.FinishingSystem.Bussines
         public AbstractTestCategoryService TestCategories { get; set; }
         public AbstractTestResultService TestResults { get; set; }
         public AbstractUserService Users { get; set; }
+        public AbstractOriginCategoryService OriginCategories { get; set; }
+        public AbstractWarehouseCategoryService WarehouseCategories { get; set; }
     }
 }

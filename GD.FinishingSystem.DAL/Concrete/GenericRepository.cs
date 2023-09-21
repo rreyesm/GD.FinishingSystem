@@ -133,8 +133,15 @@ namespace GD.FinishingSystem.DAL.Concrete
 
         public async Task<IEnumerable<T>> GetWhere(Expression<Func<T, bool>> predicate)
         {
-            var res = await table.Where(predicate).ToListAsync();
-            return res;
+            try
+            {
+                var res = await table.Where(predicate).ToListAsync();
+                return res;
+            }
+            catch (Exception ex)
+            {
+            }
+            return null;
         }
 
         public IQueryable<T> GetQueryable(Expression<Func<T, bool>> predicate = null)

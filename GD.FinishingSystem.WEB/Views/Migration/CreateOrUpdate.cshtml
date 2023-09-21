@@ -26,69 +26,20 @@
         @Html.AntiForgeryToken()
         <div asp-validation-summary="ModelOnly" class="text-danger"></div>
         <div class="row">
-            @*<div class="col-lg-3 col-md-4 col-sm-12">
-            <div class="form-group">
-                <label asp-for="RuloMigrationID" class="control-label"></label>
-                <input asp-for="RuloMigrationID" class="form-control" />
-                <span asp-validation-for="RuloMigrationID" class="text-danger"></span>
-            </div>
-        </div>
-        <div class="col-lg-3 col-md-4 col-sm-12">
-            <div class="form-group">
-                <label asp-for="ExcelFileRow" class="control-label"></label>
-                <input asp-for="ExcelFileRow" class="form-control" />
-                <span asp-validation-for="ExcelFileRow" class="text-danger"></span>
-            </div>
-        </div>
-        <div class="col-lg-3 col-md-4 col-sm-12">
-            <div class="form-group">
-                <label asp-for="ExcelFileName" class="control-label"></label>
-                <input asp-for="ExcelFileName" class="form-control" />
-                <span asp-validation-for="ExcelFileName" class="text-danger"></span>
-            </div>
-        </div>*@
             <div class="col-lg-3 col-md-4 col-sm-12">
                 <div class="form-group">
-                    <label asp-for="Date" class="control-label"></label>
-                    <input asp-for="Date" class="form-control" />
-                    <span asp-validation-for="Date" class="text-danger"></span>
-                </div>
-            </div>
-            <div class="col-lg-3 col-md-4 col-sm-12">
-                <div class="form-group">
-                    <label asp-for="Style" class="control-label"></label>
-                    <input asp-for="Style" class="form-control" />
-                    <span asp-validation-for="Style" class="text-danger"></span>
-                </div>
-            </div>
-            <div class="col-lg-3 col-md-4 col-sm-12">
-                <div class="form-group">
-                    <label asp-for="StyleName" class="control-label"></label>
-                    <input asp-for="StyleName" class="form-control" />
-                    <span asp-validation-for="StyleName" class="text-danger"></span>
-                </div>
-            </div>
-            <div class="col-lg-3 col-md-4 col-sm-12">
-                <div class="form-group">
-                    <label asp-for="NextMachine" class="control-label"></label>
-                    <input asp-for="NextMachine" class="form-control" />
-                    <span asp-validation-for="NextMachine" class="text-danger"></span>
+                    <label asp-for="IsTestStyle" class="control-label"></label>
+                    <input type="checkbox" asp-for="IsTestStyle" class="form-control input-xs" onclick="setStyleTest();" />
                 </div>
             </div>
             <div class="col-lg-3 col-md-4 col-sm-12">
                 <div class="form-group">
                     <label asp-for="Lote" class="control-label"></label>
-                    <input asp-for="Lote" class="form-control" />
+                    <input asp-for="Lote" class="form-control" onfocusout="getStyleData()" />
                     <span asp-validation-for="Lote" class="text-danger"></span>
                 </div>
             </div>
-            <div class="col-lg-3 col-md-4 col-sm-12">
-                <div class="form-group">
-                    <label asp-for="Stop" class="control-label"></label>
-                    <input asp-for="Stop" class="form-control" />
-                    <span asp-validation-for="Stop" class="text-danger"></span>
-                </div>
-            </div>
+
             <div class="col-lg-3 col-md-4 col-sm-12">
                 <div class="form-group">
                     <label asp-for="Beam" class="control-label"></label>
@@ -98,9 +49,9 @@
             </div>
             <div class="col-lg-3 col-md-4 col-sm-12">
                 <div class="form-group">
-                    <label asp-for="IsToyota" class="control-label"></label>
-                    <input asp-for="IsToyota" class="form-control" />
-                    <span asp-validation-for="IsToyota" class="text-danger"></span>
+                    <label asp-for="BeamStop" class="control-label"></label>
+                    <input asp-for="BeamStop" class="form-control" />
+                    <span asp-validation-for="BeamStop" class="text-danger"></span>
                 </div>
             </div>
             <div class="col-lg-3 col-md-4 col-sm-12">
@@ -108,6 +59,33 @@
                     <label asp-for="Loom" class="control-label"></label>
                     <input asp-for="Loom" class="form-control" />
                     <span asp-validation-for="Loom" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-4 col-sm-12">
+                <div class="form-group">
+                    <label asp-for="IsToyotaMigration" class="control-label"></label>
+                    <input type="checkbox" asp-for="IsToyotaMigration" class="form-control input-xs" />
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-4 col-sm-12">
+                <div class="form-group">
+                    <label asp-for="Style" class="control-label"></label>
+                    <input asp-for="Style" class="form-control" disabled />
+                    <span asp-validation-for="Style" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-4 col-sm-12">
+                <div class="form-group">
+                    <label asp-for="StyleName" class="control-label"></label>
+                    <input asp-for="StyleName" class="form-control" disabled />
+                    <span asp-validation-for="StyleName" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-4 col-sm-12">
+                <div class="form-group">
+                    <label asp-for="DefinitionProcessID" class="control-label"></label>
+                    <select asp-for="DefinitionProcessID" asp-items="@ViewBag.DefinitionProcessList" class="form-control"></select>
+                    <span asp-validation-for="DefinitionProcessID" class="text-danger"></span>
                 </div>
             </div>
             <div class="col-lg-3 col-md-4 col-sm-12">
@@ -147,9 +125,16 @@
             </div>
             <div class="col-lg-3 col-md-4 col-sm-12">
                 <div class="form-group">
-                    <label asp-for="Shift" class="control-label"></label>
-                    <input asp-for="Shift" class="form-control" />
-                    <span asp-validation-for="Shift" class="text-danger"></span>
+                    <label asp-for="WeavingShift" class="control-label"></label>
+                    <input asp-for="WeavingShift" class="form-control" />
+                    <span asp-validation-for="WeavingShift" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-4 col-sm-12">
+                <div class="form-group">
+                    <label asp-for="OriginID" class="control-label"></label>
+                    <select asp-for="OriginID" asp-items="@ViewBag.OriginCategoryList" class="form-control"></select>
+                    <span asp-validation-for="OriginID" class="text-danger"></span>
                 </div>
             </div>
             <div class="col-lg-3 col-md-4 col-sm-12">
@@ -194,5 +179,66 @@
 </div>
 
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
 }
+
+<script>
+    function getStyleData() {
+        var isTestStyle = false;
+
+        if (document.getElementById("IsTestStyle"))
+            isTestStyle = document.getElementById("IsTestStyle").checked;
+
+        if (!isTestStyle) {
+
+            let loteRulo = $("#Lote").val();
+
+            if (!isNaN(loteRulo)) {
+                if (loteRulo != 0) {
+                    $.ajax({
+                        url: "/Migration/GetStyleData",
+                        type: "POST",
+                        data: {
+                            lote: loteRulo
+                        },
+                        success: function (data) {
+                            if (data) {
+                                if (data.errorMessage == "") {
+                                    $("#Style").val(data.style);
+                                    $("#StyleName").val(data.styleName);
+                                }
+                                else
+                                    alert(data.errorMessage);
+                            }
+                        },
+                        error: function (xhr, ajaxOptions, thrownError) {
+                            alert("404 Not found!");
+                        }
+                    })
+                }
+            }
+            else {
+                $("#Style").val("");
+                $("#StyleName").val("");
+            }
+
+        }
+
+    }
+
+    window.load = setStyleTest();
+
+    function setStyleTest() {
+        if (document.getElementById('IsTestStyle')) {
+            if (document.getElementById('IsTestStyle').checked) {
+                document.getElementById('Style').disabled = false;
+                document.getElementById('StyleName').disabled = false;
+            } else {
+                document.getElementById('Style').disabled = true;
+                document.getElementById('StyleName').disabled = true;
+            }
+        }
+    }
+</script>

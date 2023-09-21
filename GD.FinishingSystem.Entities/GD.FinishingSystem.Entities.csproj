@@ -5,7 +5,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="ViewModels\VMRulo.cs" />
+    <Compile Remove="ViewModels\Enums.cs" />
+    <Compile Remove="ViewModels\VMOriginType.cs" />
+    <Compile Remove="ViewModels\VMRulo2.cs" />
   </ItemGroup>
 
   <ItemGroup>

@@ -29,7 +29,7 @@ namespace GD.FinishingSystem.DAL.Concrete.EntityFramework
         string LocalSqlite = $"Data Source=C://Users//Sistemas//{DatabaseName}.db";
         int TimeOutAuthorizeSec = 600;
         DatabaseSystem dbSysem;
-        #endregion
+#endregion
 
 
         #region DebugModeSettings
@@ -103,6 +103,8 @@ namespace GD.FinishingSystem.DAL.Concrete.EntityFramework
         public DbSet<User> Users { get; set; }
         public DbSet<UserRole> UserRoles { get; set; }
         public DbSet<VMRuloBatch> RuloBatches { get; set; }
+        public DbSet<OriginCategory> OriginCategories { get; set; }
+        public DbSet<WarehouseCategory> WarehouseCategories { get; set; }
         #endregion
 
         #region Settings
@@ -150,6 +152,8 @@ namespace GD.FinishingSystem.DAL.Concrete.EntityFramework
             modelBuilder.Entity<VMRuloBatch>().HasNoKey();
 
             modelBuilder.Entity<TotalResult>().HasNoKey();
+
+            modelBuilder.Entity<WarehouseStock>().HasNoKey();
         }
 
 

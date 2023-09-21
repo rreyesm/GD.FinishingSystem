@@ -1,6 +1,9 @@
 ﻿using ClosedXML.Excel;
+using DocumentFormat.OpenXml.InkML;
+using FastReport;
 using GD.FinishingSystem.Bussines;
 using GD.FinishingSystem.Entities;
+using Microsoft.CodeAnalysis.VisualBasic.Syntax;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -18,7 +21,7 @@ namespace GD.FinishingSystem.WEB.Classes
 
             try
             {
-                workbook = new XLWorkbook(stream);
+                workbook = new XLWorkbook(stream, XLEventTracking.Disabled);
                 workSheet = workbook.Worksheet(1);
             }
             catch (Exception)
@@ -26,7 +29,7 @@ namespace GD.FinishingSystem.WEB.Classes
                 return (false, "Error reading Excel file", null);
             }
 
-            int rowIni = 2;
+            int rowIni = 4;
             int colIni = 1;
             int row = 0;
             int rowSheet = workSheet.LastRowUsed().RowNumber();
@@ -44,6 +47,10 @@ namespace GD.FinishingSystem.WEB.Classes
             migrationControl.BeginDate = DateTime.Now;
 
             await factory.RuloMigrations.AddMigrationControl(migrationControl, userId);
+
+            var styles = await factory.RuloMigrations.GetStylesFromProductionLoteList();
+
+            var definitionProcesses = await factory.DefinationProcesses.GetDefinationProcessList();
 
             List<List<string>> errorByRowListOfList = new List<List<string>>();
             List<string> errorByRowList = null;
@@ -73,20 +80,60 @@ namespace GD.FinishingSystem.WEB.Classes
                     //Validate style
                     var style = workSheet.Cell(row, ++colIni).Value;
 
-                    if (!string.IsNullOrWhiteSpace(style.ToString()))
-                        ruloMigration.Style = Convert.ToString(style);
+                    if (style != null && !string.IsNullOrWhiteSpace(style.ToString()))
+                    {
+                        //TODO: Continuar aquí
+                        var styleData = styles.Where(x => x.Style.Contains(style.ToString().Trim(), StringComparison.InvariantCultureIgnoreCase)).FirstOrDefault();
+                        if (styleData != null)
+                        {
+                            ruloMigration.Style = styleData.Style; //Convert.ToString(style);
+                            ruloMigration.StyleName = styleData.StyleName;
+                        }
+                        else errorByRowList.Add($"Style no valid! Value \"{GetValue(style)}\", Row {row}, Col {colIni}");
+                    }
                     else errorByRowList.Add($"Style no valid! Value \"{GetValue(style)}\", Row {row}, Col {colIni}");
 
-                    //Validate style name
-                    var styleName = workSheet.Cell(row, ++colIni).Value;
-                    if (!string.IsNullOrWhiteSpace(styleName.ToString()))
-                        ruloMigration.StyleName = Convert.ToString(styleName);
-                    else errorByRowList.Add($"Style Name no valid! Value \"{GetValue(styleName)}\", Row {row}, Col {colIni}");
+                    ////Validate style name
+                    //var styleName = workSheet.Cell(row, ++colIni).Value;
+                    //if (!string.IsNullOrWhiteSpace(styleName.ToString()))
+                    //    ruloMigration.StyleName = Convert.ToString(styleName);
+                    //else errorByRowList.Add($"Style Name no valid! Value \"{GetValue(styleName)}\", Row {row}, Col {colIni}");
+
+                    //TODO: Como se deshabilitó hay que incrementar la columna para leer la siguiente
+                    ++colIni;
 
                     //Validate machine
                     var nextMachine = workSheet.Cell(row, ++colIni).Value;
+                    string sNextMachine = string.Empty;
                     if (!string.IsNullOrWhiteSpace(nextMachine.ToString()))
-                        ruloMigration.NextMachine = Convert.ToString(nextMachine);
+                    {
+                        sNextMachine = nextMachine.ToString();
+                        if (nextMachine.ToString().StartsWith("Bruckner", StringComparison.InvariantCultureIgnoreCase))
+                        {
+                            var digits = from c in sNextMachine
+                                         where Char.IsDigit(c)
+                                         select c;
+
+                            if (digits != null && digits.Count() > 0 && string.Join("", digits) == "1")
+                                sNextMachine = sNextMachine.Substring(0, sNextMachine.IndexOf(string.Join("", digits)));
+                        }
+
+                        if (sNextMachine == "-")
+                        {
+                            ruloMigration.DefinitionProcessID = null;
+                            ruloMigration.NextMachine = null;
+                        }
+                        else
+                        {
+                            var definitionProcess = definitionProcesses.Where(x => x.Name.Contains(sNextMachine, StringComparison.InvariantCultureIgnoreCase)).FirstOrDefault();
+                            if (definitionProcess != null)
+                            {
+                                ruloMigration.DefinitionProcessID = definitionProcess.DefinationProcessID;
+                                ruloMigration.NextMachine = definitionProcess.Name; //Convert.ToString(nextMachine);
+                            }
+                            else errorByRowList.Add($"Machine no valid! Value \"{GetValue(nextMachine)}\", Row {row}, Col {colIni}");
+                        }
+                    }
                     else errorByRowList.Add($"Machine no valid! Value \"{GetValue(nextMachine)}\", Row {row}, Col {colIni}");
 
                     //Validate lote
@@ -107,12 +154,32 @@ namespace GD.FinishingSystem.WEB.Classes
                                 string[] sLoteArray = null;
                                 sLoteArray = sLote.Split("-");
 
-                                if (!string.IsNullOrEmpty(sLoteArray[0]) && sLoteArray[0].IsNumeric())
-                                    ruloMigration.Lote = Convert.ToInt32(sLoteArray[0]);
+                                if (sLoteArray.Length == 2)
+                                {
+                                    if (!string.IsNullOrEmpty(sLoteArray[0]) && sLoteArray[0].IsNumeric())
+                                        ruloMigration.Lote = Convert.ToInt32(sLoteArray[0]);
+                                    else
+                                        errorByRowList.Add($"Lote no valid! Value \"{GetValue(lote)}\", Row {row}, Col {colIni}");
+
+                                    ruloMigration.BeamStop = Convert.ToString(sLoteArray[1]);
+                                }
+                                else if (sLoteArray.Length == 3)
+                                {
+                                    if (!string.IsNullOrEmpty(sLoteArray[0]) && sLoteArray[0].IsNumeric())
+                                        ruloMigration.Lote = Convert.ToInt32(sLoteArray[0]);
+                                    else
+                                        errorByRowList.Add($"Lote no valid! Value \"{GetValue(lote)}\", Row {row}, Col {colIni}");
+
+                                    if (!string.IsNullOrEmpty(sLoteArray[1]) && sLoteArray[1].IsNumeric())
+                                        ruloMigration.Partiality = Convert.ToInt32(sLoteArray[1]);
+                                    else
+                                        errorByRowList.Add($"Lote patiality no valid! Value \"{GetValue(lote)}\", Row {row}, Col {colIni}");
+
+                                    ruloMigration.BeamStop = Convert.ToString(sLoteArray[2]);
+                                }
                                 else
                                     errorByRowList.Add($"Lote no valid! Value \"{GetValue(lote)}\", Row {row}, Col {colIni}");
 
-                                ruloMigration.Stop = Convert.ToString(sLoteArray[1]);
                             }
                             else
                             {
@@ -129,7 +196,7 @@ namespace GD.FinishingSystem.WEB.Classes
                                 else
                                     errorByRowList.Add($"Lote no valid! Value \"{GetValue(lote)}\", Row {row}, Col {colIni}");
 
-                                ruloMigration.Stop = string.Join("", alphas);
+                                ruloMigration.BeamStop = string.Join("", alphas);
                             }
                         }
                         else
@@ -160,7 +227,7 @@ namespace GD.FinishingSystem.WEB.Classes
                                 else
                                     errorByRowList.Add($"Beam no valid! Value \"{GetValue(beam)}\", Row {row}, Col {colIni}");
 
-                                ruloMigration.IsToyota = Convert.ToString(sBeamArray[1]);
+                                ruloMigration.IsToyotaText = Convert.ToString(sBeamArray[1]);
                             }
                             else
                             {
@@ -177,7 +244,7 @@ namespace GD.FinishingSystem.WEB.Classes
                                 else
                                     errorByRowList.Add($"Beam no valid! Value \"{GetValue(beam)}\", Row {row}, Col {colIni}");
 
-                                ruloMigration.IsToyota = string.Join("", alphas);
+                                ruloMigration.IsToyotaText = string.Join("", alphas);
                             }
                         }
                         else
@@ -188,7 +255,14 @@ namespace GD.FinishingSystem.WEB.Classes
                     //Vaidate loom
                     var loom = workSheet.Cell(row, ++colIni).Value;
                     if (loom.IsNumeric())
-                        ruloMigration.Loom = Convert.ToInt32(loom);
+                    {
+                        //TODO: Salón 2: 101-148, Salón 1: 149-248, Salón 3: 301-324, Salón 4: 401-462
+                        string pattern = @"^(10[1-9]|1[1-3][0-9]|14[0-8])|(14[9]|1[5-9][0-9]|2[0-3][0-9]|24[0-8])|(30[1-9]|31[0-9]|32[0-4])|(40[1-9]|4[1-5][0-9]|46[0-2])$";
+                        if (System.Text.RegularExpressions.Regex.IsMatch(loom.ToString(), pattern, System.Text.RegularExpressions.RegexOptions.CultureInvariant))
+                            ruloMigration.Loom = Convert.ToInt32(loom);
+                        else
+                            errorByRowList.Add($"Loom does not exist \"{GetValue(loom)}\", Row {row}, Col {colIni}");
+                    }
                     else errorByRowList.Add($"Loom no valid! Value \"{GetValue(loom)}\", Row {row}, Col {colIni}");
 
                     //Vaidate piece no
@@ -243,10 +317,14 @@ namespace GD.FinishingSystem.WEB.Classes
                         ruloMigration.Meters = Convert.ToDecimal(meters);
                     else errorByRowList.Add($"Meters no valid! Value \"{GetValue(meters)}\", Row {row}, Col {colIni}");
 
+                    //TODO: DEFINIR SI SE CARGARAN LOS METROS DE ENGOMADO O NO
                     //Validate gummed meters
                     var gummedMeters = workSheet.Cell(row, ++colIni).Value;
-                    if (gummedMeters.IsNumeric())
+                    if (gummedMeters == null || string.IsNullOrEmpty(gummedMeters.ToString()))
+                        ruloMigration.GummedMeters = 0;
+                    else if (gummedMeters.IsNumeric())
                         ruloMigration.GummedMeters = Convert.ToDecimal(gummedMeters);
+                    else errorByRowList.Add($"Gummed Meters no valid! Value \"{GetValue(meters)}\", Row {row}, Col {colIni}");
 
                     //Validate status
                     var status = workSheet.Cell(row, ++colIni).Value;
@@ -264,6 +342,7 @@ namespace GD.FinishingSystem.WEB.Classes
                     }
                     else errorByRowList.Add($"Status no valid! Value \"{GetValue(status)}\", Row {row}, Col {colIni}");
 
+                    //TODO: DEFINIR SI SE CARGARAN LAS OBSERVACIONES O NO
                     //Vaidate observation
                     var observacion = workSheet.Cell(row, ++colIni).Value;
                     ruloMigration.Observations = Convert.ToString(observacion);
@@ -271,7 +350,7 @@ namespace GD.FinishingSystem.WEB.Classes
                     //Validate shift
                     var shift = workSheet.Cell(row, ++colIni).Value;
                     if (shift.IsNumeric())
-                        ruloMigration.Shift = Convert.ToInt32(shift);
+                        ruloMigration.WeavingShift = Convert.ToInt32(shift);
                     else
                     {
                         if (!string.IsNullOrWhiteSpace(shift.ToString()))
@@ -281,14 +360,17 @@ namespace GD.FinishingSystem.WEB.Classes
                                          select c;
 
                             if (digits != null && digits.Count() > 0)
-                                ruloMigration.Shift = Convert.ToInt32(string.Join("", digits));
+                                ruloMigration.WeavingShift = Convert.ToInt32(string.Join("", digits));
                             else
-                                ruloMigration.Shift = 0;
+                                ruloMigration.WeavingShift = 0;
                         }
                         else
                             errorByRowList.Add($"Shift no valid! Row {row}, Col {colIni}");
 
                     }
+
+                    ruloMigration.OriginID = 1; //Default 1=PP0
+                    ruloMigration.WarehouseCategoryID = 1; //Default 1:RAW
 
                     ruloMigrationList.Add(ruloMigration);
 
@@ -324,7 +406,11 @@ namespace GD.FinishingSystem.WEB.Classes
                 if (migrationControl != null)
                 {
                     errorMessage = ex.Message + " ";
-                    errorMessage += errorByRowList?.Count > 0 ? string.Join(". ", errorByRowList) : null;
+                    //foreach (var item in errorByRowListOfList)
+                    //{
+                    //    errorMessage += string.Join(". ", item);
+                    //}
+                    //errorMessage += errorByRowListOfList?.Count > 0 ? string.Join(". ", errorByRowListOfList) : null;
 
                     migrationControl.LastMigratedRowOfExcelFile = rowIni;
                     migrationControl.FileRowsTotal = rowSheet - (rowIni - 1);

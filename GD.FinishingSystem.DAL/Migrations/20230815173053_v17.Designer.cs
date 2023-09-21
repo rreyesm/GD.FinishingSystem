@@ -4,14 +4,16 @@ using GD.FinishingSystem.DAL.Concrete.EntityFramework;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace GD.FinishingSystem.DAL.Migrations
 {
     [DbContext(typeof(FinishingSystemContext))]
-    partial class FinishingSystemContextModelSnapshot : ModelSnapshot
+    [Migration("20230815173053_v17")]
+    partial class v17
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -221,51 +223,6 @@ namespace GD.FinishingSystem.DAL.Migrations
                     b.HasKey("MigrationControlId");
 
                     b.ToTable("tblMigrationControls");
-                });
-
-            modelBuilder.Entity("GD.FinishingSystem.Entities.OriginCategory", b =>
-                {
-                    b.Property<int>("OriginCategoryID")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("CreatorID")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime?>("DeletedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int?>("DeleterID")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Description")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
-
-                    b.Property<DateTime>("LastUpdateDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("LastUpdaterID")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("OriginCode")
-                        .IsRequired()
-                        .HasMaxLength(5)
-                        .HasColumnType("nvarchar(5)");
-
-                    b.HasKey("OriginCategoryID");
-
-                    b.ToTable("tblOriginCategories");
                 });
 
             modelBuilder.Entity("GD.FinishingSystem.Entities.Period", b =>
@@ -505,9 +462,6 @@ namespace GD.FinishingSystem.DAL.Migrations
                     b.Property<DateTime>("Date")
                         .HasColumnType("datetime2");
 
-                    b.Property<int?>("DefinitionProcessID")
-                        .HasColumnType("int");
-
                     b.Property<DateTime?>("DeletedDate")
                         .HasColumnType("datetime2");
 
@@ -520,22 +474,13 @@ namespace GD.FinishingSystem.DAL.Migrations
                     b.Property<int>("ExcelFileRow")
                         .HasColumnType("int");
 
-                    b.Property<bool>("FabricAdvance")
-                        .HasColumnType("bit");
-
                     b.Property<decimal>("GummedMeters")
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
-                    b.Property<bool>("IsTestStyle")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("IsToyotaMigration")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("IsToyotaText")
+                    b.Property<string>("IsToyota")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("LastUpdateDate")
@@ -562,12 +507,6 @@ namespace GD.FinishingSystem.DAL.Migrations
                     b.Property<string>("Observations")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("OriginID")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("Partiality")
-                        .HasColumnType("int");
-
                     b.Property<string>("PieceBetilla")
                         .HasColumnType("nvarchar(max)");
 
@@ -577,29 +516,20 @@ namespace GD.FinishingSystem.DAL.Migrations
                     b.Property<int?>("RuloID")
                         .HasColumnType("int");
 
+                    b.Property<int>("Shift")
+                        .HasColumnType("int");
+
                     b.Property<string>("Style")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("StyleName")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("WarehouseCategoryID")
-                        .HasColumnType("int");
-
-                    b.Property<int>("WeavingShift")
-                        .HasColumnType("int");
-
                     b.HasKey("RuloMigrationID");
-
-                    b.HasIndex("DefinitionProcessID");
 
                     b.HasIndex("MigrationCategoryID");
 
-                    b.HasIndex("OriginID");
-
                     b.HasIndex("RuloID");
-
-                    b.HasIndex("WarehouseCategoryID");
 
                     b.ToTable("tblRuloMigrations");
                 });
@@ -1109,7 +1039,7 @@ namespace GD.FinishingSystem.DAL.Migrations
                     b.Property<decimal>("MeterContraction")
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<string>("OriginCode")
+                    b.Property<string>("Origin")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("OriginID")
@@ -1160,7 +1090,7 @@ namespace GD.FinishingSystem.DAL.Migrations
                     b.Property<string>("TestResultObservations")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("WarehouseCode")
+                    b.Property<string>("Warehouse")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<decimal>("WeavingLength")
@@ -1187,20 +1117,6 @@ namespace GD.FinishingSystem.DAL.Migrations
                         .HasColumnType("int");
 
                     b.ToTable("tblRuloBatches");
-                });
-
-            modelBuilder.Entity("GD.FinishingSystem.Entities.ViewModels.WarehouseStock", b =>
-                {
-                    b.Property<string>("Code")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Description")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<decimal>("Stock")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.ToTable("WarehouseStock");
                 });
 
             modelBuilder.Entity("GD.FinishingSystem.Entities.WarehouseCategory", b =>
@@ -1234,8 +1150,8 @@ namespace GD.FinishingSystem.DAL.Migrations
                     b.Property<int>("LastUpdaterID")
                         .HasColumnType("int");
 
-                    b.Property<string>("Name")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<int>("Name")
+                        .HasColumnType("int");
 
                     b.Property<string>("WarehouseCode")
                         .HasColumnType("nvarchar(max)");
@@ -1313,37 +1229,19 @@ namespace GD.FinishingSystem.DAL.Migrations
 
             modelBuilder.Entity("GD.FinishingSystem.Entities.RuloMigration", b =>
                 {
-                    b.HasOne("GD.FinishingSystem.Entities.DefinationProcess", "DefinitionProcess")
-                        .WithMany()
-                        .HasForeignKey("DefinitionProcessID");
-
                     b.HasOne("GD.FinishingSystem.Entities.MigrationCategory", "MigrationCategory")
                         .WithMany()
                         .HasForeignKey("MigrationCategoryID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("GD.FinishingSystem.Entities.OriginCategory", "OriginCategory")
-                        .WithMany()
-                        .HasForeignKey("OriginID");
-
                     b.HasOne("GD.FinishingSystem.Entities.Rulo", "Rulo")
                         .WithMany()
                         .HasForeignKey("RuloID");
 
-                    b.HasOne("GD.FinishingSystem.Entities.WarehouseCategory", "WarehouseCatgory")
-                        .WithMany()
-                        .HasForeignKey("WarehouseCategoryID");
-
-                    b.Navigation("DefinitionProcess");
-
                     b.Navigation("MigrationCategory");
 
-                    b.Navigation("OriginCategory");
-
                     b.Navigation("Rulo");
-
-                    b.Navigation("WarehouseCatgory");
                 });
 
             modelBuilder.Entity("GD.FinishingSystem.Entities.RuloProcess", b =>

@@ -21,13 +21,18 @@
         <div class="col-md-2">
             <div class="form-group">
                 <label for="dtBegin">Begin</label><br>
-                <input type="date" style="width:100% !important;" id="dtBegin" name="dtBegin">
+                <input type="datetime-local" style="width:100% !important;" id="dtBegin" name="dtBegin">
             </div>
         </div>
         <div class="col-md-2">
             <div class="form-group">
                 <label for="dtEnd">End</label><br>
-                <input type="date" style="width:100% !important;" id="dtEnd" name="dtEnd">
+                <input type="datetime-local" style="width:100% !important;" id="dtEnd" name="dtEnd">
+                <div style="width:100% !important;">
+                    <label><input type="radio" id="RealDate" name="EndDateType" onclick="changeDate(1);" value="Real Date" checked /> Real Date</label>
+                    <label><input type="radio" id="AccountingDate" name="EndDateType" onclick="changeDate(2);" value="Accounting Date" /> Accounting Date</label>
+                </div>
+                <input type="hidden" id="isAccountingDate" name="isAccountingDate" />
             </div>
         </div>
         <div class="col-md-2">
@@ -149,8 +154,29 @@
             <th>
                 <i class="lni lni-line-dashed"></i>
             </th>
+            <th></th>
+            <th></th>
+            <th></th>
+            <th>
+                @Html.DisplayNameFor(model => model.RuloMigrationList[0].RuloID)
+            </th>
             <th>
                 @Html.DisplayNameFor(model => model.RuloMigrationList[0].Date)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.RuloMigrationList[0].Lote)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.RuloMigrationList[0].Beam)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.RuloMigrationList[0].BeamStop)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.RuloMigrationList[0].Loom)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.RuloMigrationList[0].IsToyotaText)
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.RuloMigrationList[0].Style)
@@ -160,21 +186,6 @@
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.RuloMigrationList[0].NextMachine)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.RuloMigrationList[0].Lote)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.RuloMigrationList[0].Stop)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.RuloMigrationList[0].Beam)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.RuloMigrationList[0].IsToyota)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.RuloMigrationList[0].Loom)
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.RuloMigrationList[0].PieceNo)
@@ -191,11 +202,9 @@
             <th>
                 @Html.DisplayNameFor(model => model.RuloMigrationList[0].MigrationCategoryID)
             </th>
-            <th></th>
             <th>
-                @Html.DisplayNameFor(model => model.RuloMigrationList[0].Shift)
+                @Html.DisplayNameFor(model => model.RuloMigrationList[0].WeavingShift)
             </th>
-            <th></th>
             <th>
                 @Html.DisplayNameFor(model => model.RuloMigrationList[0].Observations)
             </th>
@@ -210,11 +219,89 @@
 
             <tr @color id="@("row"+@item.RuloMigrationID)">
                 <td>
-                    @Html.DisplayFor(modelItem => item.RuloMigrationID)
+                    <span style="font-weight:bold">
+                        @Html.DisplayFor(modelItem => item.RuloMigrationID)
+                    </span>
+                </td>
+                <td>
+                    <div style="display:block;width:90px">
+                        @if (User.IsInRole("Rulo", AuthType.Add))
+                        {
+                            if (item.RuloID == null || item.RuloID == 0)
+                            {
+
+                                <a id="@("rulo"+@item.RuloMigrationID)" onclick="validateCreateRulo(@item.Lote, @item.RuloMigrationID)" class="btn input-xs btn-dark">
+                                    <i class="lni lni-circle-plus"></i> Create Rulo
+                                </a>
+                            }
+                        }
+                    </div>
+                </td>
+
+                <td>
+                    <div style="display:block;width:75px;">
+                        @if (User.IsInRole("RuloMigration", AuthType.Update))
+                        {
+                            <a asp-action="Edit" asp-route-rulomigrationid="@item.RuloMigrationID">
+                                <i class="lni lni-slice"></i>
+                            </a>
+                        }
+                        @if (User.IsInRole("RuloMigration", AuthType.Show))
+                        {
+                            if (User.IsInRole("RuloMigration", AuthType.Update))
+                                @Html.Raw(" | ")
+
+                            <a asp-action="Details" asp-route-rulomigrationid="@item.RuloMigrationID">
+                                <i class="lni lni-question-circle"></i>
+                            </a>
+                        }
+                        @if (User.IsInRole("RuloMigration", AuthType.Delete))
+                        {
+                            if (User.IsInRole("RuloMigration", AuthType.Show))
+                                @Html.Raw(" | ")
+
+                            <a asp-action="Delete" asp-route-rulomigrationid="@item.RuloMigrationID">
+                                <i class="lni lni-circle-minus"></i>
+                            </a>
+                        }
+                    </div>
+                </td>
+                <td>
+                    <div style="display:block;width:90px">
+                        @if (User.IsInRole("Rulo", AuthType.Add))
+                        {
+                            if (item.RuloID == null || item.RuloID == 0)
+                            {
+                                <a id="@("rulo"+@item.RuloMigrationID)" onclick="createFactoryAdvance(@item.RuloMigrationID)" class="btn input-xs btn-dark">
+                                    <i class="lni lni-circle-plus"></i> Adelanto
+                                </a>
+                            }
+                        }
+                    </div>
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.RuloID)
                 </td>
                 <td>
                     <div style="display:block;width:95px;">
                         @Html.Raw(item.Date.ToString("yyyy-MM-dd"))
+                    </div>
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Lote)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Beam)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.BeamStop)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Loom)
+                </td>
+                 <td>
+                    <div style="display:block;width:75px;">
+                        @Html.DisplayFor(modelItem => item.IsToyotaText)
                     </div>
                 </td>
                 <td>
@@ -227,25 +314,10 @@
                         @Html.DisplayFor(modelItem => item.StyleName)
                     </div>
                 </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.NextMachine)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Lote)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Stop)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Beam)
-                </td>
-                <td>
-                    <div style="display:block;width:75px;">
-                        @Html.DisplayFor(modelItem => item.IsToyota)
+                 <td>
+                    <div style="display:block;width:100;">
+                        @Html.DisplayFor(modelItem => item.NextMachine)
                     </div>
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Loom)
                 </td>
                 <td>
                     <div style="display:block;width:75px;">
@@ -269,50 +341,7 @@
                     </div>
                 </td>
                 <td>
-                    <div style="display:block;width:90px">
-                        @if (User.IsInRole("Rulo", AuthType.Add))
-                        {
-                            if (item.RuloID == null || item.RuloID == 0)
-                            {
-
-                                <a id="@("rulo"+@item.RuloMigrationID)" onclick="validateCreateRulo(@item.Lote, @item.RuloMigrationID)" class="btn input-xs btn-dark">
-                                    <i class="lni lni-circle-plus"></i> Create Rulo
-                                </a>
-                            }
-                        }
-                    </div>
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Shift)
-                </td>
-
-                <td>
-                    <div style="display:block;width:75px;">
-                        @if (User.IsInRole("RuloMigration", AuthType.Update))
-                        {
-                            <a asp-action="Edit" asp-route-rulomigrationid="@item.RuloMigrationID">
-                                <i class="lni lni-slice"></i>
-                            </a>
-                        }
-                        @if (User.IsInRole("RuloMigration", AuthType.Show))
-                        {
-                            if (User.IsInRole("RuloMigration", AuthType.Update))
-                                @Html.Raw(" | ")
-
-                                <a asp-action="Details" asp-route-rulomigrationid="@item.RuloMigrationID">
-                                    <i class="lni lni-question-circle"></i>
-                                </a>
-                            }
-                        @if (User.IsInRole("RuloMigration", AuthType.Delete))
-                        {
-                            if (User.IsInRole("RuloMigration", AuthType.Show))
-                                @Html.Raw(" | ")
-
-                                <a asp-action="Delete" asp-route-rulomigrationid="@item.RuloMigrationID">
-                                    <i class="lni lni-circle-minus"></i>
-                                </a>
-                            }
-                    </div>
+                    @Html.DisplayFor(modelItem => item.WeavingShift)
                 </td>
                 <td>
                     <div style="display:block;width:260px;">
@@ -397,25 +426,44 @@
 <script>
     document.getElementById("dtBegin").value = '@ViewBag.dtBegin.ToString()';
     document.getElementById("dtEnd").value = '@ViewBag.dtEnd.ToString()';
+    document.getElementById("isAccountingDate").value = '@ViewBag.isAccountingDate';
+
+    var isAccountValue = '@ViewBag.isAccountingDate' == 'True' ? true : false;
+    document.getElementById("RealDate").checked = !isAccountValue;
+    document.getElementById("AccountingDate").checked = isAccountValue;
+
     document.getElementById("numLote").value = '@ViewBag.numLote';
     document.getElementById("numBeam").value = '@ViewBag.numBeam';
     document.getElementById("numLoom").value = '@ViewBag.numLoom';
     document.getElementById("txtStyle").value = '@ViewBag.txtStyle';
     document.getElementById("numMigrationCategory").value = '@ViewBag.numMigrationCategory';
 
+    function changeDate(option) {
+        if (option == 1) {
+            document.getElementById("dtBegin").value = '@ViewBag.realBeginDate.ToString()';
+            document.getElementById("dtEnd").value = '@ViewBag.realDate.ToString()';
+            document.getElementById("isAccountingDate").value = false;
+        }
+        else if (option == 2) {
+            document.getElementById("dtBegin").value = '@ViewBag.accountingBeginDate.ToString()';
+            document.getElementById("dtEnd").value = '@ViewBag.accountingDate.ToString()';
+            document.getElementById("isAccountingDate").value = true;
+        }
+    }
+
     function setIndex() {
-        document.getElementById("formFilters").action = "/RuloMigration/Index";
+        document.getElementById("formFilters").action = "/Migration/Index";
         document.getElementById("formFilters").submit();
     }
 
     function exportToExcel() {
 
-        document.getElementById("formFilters").action = "/RuloMigration/ExportToExcel";
+        document.getElementById("formFilters").action = "/Migration/ExportToExcel";
         document.getElementById("formFilters").submit();
     }
 
     function exportToExcelAllStock() {
-        document.getElementById("formFilters").action = "/RuloMigration/ExportToExcelAllStock";
+        document.getElementById("formFilters").action = "/Migration/ExportToExcelAllStock";
         document.getElementById("formFilters").submit();
     }
 
@@ -426,31 +474,68 @@
         document.getElementById("txtStyle").value = '';
         document.getElementById("numMigrationCategory").value = 0;
 
-        document.getElementById("formFilters").action = "/RuloMigration/Index";
+        document.getElementById("formFilters").action = "/Migration/Index";
         document.getElementById("formFilters").submit();
     }
 
     function validateCreateRulo(lote, ruloMigrationId) {
         $.ajax({
-            url: "/RuloMigration/ValidateCreateRulo",
+            url: "/Migration/ValidateCreateRulo",
             type: "GET",
             data: {
+                ruloMigrationID: ruloMigrationId,
                 lote: lote
             },
             success: function (data) {
                 if (data) {
                     if (data.errorMessage == "") {
-                        location.href = "/RuloMigration/CreateRulo?ruloMigrationId=" + ruloMigrationId;
+                        location.href = "/Migration/CreateRulo?ruloMigrationId=" + ruloMigrationId;
                     }
                     else
                         alert(data.errorMessage);
                 }
                 else
-                    alert("Something went wrong!")
+                    alert("Something went wrong!");
             },
             error: function (xhr, ajaxOptions, thrownError) {
                 alert("404 Not found!");
             }
         });
     }
+
+    function createFactoryAdvance(ruloMigrationId) {
+
+        var meter = parseFloat(prompt("Por favor introduzca los metros del Adelanto de Tela", "0"))
+        if (isNaN(meter) || meter <= 0) return;
+
+        if (confirm('Estas seguro del total de metros introducidos: ' + meter))
+        {
+            $.ajax({
+                url: "/Migration/CreateFactoryAdvance",
+                type: "POST",
+                data: {
+                    ruloMigrationID: ruloMigrationId,
+                    meter: meter
+                },
+                success: function (data){
+                    if (data){
+                        if (data.errorMessage == "") {
+                            document.getElementById("numLote").value = data.lote;
+                            document.getElementById("numBeam").value = data.beam;
+                            setIndex();
+                        }
+                        else
+                            alert(data.errorMessage);
+                    }
+                },
+                error: function(xhr, ajaxOptions, thrownError){
+                    alert("404 Not found!");
+                }
+
+            })
+        }
+
+
+    }
+
 </script>

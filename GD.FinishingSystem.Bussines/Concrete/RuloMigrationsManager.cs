@@ -1,6 +1,7 @@
 ﻿using GD.FinishingSystem.Bussines.Abstract;
 using GD.FinishingSystem.DAL.Abstract;
 using GD.FinishingSystem.DAL.Concrete;
+using GD.FinishingSystem.DAL.EFdbPlanta;
 using GD.FinishingSystem.Entities;
 using GD.FinishingSystem.Entities.ViewModels;
 using Microsoft.EntityFrameworkCore;
@@ -9,6 +10,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Transactions;
 
 namespace GD.FinishingSystem.Bussines.Concrete
 {
@@ -17,11 +19,17 @@ namespace GD.FinishingSystem.Bussines.Concrete
         IAsyncRepository<RuloMigration> repository = null;
         IAsyncRepository<MigrationCategory> repositoryMigrationCategory = null;
         IAsyncRepository<MigrationControl> repositoryMigrationControl = null;
+        IAsyncRepository<DefinationProcess> repositoryProcess = null;
+        IAsyncRepository<OriginCategory> repositoryOriginCategory = null;
+        IAsyncRepository<WarehouseCategory> repositoryWarehouseCategory = null;
         public RuloMigrationsManager(DbContext context)
         {
             this.repository = new GenericRepository<RuloMigration>(context);
             this.repositoryMigrationCategory = new GenericRepository<MigrationCategory>(context);
             this.repositoryMigrationControl = new GenericRepository<MigrationControl>(context);
+            this.repositoryProcess = new GenericRepository<DefinationProcess>(context);
+            this.repositoryOriginCategory = new GenericRepository<OriginCategory>(context);
+            this.repositoryWarehouseCategory = new GenericRepository<WarehouseCategory>(context);
         }
         public override async Task Add(RuloMigration ruloMigration, int adderRef)
         {
@@ -56,6 +64,15 @@ namespace GD.FinishingSystem.Bussines.Concrete
             {
                 var migrationCategory = await repositoryMigrationCategory.GetByPrimaryKey(result.MigrationCategoryID);
                 result.MigrationCategory = migrationCategory;
+
+                var definitionProcess = await repositoryProcess.GetByPrimaryKey(result.DefinitionProcessID);
+                result.DefinitionProcess = definitionProcess;
+
+                var category = await repositoryMigrationCategory.GetByPrimaryKey(result.MigrationCategoryID);
+                result.MigrationCategory = category;
+
+                var origin = await repositoryOriginCategory.GetByPrimaryKey(result.OriginID);
+                result.OriginCategory = origin;
             }
 
             return result;
@@ -70,10 +87,12 @@ namespace GD.FinishingSystem.Bussines.Concrete
         {
             var ruloMigrationList = await repository.GetWhere(x => !x.IsDeleted && ((x.Date <= dtEnd && x.Date >= dtBegin) || (x.Date <= dtBegin && x.Date >= dtEnd)));
             var migrationCategoryList = await repositoryMigrationCategory.GetWhere(x => !x.IsDeleted);
+            var definitionProcessList = await repositoryProcess.GetWhere(x=> !x.IsDeleted);
 
             ruloMigrationList.ToList().ForEach(x =>
             {
                 x.MigrationCategory = migrationCategoryList.Where(y => y.MigrationCategoryID == x.MigrationCategoryID).FirstOrDefault();
+                x.DefinitionProcess = definitionProcessList.Where(y=> y.DefinationProcessID == x.DefinitionProcessID).FirstOrDefault();
             });
 
             return ruloMigrationList;
@@ -84,9 +103,12 @@ namespace GD.FinishingSystem.Bussines.Concrete
             var query = repository.GetQueryable(x => !x.IsDeleted && ((x.Date <= ruloFilters.dtEnd && x.Date >= ruloFilters.dtBegin) || (x.Date <= ruloFilters.dtBegin && x.Date >= ruloFilters.dtEnd)));
 
             var migrationCategories = await repositoryMigrationCategory.GetWhere(x => !x.IsDeleted);
+            var definitionProcessess = await repositoryProcess.GetWhere(x => !x.IsDeleted);
 
             var rulosMigration = (from rm in query.ToList()
                                   join mc in migrationCategories on rm.MigrationCategoryID equals mc.MigrationCategoryID
+                                  join dp in definitionProcessess on rm.DefinitionProcessID equals dp.DefinationProcessID
+                                  into ljDP from subDP in ljDP.DefaultIfEmpty()
                                   where
                                   (!(ruloFilters.numLote > 0) || rm.Lote == ruloFilters.numLote) &&
                                   (!(ruloFilters.numBeam > 0) || rm.Beam == ruloFilters.numBeam) &&
@@ -99,11 +121,11 @@ namespace GD.FinishingSystem.Bussines.Concrete
                                       Date = rm.Date,
                                       Style = rm.Style,
                                       StyleName = rm.StyleName,
-                                      NextMachine = rm.NextMachine,
+                                      NextMachine = (subDP != null ? subDP.Name : rm.NextMachine),
                                       Lote = rm.Lote,
-                                      Stop = rm.Stop,
+                                      BeamStop = rm.BeamStop,
                                       Beam = rm.Beam,
-                                      IsToyota = rm.IsToyota,
+                                      IsToyotaText = (rm.IsToyotaText != null ? rm.IsToyotaText : (rm.IsToyotaMigration ? "YES" : "NO")),
                                       Loom = rm.Loom,
                                       PieceNo = rm.PieceNo,
                                       PieceBetilla = rm.PieceBetilla,
@@ -112,8 +134,13 @@ namespace GD.FinishingSystem.Bussines.Concrete
                                       MigrationCategoryID = rm.MigrationCategoryID,
                                       MigrationCategory = mc,
                                       Observations = rm.Observations,
-                                      Shift = rm.Shift,
+                                      WeavingShift = rm.WeavingShift,
                                       RuloID = rm.RuloID,
+                                      IsTestStyle = rm.IsTestStyle,
+                                      DefinitionProcess = subDP,
+                                      DefinitionProcessID = rm.DefinitionProcessID,
+                                      IsToyotaMigration = rm.IsToyotaMigration,
+                                      OriginID = rm.OriginID
                                   }
                          ).ToList();
 
@@ -148,9 +175,19 @@ namespace GD.FinishingSystem.Bussines.Concrete
             var query = repository.GetQueryable(x => !x.IsDeleted && ((x.Date <= ruloFilters.dtEnd && x.Date >= ruloFilters.dtBegin) || (x.Date <= ruloFilters.dtBegin && x.Date >= ruloFilters.dtEnd)));
 
             var migrationCategories = await repositoryMigrationCategory.GetWhere(x => !x.IsDeleted);
+            var definitionProcessess = await repositoryProcess.GetWhere(x => !x.IsDeleted);
+            var origins = await repositoryOriginCategory.GetWhere(x => !x.IsDeleted && x.OriginCategoryID == 1 || x.OriginCategoryID == 7); //PP00 y DES0
+            var warehouseCategories = await repositoryWarehouseCategory.GetWhere(x => !x.IsDeleted);
 
             var rulosMigration = (from rm in query.ToList()
                                   join mc in migrationCategories on rm.MigrationCategoryID equals mc.MigrationCategoryID
+                                  join dp in definitionProcessess on rm.DefinitionProcessID equals dp.DefinationProcessID
+                                  into ljDP from subDP in ljDP.DefaultIfEmpty()
+                                  join o in origins on rm.OriginID equals o.OriginCategoryID
+                                  into ljO from subO in ljO.DefaultIfEmpty()
+
+                                  join wh in warehouseCategories.ToList() on rm.WarehouseCategoryID equals wh.WarehouseCategoryID
+                                  into ljWH from subWH in ljWH.DefaultIfEmpty()
                                   where
                                   (!(ruloFilters.numLote > 0) || rm.Lote == ruloFilters.numLote) &&
                                   (!(ruloFilters.numBeam > 0) || rm.Beam == ruloFilters.numBeam) &&
@@ -163,11 +200,12 @@ namespace GD.FinishingSystem.Bussines.Concrete
                                       Date = rm.Date,
                                       Style = rm.Style,
                                       StyleName = rm.StyleName,
-                                      NextMachine = rm.NextMachine,
+                                      NextMachine = (subDP != null ? subDP.Name : rm.NextMachine), //rm.NextMachine,
                                       Lote = rm.Lote,
-                                      Stop = rm.Stop,
+                                      Partiality = rm.Partiality,
+                                      BeamStop = rm.BeamStop,
                                       Beam = rm.Beam,
-                                      IsToyota = rm.IsToyota,
+                                      IsToyotaText = (rm.IsToyotaText != null ? rm.IsToyotaText : (rm.IsToyotaMigration ? "YES" : "NO")),
                                       Loom = rm.Loom,
                                       PieceNo = rm.PieceNo,
                                       PieceBetilla = rm.PieceBetilla,
@@ -175,8 +213,11 @@ namespace GD.FinishingSystem.Bussines.Concrete
                                       GummedMeters = rm.GummedMeters,
                                       MigrationCategoryID = mc.Name,
                                       Observations = rm.Observations,
-                                      Shift = rm.Shift,
+                                      WeavingShift = rm.WeavingShift,
                                       RuloID = rm.RuloID,
+                                      IsToyota = rm.IsToyotaMigration,
+                                      Origin = subO != null ? subO?.Name : "Invalid origin",
+                                      WarehouseCategoryID = subWH?.WarehouseCode,
                                   }
                          ).ToList();
 
@@ -188,20 +229,31 @@ namespace GD.FinishingSystem.Bussines.Concrete
             var query = repository.GetQueryable(x => !x.IsDeleted && x.Date <= dtEnd);
 
             var migrationCategories = await repositoryMigrationCategory.GetWhere(x => !x.IsDeleted);
+            var definitionProcessess = await repositoryProcess.GetWhere(x => !x.IsDeleted);
+            var origins = await repositoryOriginCategory.GetWhere(x => !x.IsDeleted && x.OriginCategoryID == 1 || x.OriginCategoryID == 7); //PP00 y DES0
+            var warehouseCategories = await repositoryWarehouseCategory.GetWhere(x => !x.IsDeleted);
 
             var rulosMigration = (from rm in query.ToList()
                                   join mc in migrationCategories on rm.MigrationCategoryID equals mc.MigrationCategoryID
+                                  join dp in definitionProcessess on rm.DefinitionProcessID equals dp.DefinationProcessID
+                                  into ljDP from subDP in ljDP.DefaultIfEmpty()
+                                  join o in origins on rm.OriginID equals o.OriginCategoryID
+                                  into ljO from subO in ljO.DefaultIfEmpty()
+
+                                  join wh in warehouseCategories.ToList() on rm.WarehouseCategoryID equals wh.WarehouseCategoryID
+                                  into ljWH from subWH in ljWH.DefaultIfEmpty()
                                   select new VMRuloMigrationReport
                                   {
                                       RuloMigrationID = rm.RuloMigrationID,
                                       Date = rm.Date,
                                       Style = rm.Style,
                                       StyleName = rm.StyleName,
-                                      NextMachine = rm.NextMachine,
+                                      NextMachine = (subDP != null ? subDP.Name : rm.NextMachine), //rm.NextMachine,
                                       Lote = rm.Lote,
-                                      Stop = rm.Stop,
+                                      Partiality = rm.Partiality,
+                                      BeamStop = rm.BeamStop,
                                       Beam = rm.Beam,
-                                      IsToyota = rm.IsToyota,
+                                      IsToyotaText = (rm.IsToyotaText != null ? rm.IsToyotaText : (rm.IsToyotaMigration ? "YES" : "NO")),
                                       Loom = rm.Loom,
                                       PieceNo = rm.PieceNo,
                                       PieceBetilla = rm.PieceBetilla,
@@ -209,13 +261,86 @@ namespace GD.FinishingSystem.Bussines.Concrete
                                       GummedMeters = rm.GummedMeters,
                                       MigrationCategoryID = mc.Name,
                                       Observations = rm.Observations,
-                                      Shift = rm.Shift,
+                                      WeavingShift = rm.WeavingShift,
                                       RuloID = rm.RuloID,
+                                      IsToyota = rm.IsToyotaMigration,
+                                      Origin = subO != null ? subO?.Name : "Invalid origin",
+                                      WarehouseCategoryID = subWH?.WarehouseCode,
                                   }
                          ).ToList();
 
             return rulosMigration;
         }
+
+        public override async Task<IEnumerable<DefinationProcess>> GetDefinitionProcessList()
+        {
+            return await repositoryProcess.GetWhere(x => !x.IsDeleted);
+        }
+
+        public override async Task<IEnumerable<OriginCategory>> GetOriginCategoryList()
+        {
+            return await repositoryOriginCategory.GetWhere(x => !x.IsDeleted);
+        }
+
+        public override async Task<IEnumerable<VMStyleData>> GetStylesFromProductionLoteList()
+        {
+            IEnumerable<VMStyleData> styleDataList = null;
+            using (dbPlantaContext context = new dbPlantaContext())
+            {
+                styleDataList = await (from ftt in context.FichaTecnicaTelas
+                                       join lp in context.LotesDeProduccions
+                                       on ftt.CódigoTela equals lp.CódigoTela
+                                       select new VMStyleData
+                                       {
+                                           Style = ftt.CódigoTela,
+                                           StyleName = ftt.Nombre,
+                                           Lote = lp.Lote
+                                       }).ToListAsync();
+            }
+
+            return styleDataList;
+        }
+
+        public override async Task<bool> ExistRuloInRuloMigration(int ruloID)
+        {
+            var ruloMigration = await repository.CountWhere(x => x.RuloID == ruloID);
+
+            return ruloMigration > 0;
+        }
+
+        public override async Task<decimal> GetTotalMetersByRuloMigration(int lote, int beam)
+        {
+            //We verify RuloID because if there is one that has an ID, it may be that it already has an advance. 
+            var ruloMigrations = await repository.GetWhereWithNoTrack(x=> x.Lote == lote && x.Beam == beam && x.RuloID == null && x.FabricAdvance != true);
+            var total = ruloMigrations.Sum(x => x.Meters);
+            return total;
+        }
+
+        public override async Task<bool> UpdateRuloMigrationsFromRuloMigrationID(int ruloMigrationID, int ruloID, int userID)
+        {
+            bool isOk = false;
+            try
+            {
+                var result = await repository.GetByPrimaryKey(ruloMigrationID);
+                var results = await repository.GetWhere(x => x.Lote == result.Lote && x.Beam == result.Beam && x.RuloID == null && x.FabricAdvance != true);
+
+                foreach (var item in results)
+                {
+                    item.RuloID = ruloID;
+                    await repository.Update(item, userID);
+                }
+
+                isOk = true;
+            }
+            catch (Exception)
+            {
+                isOk = false;
+            }
+
+            return isOk;
+        }
+
+  
 
     }
 }

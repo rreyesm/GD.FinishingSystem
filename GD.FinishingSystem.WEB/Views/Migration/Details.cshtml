@@ -43,10 +43,10 @@
             @Html.DisplayFor(model => model.Lote)
         </dd>
         <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Stop)
+            @Html.DisplayNameFor(model => model.BeamStop)
         </dt>
         <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Stop)
+            @Html.DisplayFor(model => model.BeamStop)
         </dd>
         <dt class = "col-sm-2">
             @Html.DisplayNameFor(model => model.Beam)
@@ -55,10 +55,10 @@
             @Html.DisplayFor(model => model.Beam)
         </dd>
         <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.IsToyota)
+            @Html.DisplayNameFor(model => model.IsToyotaText)
         </dt>
         <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.IsToyota)
+            @Html.DisplayFor(model => model.IsToyotaText)
         </dd>
         <dt class = "col-sm-2">
             @Html.DisplayNameFor(model => model.Loom)
@@ -103,12 +103,17 @@
             @Html.DisplayFor(model => model.Observations)
         </dd>
         <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Shift)
+            @Html.DisplayNameFor(model => model.WeavingShift)
         </dt>
         <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Shift)
+            @Html.DisplayFor(model => model.WeavingShift)
         </dd>
-        
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.OriginID)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.Raw(Model.OriginCategory?.Name)
+        </dd>
     </dl>
 </div>
 <div>

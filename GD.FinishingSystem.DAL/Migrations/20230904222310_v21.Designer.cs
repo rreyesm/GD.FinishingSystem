@@ -4,14 +4,16 @@ using GD.FinishingSystem.DAL.Concrete.EntityFramework;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace GD.FinishingSystem.DAL.Migrations
 {
     [DbContext(typeof(FinishingSystemContext))]
-    partial class FinishingSystemContextModelSnapshot : ModelSnapshot
+    [Migration("20230904222310_v21")]
+    partial class v21
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -520,9 +522,6 @@ namespace GD.FinishingSystem.DAL.Migrations
                     b.Property<int>("ExcelFileRow")
                         .HasColumnType("int");
 
-                    b.Property<bool>("FabricAdvance")
-                        .HasColumnType("bit");
-
                     b.Property<decimal>("GummedMeters")
                         .HasColumnType("decimal(18,2)");
 
@@ -562,10 +561,7 @@ namespace GD.FinishingSystem.DAL.Migrations
                     b.Property<string>("Observations")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("OriginID")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("Partiality")
+                    b.Property<int>("OriginID")
                         .HasColumnType("int");
 
                     b.Property<string>("PieceBetilla")
@@ -583,9 +579,6 @@ namespace GD.FinishingSystem.DAL.Migrations
                     b.Property<string>("StyleName")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("WarehouseCategoryID")
-                        .HasColumnType("int");
-
                     b.Property<int>("WeavingShift")
                         .HasColumnType("int");
 
@@ -598,8 +591,6 @@ namespace GD.FinishingSystem.DAL.Migrations
                     b.HasIndex("OriginID");
 
                     b.HasIndex("RuloID");
-
-                    b.HasIndex("WarehouseCategoryID");
 
                     b.ToTable("tblRuloMigrations");
                 });
@@ -1325,15 +1316,13 @@ namespace GD.FinishingSystem.DAL.Migrations
 
                     b.HasOne("GD.FinishingSystem.Entities.OriginCategory", "OriginCategory")
                         .WithMany()
-                        .HasForeignKey("OriginID");
+                        .HasForeignKey("OriginID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("GD.FinishingSystem.Entities.Rulo", "Rulo")
                         .WithMany()
                         .HasForeignKey("RuloID");
-
-                    b.HasOne("GD.FinishingSystem.Entities.WarehouseCategory", "WarehouseCatgory")
-                        .WithMany()
-                        .HasForeignKey("WarehouseCategoryID");
 
                     b.Navigation("DefinitionProcess");
 
@@ -1342,8 +1331,6 @@ namespace GD.FinishingSystem.DAL.Migrations
                     b.Navigation("OriginCategory");
 
                     b.Navigation("Rulo");
-
-                    b.Navigation("WarehouseCatgory");
                 });
 
             modelBuilder.Entity("GD.FinishingSystem.Entities.RuloProcess", b =>

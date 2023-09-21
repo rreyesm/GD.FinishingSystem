@@ -17,10 +17,10 @@ namespace GD.FinishingSystem.Entities.ViewModels
         public string NextMachine { get; set; }
         public int Lote { get; set; }
         [Display(Name = "Stop")]
-        public string Stop { get; set; }
+        public string BeamStop { get; set; }
         public int Beam { get; set; }
-        [Display(Name = "Is Toyota")]
-        public string IsToyota { get; set; }
+        [Display(Name = "Is Toyota Text")]
+        public string IsToyotaText { get; set; }
         public int Loom { get; set; }
         [Display(Name = "Piece No")]
         public int PieceNo { get; set; }
@@ -32,8 +32,13 @@ namespace GD.FinishingSystem.Entities.ViewModels
         [Display(Name = "Status")]
         public string MigrationCategoryID { get; set; }
         public string Observations { get; set; }
-        public int Shift { get; set; }
+        public int WeavingShift { get; set; }
         [Display(Name = "Rulo ID")]
         public int? RuloID { get; set; }
+        [Display(Name = "Is Toyota")]
+        public bool IsToyota { get; set; }
+        public string Origin { get; set; }
+        public string WarehouseCategoryID { get; set; }
+        public int? Partiality { get; set; }
     }
 }

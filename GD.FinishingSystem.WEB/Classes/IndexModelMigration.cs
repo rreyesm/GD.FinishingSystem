@@ -33,6 +33,11 @@ namespace GD.FinishingSystem.WEB.Classes
             NameSort = String.IsNullOrEmpty(sortOrder) ? "name_desc" : "";
             DateSort = sortOrder == "Date" ? "date_desc" : "Date";
 
+            if (ruloFilters.IsAccountingDate)
+            {
+                ruloFilters.dtEnd = ruloFilters.dtEnd.AccountEndDate();
+            }
+
             CurrentVMRuloFilters = ruloFilters;
 
             var result = await factory.RuloMigrations.GetRuloMigrationListFromFilters(ruloFilters);

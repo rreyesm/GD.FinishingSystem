@@ -53,7 +53,6 @@ namespace GD.FinishingSystem.WEB.Controllers
                 ruloFilters = System.Text.Json.JsonSerializer.Deserialize<VMRuloFilters>(currentFilter);
             }
 
-            //var result = await factory.Rulos.GetRuloListFromBetweenDate(ruloFilters.dtBegin, ruloFilters.dtEnd);
             await SetViewBagsForDates(ruloFilters, positionRuloId);
 
             await IndexModelRulo.OnGetAsync("", pageIndex, ruloFilters);
@@ -67,7 +66,6 @@ namespace GD.FinishingSystem.WEB.Controllers
         public async Task<IActionResult> Index(VMRuloFilters ruloFilters)
         {
             ruloFilters.dtEnd = ruloFilters.dtEnd.RealDateEndDate();
-            //var result = await factory.Rulos.GetRuloListFromFilters(ruloFilters);
             await SetViewBagsForDates(ruloFilters);
 
             await IndexModelRulo.OnGetAsync("", 1, ruloFilters);
@@ -148,7 +146,7 @@ namespace GD.FinishingSystem.WEB.Controllers
         {
             ViewBag.Error = false;
             ViewBag.ErrorMessage = "";
-            await SetViewBagsForCreateOrEdit();
+            await SetViewBagsForCreateOrEdit(false);
 
             var systemPrinter = await WebUtilities.GetSystemPrinter(factory, this.HttpContext);
 
@@ -171,7 +169,8 @@ namespace GD.FinishingSystem.WEB.Controllers
             ViewBag.Error = false;
             ViewBag.ErrorMessage = "";
 
-            await SetViewBagsForCreateOrEdit();
+            //Aquí no se valida porque RuloID es igual a 0 y por lo tanto siempre da falso
+            await SetViewBagsForCreateOrEdit(true);
 
             int ruloMigrationId1 = Convert.ToInt32(TempData["ruloMigrationId1"]);
             TempData["ruloMigrationId2"] = ruloMigrationId1;
@@ -189,10 +188,14 @@ namespace GD.FinishingSystem.WEB.Controllers
             return View("CreateOrUpdate", newRulo);
         }
 
-        private async Task SetViewBagsForCreateOrEdit()
+        private async Task SetViewBagsForCreateOrEdit(bool isFromRuloMigration)
         {
-            var list = WebUtilities.Create<OriginType>();
-            ViewBag.OriginList = list;
+            //var list = WebUtilities.Create<OriginType>();
+            var list = await factory.OriginCategories.GetOriginCategoryList();
+            //If rulo is not from Raw it's not show 1-PP00 and 7-DES0
+            if (!isFromRuloMigration)
+                list = list.Where(x => x.OriginCategoryID != 1 && x.OriginCategoryID != 7);
+            ViewBag.OriginList = WebUtilities.Create<OriginCategory>(list, "OriginCategoryID", "Name", false);
 
             var sentAuthorizerList = await factory.Users.GetAll();
             var sentAuthorizerListItem = WebUtilities.Create<User>(sentAuthorizerList, "UserID", "Name", true);
@@ -246,9 +249,12 @@ namespace GD.FinishingSystem.WEB.Controllers
         {
             ViewBag.Error = false;
             ViewBag.ErrorMessage = "";
-            await SetViewBagsForCreateOrEdit();
 
             Rulo existRulo = await factory.Rulos.GetRuloFromRuloID(RuloID);
+            //Validate if rulo is from Rulo Migration
+            var isFromRuloMigration = await factory.RuloMigrations.ExistRuloInRuloMigration(RuloID);
+            await SetViewBagsForCreateOrEdit(isFromRuloMigration);
+
             if (existRulo == null)
                 return RedirectToAction("Error", "Home");
             return View("CreateOrUpdate", existRulo);
@@ -258,9 +264,9 @@ namespace GD.FinishingSystem.WEB.Controllers
         public async Task<IActionResult> Save(Rulo rulo)
         {
             ViewBag.Error = true;
-            await SetViewBagsForCreateOrEdit();
+            await SetViewBagsForCreateOrEdit(false);
 
-            //Update style and style name to avoid update user
+            //Update the style and the name of the style since they are locked in the form, the value is not passed.
             VMStyleData styleData = null;
             //Validation if it is a test, the style is not updated in the DB
             if (!rulo.IsTestStyle)
@@ -331,12 +337,14 @@ namespace GD.FinishingSystem.WEB.Controllers
                 {
                     int ruloMigrationId2 = Convert.ToInt32(TempData["ruloMigrationId2"]);
 
-                    RuloMigration ruloMigration = await factory.RuloMigrations.GetRuloMigrationFromRuloMigrationID(ruloMigrationId2);
+                    var result = await factory.RuloMigrations.UpdateRuloMigrationsFromRuloMigrationID(ruloMigrationId2, rulo.RuloID, int.Parse(User.Identity.Name));
 
-                    if (ruloMigration != null)
+                    if (!result)
                     {
-                        ruloMigration.RuloID = rulo.RuloID;
-                        await factory.RuloMigrations.Update(ruloMigration, int.Parse(User.Identity.Name));
+                        ViewBag.Error = true;
+                        ViewBag.ErrorMessage = $"An error occurred while trying to update the system. You must inform to system departament and show rulo: {rulo.RuloID}, and ruloMigrations: {ruloMigrationId2}";
+
+                        return View("CreateOrUpdate", rulo);
                     }
                 }
 
@@ -345,6 +353,10 @@ namespace GD.FinishingSystem.WEB.Controllers
             {
                 if (!(User.IsInRole("RuloUp") || User.IsInRole("AdminFull") || User.IsInRole("RuloFull")))
                     return Unauthorized();
+
+                //Validate if rulo is from Rulo Migration
+                var isFromRuloMigration = await factory.RuloMigrations.ExistRuloInRuloMigration(rulo.RuloID);
+                await SetViewBagsForCreateOrEdit(isFromRuloMigration);
 
                 var foundRulo = await factory.Rulos.GetRuloFromRuloID(rulo.RuloID);
                 //var period = await factory.Periods.GetPeriodFromPeriodID(rulo.PeriodID);
@@ -523,11 +535,13 @@ namespace GD.FinishingSystem.WEB.Controllers
                 replaceVaues.Add("ReplaceDate", DateTime.Now.ToString("yyyy-MM-dd HH:mm"));
                 replaceVaues.Add("ReplaceOffset", offset.ToString());
 
-                VMOriginType origin = VMOriginType.ToList().Where(x => x.Value == rulo.OriginID).FirstOrDefault();
+                //VMOriginType origin = VMOriginType.ToList().Where(x => x.Value == rulo.OriginID).FirstOrDefault();
+                var originList = await factory.OriginCategories.GetOriginCategoryList();
+                var origin = originList.ToList().Where(x => x.OriginCategoryID == rulo.OriginID).FirstOrDefault();
                 if (origin != null)
-                    replaceVaues.Add("ReplaceOrigin", origin.Text.ToString());
+                    replaceVaues.Add("ReplaceOrigin", origin.Name);
                 else
-                    replaceVaues.Add("ReplaceOrigin", VMOriginType.ToList().Where(x => x.Value == 1).FirstOrDefault().Text);
+                    replaceVaues.Add("ReplaceOrigin", originList.ToList().Where(x => x.OriginCategoryID == 1).FirstOrDefault().Name);
 
                 replaceVaues.Add("ReplacePiece", piece.PieceNo.ToString());
                 replaceVaues.Add("ReplaceMachine", machine);
@@ -645,6 +659,31 @@ namespace GD.FinishingSystem.WEB.Controllers
             return PartialView(processes);
 
 
+        }
+
+        [HttpPost]
+        [Authorize(AuthenticationSchemes = SystemStatics.DefaultScheme, Roles = "RuloShow,RuloFull,AdminFull")]
+        public async Task<IActionResult> ExportToWarehouseStock(VMRuloFilters ruloFilters)
+        {
+            try
+            {
+                var result = await factory.Rulos.GetWarehouseStock(ruloFilters);
+
+                ExportToExcel export = new ExportToExcel();
+                string reportName = "Finishing Report Warehouses Stock";
+                string fileName = $"Finishing Report Warehouses Stock_{DateTime.Today.Year}_{DateTime.Today.Month.ToString().PadLeft(2, '0')}_{DateTime.Today.Day.ToString().PadLeft(2, '0')}.xlsx";
+
+                var fileResult = await export.ExportWithDisplayName<WarehouseStock>("Global Denim S.A. de C.V.", "Finishing", reportName, fileName, result.ToList());
+
+                if (!fileResult.Item1) return NotFound();
+
+                //return fileResult.Item2;
+                return File(fileResult.Item2.FileStream, fileResult.Item2.ContentType, fileName = fileResult.Item2.FileDownloadName);
+            }
+            catch (Exception ex)
+            {
+            }
+            return null;
         }
 
         [HttpPost]
@@ -912,7 +951,9 @@ namespace GD.FinishingSystem.WEB.Controllers
 
             if (!User.IsInRole("Rulo", AuthType.Update)) return Unauthorized();
 
-            await SetViewBagsForCreateOrEdit();
+            //Validate if rulo is from Rulo Migration
+            var isFromRuloMigration = await factory.RuloMigrations.ExistRuloInRuloMigration(ruloId);
+            await SetViewBagsForCreateOrEdit(isFromRuloMigration);
 
             var foundRulo = await factory.Rulos.GetRuloFromRuloID(ruloId);
 
@@ -1023,24 +1064,24 @@ namespace GD.FinishingSystem.WEB.Controllers
             return new JsonResult(new { details = details });
         }
 
-        [HttpGet]
-        public async Task<IActionResult> GetReportStock()
-        {
-            VMRuloFilters ruloFilters = new VMRuloFilters();
-            //ruloFilters.dtEnd = ruloFilters.dtEnd.AddDays(1).AddMilliseconds(-1);
-            var result = await factory.Rulos.GetAllVMRuloReportList("spGetAllStock @p0", new[] { ruloFilters.dtEnd.ToString("yyyy-MM-ddTHH:mm:ss") });
+        //[HttpGet]
+        //public async Task<IActionResult> GetReportStock()
+        //{
+        //    VMRuloFilters ruloFilters = new VMRuloFilters();
+        //    //ruloFilters.dtEnd = ruloFilters.dtEnd.AddDays(1).AddMilliseconds(-1);
+        //    var result = await factory.Rulos.GetAllVMRuloReportList("spGetAllStock @p0", new[] { ruloFilters.dtEnd.ToString("yyyy-MM-ddTHH:mm:ss") });
 
-            ExportToExcel export = new ExportToExcel();
-            string reportName = "Finishing Report Stock";
-            string fileName = $"Finishing Report Stock_{DateTime.Today.Year}_{DateTime.Today.Month.ToString().PadLeft(2, '0')}_{DateTime.Today.Day.ToString().PadLeft(2, '0')}.xlsx";
+        //    ExportToExcel export = new ExportToExcel();
+        //    string reportName = "Finishing Report Stock";
+        //    string fileName = $"Finishing Report Stock_{DateTime.Today.Year}_{DateTime.Today.Month.ToString().PadLeft(2, '0')}_{DateTime.Today.Day.ToString().PadLeft(2, '0')}.xlsx";
 
-            var exclude = new List<string>() { "TestCategoryID" };
-            var fileResult = await export.ExportWithDisplayName<VMRulo>("Global Denim S.A. de C.V.", "Finishing", reportName, fileName, result.ToList(), exclude);
+        //    var exclude = new List<string>() { "TestCategoryID" };
+        //    var fileResult = await export.ExportWithDisplayName<VMRulo>("Global Denim S.A. de C.V.", "Finishing", reportName, fileName, result.ToList(), exclude);
 
-            if (!fileResult.Item1) return NotFound();
+        //    if (!fileResult.Item1) return NotFound();
 
-            return fileResult.Item2;
-        }
+        //    return fileResult.Item2;
+        //}
 
         [HttpGet]
         public async Task<IActionResult> GetPerformanceTestResult(int ruloId)
@@ -1189,7 +1230,9 @@ namespace GD.FinishingSystem.WEB.Controllers
 
             if (!User.IsInRole("Rulo", AuthType.Update)) return Unauthorized();
 
-            await SetViewBagsForCreateOrEdit();
+            //Validate if rulo is from Rulo Migration
+            var isFromRuloMigration = await factory.RuloMigrations.ExistRuloInRuloMigration(ruloId);
+            await SetViewBagsForCreateOrEdit(isFromRuloMigration);
 
             var foundRulo = await factory.Rulos.GetRuloFromRuloID(ruloId);
 

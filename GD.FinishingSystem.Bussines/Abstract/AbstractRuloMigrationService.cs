@@ -26,6 +26,11 @@ namespace GD.FinishingSystem.Bussines.Abstract
         public abstract Task<IEnumerable<String>> GetRuloMigrationStyleList();
         public abstract Task<IEnumerable<VMRuloMigrationReport>> GetRuloMigrationReportListFromFilters(VMRuloFilters ruloFilters);
         public abstract Task<IEnumerable<VMRuloMigrationReport>> GetAllVMRuloReportList(DateTime dtEnd);
-
+        public abstract Task<IEnumerable<DefinationProcess>> GetDefinitionProcessList();
+        public abstract Task<IEnumerable<OriginCategory>> GetOriginCategoryList();
+        public abstract Task<IEnumerable<VMStyleData>> GetStylesFromProductionLoteList();
+        public abstract Task<bool> ExistRuloInRuloMigration(int ruloID);
+        public abstract Task<decimal> GetTotalMetersByRuloMigration(int lote, int beam);
+        public abstract Task<bool> UpdateRuloMigrationsFromRuloMigrationID(int ruloMigrationID, int ruloID, int userID);
     }
 }
