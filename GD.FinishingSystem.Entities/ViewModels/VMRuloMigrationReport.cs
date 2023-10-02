@@ -15,7 +15,7 @@ namespace GD.FinishingSystem.Entities.ViewModels
         public string StyleName { get; set; }
         [Display(Name = "Machine")]
         public string NextMachine { get; set; }
-        public int Lote { get; set; }
+        public string Lote { get; set; }
         [Display(Name = "Stop")]
         public string BeamStop { get; set; }
         public int Beam { get; set; }

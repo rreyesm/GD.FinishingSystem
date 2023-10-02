@@ -132,7 +132,7 @@ namespace GD.FinishingSystem.Bussines.Concrete
                 TestCategoryCode = testCategory?.TestCode ?? string.Empty,
                 OriginCode = origin.OriginCode, //sOriginType,
                 TestResultAuthorizer = testResultAuthorizerUser?.UserName ?? string.Empty,
-                WarehouseCode = warehouse.WarehouseCode
+                WarehouseCode = warehouse.WarehouseCode,
             };
 
             return vwRulo;

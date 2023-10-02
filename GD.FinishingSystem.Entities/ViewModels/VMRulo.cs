@@ -92,5 +92,13 @@ namespace GD.FinishingSystem.Entities.ViewModels
         public string Machine { get; set; }
         [Display(Name = "Warehouse")]
         public string WarehouseCode { get; set; }
+        [Display(Name = "Inspection Start Date")]
+        public DateTime? InspectionStartDate { get; set; }
+        [Display(Name = "Inspection Finish Date")]
+        public DateTime? InspectionFinishDate { get; set; }
+        [Display(Name = "Cutting Start Date")]
+        public DateTime? CuttingStartDate { get; set; }
+        [Display(Name = "Cutting Finish Date")]
+        public DateTime? CuttingFinishDate { get; set; }
     }
 }

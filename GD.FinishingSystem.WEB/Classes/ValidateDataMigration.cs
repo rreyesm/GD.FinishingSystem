@@ -139,7 +139,7 @@ namespace GD.FinishingSystem.WEB.Classes
                     //Validate lote
                     var lote = workSheet.Cell(row, ++colIni).Value;
                     if (lote.IsNumeric())
-                        ruloMigration.Lote = Convert.ToInt32(lote);
+                        ruloMigration.Lote = lote.ToString();
                     else
                     {
                         string sLote = null;
@@ -157,7 +157,7 @@ namespace GD.FinishingSystem.WEB.Classes
                                 if (sLoteArray.Length == 2)
                                 {
                                     if (!string.IsNullOrEmpty(sLoteArray[0]) && sLoteArray[0].IsNumeric())
-                                        ruloMigration.Lote = Convert.ToInt32(sLoteArray[0]);
+                                        ruloMigration.Lote = sLoteArray[0];
                                     else
                                         errorByRowList.Add($"Lote no valid! Value \"{GetValue(lote)}\", Row {row}, Col {colIni}");
 
@@ -166,7 +166,7 @@ namespace GD.FinishingSystem.WEB.Classes
                                 else if (sLoteArray.Length == 3)
                                 {
                                     if (!string.IsNullOrEmpty(sLoteArray[0]) && sLoteArray[0].IsNumeric())
-                                        ruloMigration.Lote = Convert.ToInt32(sLoteArray[0]);
+                                        ruloMigration.Lote = sLoteArray[0];
                                     else
                                         errorByRowList.Add($"Lote no valid! Value \"{GetValue(lote)}\", Row {row}, Col {colIni}");
 
@@ -192,7 +192,7 @@ namespace GD.FinishingSystem.WEB.Classes
                                              select c;
 
                                 if (digits != null && digits.Count() > 0)
-                                    ruloMigration.Lote = Convert.ToInt32(string.Join("", digits));
+                                    ruloMigration.Lote = string.Join("", digits);
                                 else
                                     errorByRowList.Add($"Lote no valid! Value \"{GetValue(lote)}\", Row {row}, Col {colIni}");
 

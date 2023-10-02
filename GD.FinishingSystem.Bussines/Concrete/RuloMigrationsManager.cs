@@ -7,6 +7,7 @@ using GD.FinishingSystem.Entities.ViewModels;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -110,7 +111,7 @@ namespace GD.FinishingSystem.Bussines.Concrete
                                   join dp in definitionProcessess on rm.DefinitionProcessID equals dp.DefinationProcessID
                                   into ljDP from subDP in ljDP.DefaultIfEmpty()
                                   where
-                                  (!(ruloFilters.numLote > 0) || rm.Lote == ruloFilters.numLote) &&
+                                  (!(ruloFilters.numLote > 0) || rm.Lote == ruloFilters.numLote.ToString()) &&
                                   (!(ruloFilters.numBeam > 0) || rm.Beam == ruloFilters.numBeam) &&
                                   (!(ruloFilters.numLoom > 0) || rm.Loom == ruloFilters.numLoom) &&
                                   ((string.IsNullOrWhiteSpace(ruloFilters.txtStyle) || rm.Style.Contains(ruloFilters.txtStyle))) &&
@@ -189,7 +190,7 @@ namespace GD.FinishingSystem.Bussines.Concrete
                                   join wh in warehouseCategories.ToList() on rm.WarehouseCategoryID equals wh.WarehouseCategoryID
                                   into ljWH from subWH in ljWH.DefaultIfEmpty()
                                   where
-                                  (!(ruloFilters.numLote > 0) || rm.Lote == ruloFilters.numLote) &&
+                                  (!(ruloFilters.numLote > 0) || rm.Lote == ruloFilters.numLote.ToString()) &&
                                   (!(ruloFilters.numBeam > 0) || rm.Beam == ruloFilters.numBeam) &&
                                   (!(ruloFilters.numLoom > 0) || rm.Loom == ruloFilters.numLoom) &&
                                   ((string.IsNullOrWhiteSpace(ruloFilters.txtStyle) || rm.Style.Contains(ruloFilters.txtStyle))) &&
@@ -308,7 +309,7 @@ namespace GD.FinishingSystem.Bussines.Concrete
             return ruloMigration > 0;
         }
 
-        public override async Task<decimal> GetTotalMetersByRuloMigration(int lote, int beam)
+        public override async Task<decimal> GetTotalMetersByRuloMigration(string lote, int beam)
         {
             //We verify RuloID because if there is one that has an ID, it may be that it already has an advance. 
             var ruloMigrations = await repository.GetWhereWithNoTrack(x=> x.Lote == lote && x.Beam == beam && x.RuloID == null && x.FabricAdvance != true);
@@ -322,12 +323,25 @@ namespace GD.FinishingSystem.Bussines.Concrete
             try
             {
                 var result = await repository.GetByPrimaryKey(ruloMigrationID);
-                var results = await repository.GetWhere(x => x.Lote == result.Lote && x.Beam == result.Beam && x.RuloID == null && x.FabricAdvance != true);
-
-                foreach (var item in results)
+                
+                //Validate if Raw is fabric test we take relationship 1-RAW:1-Rulo
+                if (result.OriginID == 7) //DES0
                 {
-                    item.RuloID = ruloID;
-                    await repository.Update(item, userID);
+                    var ruloMigrations = await repository.GetWhere(x => x.RuloMigrationID == ruloMigrationID && x.RuloID == null && x.FabricAdvance != true);
+
+                    var ruloMigration = ruloMigrations.FirstOrDefault();
+                    ruloMigration.RuloID = ruloID;
+                    await repository.Update(ruloMigration, userID);
+                }
+                else
+                {
+                    var results = await repository.GetWhere(x => x.Lote == result.Lote && x.Beam == result.Beam && x.RuloID == null && x.FabricAdvance != true);
+
+                    foreach (var item in results)
+                    {
+                        item.RuloID = ruloID;
+                        await repository.Update(item, userID);
+                    }
                 }
 
                 isOk = true;

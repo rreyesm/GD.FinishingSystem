@@ -571,7 +571,7 @@ namespace GD.FinishingSystem.WEB.Controllers
         public async Task<IActionResult> CreateFactoryAdvance(int ruloMigrationID, decimal meter)
         {
             string errorMessage = "";
-            int lote = 0;
+            string lote = "0";
             int beam = 0;
             try
             {

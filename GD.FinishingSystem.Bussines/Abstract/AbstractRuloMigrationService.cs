@@ -30,7 +30,7 @@ namespace GD.FinishingSystem.Bussines.Abstract
         public abstract Task<IEnumerable<OriginCategory>> GetOriginCategoryList();
         public abstract Task<IEnumerable<VMStyleData>> GetStylesFromProductionLoteList();
         public abstract Task<bool> ExistRuloInRuloMigration(int ruloID);
-        public abstract Task<decimal> GetTotalMetersByRuloMigration(int lote, int beam);
+        public abstract Task<decimal> GetTotalMetersByRuloMigration(string lote, int beam);
         public abstract Task<bool> UpdateRuloMigrationsFromRuloMigrationID(int ruloMigrationID, int ruloID, int userID);
     }
 }

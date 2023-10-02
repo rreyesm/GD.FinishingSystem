@@ -21,8 +21,8 @@ namespace GD.FinishingSystem.Entities
         public DateTime Date { get; set; }
         [Display(Name = "Machine")]
         public string NextMachine { get; set; }
-        [RegularExpression(@"^[1-9][0-9]*$", ErrorMessage = "Lote no valid!")]
-        public int Lote { get; set; }
+        [RegularExpression(@"^[0-9]*$", ErrorMessage = "Lote no valid!")]
+        public string Lote { get; set; }
         [Display(Name = "Beam Stop")]
         [RegularExpression(@"^(A|B)$", ErrorMessage = "Beam Stop not valid. Enter A or B")]
         public string BeamStop { get; set; }
