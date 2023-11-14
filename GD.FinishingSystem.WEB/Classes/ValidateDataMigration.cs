@@ -3,6 +3,7 @@ using DocumentFormat.OpenXml.InkML;
 using FastReport;
 using GD.FinishingSystem.Bussines;
 using GD.FinishingSystem.Entities;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.CodeAnalysis.VisualBasic.Syntax;
 using System;
 using System.Collections.Generic;
@@ -77,8 +78,18 @@ namespace GD.FinishingSystem.WEB.Classes
                     else
                         errorByRowList.Add($"Date no valid! Value \"{GetValue(date)}\", Row {row}, Col {colIni}");
 
+                    //**********************
+                    //Validate Test
+                    var isTest = workSheet.Cell(row, ++colIni).Value;
+                    if (!string.IsNullOrWhiteSpace(isTest.ToString()))
+                        ruloMigration.IsTestStyle = isTest.ToString().Trim().ToUpper() == "YES" ? true : false;
+                    else 
+                        ruloMigration.IsTestStyle = false;
+                    //**********************
+
                     //Validate style
                     var style = workSheet.Cell(row, ++colIni).Value;
+                    var styleName = workSheet.Cell(row, ++colIni).Value;
 
                     if (style != null && !string.IsNullOrWhiteSpace(style.ToString()))
                     {
@@ -87,7 +98,10 @@ namespace GD.FinishingSystem.WEB.Classes
                         if (styleData != null)
                         {
                             ruloMigration.Style = styleData.Style; //Convert.ToString(style);
-                            ruloMigration.StyleName = styleData.StyleName;
+                            if (ruloMigration.IsTestStyle)
+                                ruloMigration.StyleName = (styleName != null && !string.IsNullOrWhiteSpace(styleName.ToString())) ? styleName.ToString() : string.Empty;
+                            else
+                                ruloMigration.StyleName = styleData.StyleName;
                         }
                         else errorByRowList.Add($"Style no valid! Value \"{GetValue(style)}\", Row {row}, Col {colIni}");
                     }
@@ -100,7 +114,7 @@ namespace GD.FinishingSystem.WEB.Classes
                     //else errorByRowList.Add($"Style Name no valid! Value \"{GetValue(styleName)}\", Row {row}, Col {colIni}");
 
                     //TODO: Como se deshabilitó hay que incrementar la columna para leer la siguiente
-                    ++colIni;
+                    //++colIni;
 
                     //Validate machine
                     var nextMachine = workSheet.Cell(row, ++colIni).Value;
@@ -134,7 +148,12 @@ namespace GD.FinishingSystem.WEB.Classes
                             else errorByRowList.Add($"Machine no valid! Value \"{GetValue(nextMachine)}\", Row {row}, Col {colIni}");
                         }
                     }
-                    else errorByRowList.Add($"Machine no valid! Value \"{GetValue(nextMachine)}\", Row {row}, Col {colIni}");
+                    else
+                    {
+                        if (!ruloMigration.IsTestStyle)
+                            errorByRowList.Add($"Machine no valid! Value \"{GetValue(nextMachine)}\", Row {row}, Col {colIni}");
+                    }
+
 
                     //Validate lote
                     var lote = workSheet.Cell(row, ++colIni).Value;

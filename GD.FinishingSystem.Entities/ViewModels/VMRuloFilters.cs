@@ -26,7 +26,7 @@ namespace GD.FinishingSystem.Entities.ViewModels
         //-----------
         public bool withBatches { get; set; }
         public int numRuloID { get; set;}
-
+        public string txtLocation { get; set; }
     }
 
 }

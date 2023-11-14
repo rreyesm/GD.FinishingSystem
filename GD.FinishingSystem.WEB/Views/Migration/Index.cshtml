@@ -2,6 +2,7 @@
 @{
     var styleList = ViewBag.StyleList;
     var positionRuloMigrationId = ViewBag.PositionRuloMigrationId;
+    var locationList = ViewBag.LocationList;
 }
 
 <h1 class="mt-4">Rulos Raw</h1>
@@ -28,10 +29,10 @@
             <div class="form-group">
                 <label for="dtEnd">End</label><br>
                 <input type="datetime-local" style="width:100% !important;" id="dtEnd" name="dtEnd">
-                <div style="width:100% !important;">
+@*                <div style="width:100% !important;">
                     <label><input type="radio" id="RealDate" name="EndDateType" onclick="changeDate(1);" value="Real Date" checked /> Real Date</label>
                     <label><input type="radio" id="AccountingDate" name="EndDateType" onclick="changeDate(2);" value="Accounting Date" /> Accounting Date</label>
-                </div>
+                </div>*@
                 <input type="hidden" id="isAccountingDate" name="isAccountingDate" />
             </div>
         </div>
@@ -74,6 +75,19 @@
             <div class="form-group">
                 <label for="numMigrationCategory">Status</label><br>
                 <select style="width:100% !important;" id="numMigrationCategory" name="numMigrationCategory" asp-items="@ViewBag.MigrationCategoryList"></select>
+            </div>
+        </div>
+
+        <div class="col-md-2">
+            <div class="form-group">
+                <label for="txtLocation">Location</label><br />
+                <input type="text" style="width:100% !important;" id="txtLocation" name="txtLocation" list="locationList" />
+                <datalist id="locationList">
+                    @foreach (var item in locationList)
+                    {
+                        <option value="@item"></option>
+                    }
+                </datalist>
             </div>
         </div>
     </div>
@@ -142,11 +156,12 @@
             <th colspan="19">
                 <div>
                     Rulo Raw List
-                    <a onclick="exportToExcel();" class="btn btn-sm btn-success"><i class="far fa-file-excel"></i> Export to Excel</a>
-                    @if (User.IsInRole("Authorize", AuthType.Full))
+                    @*<a onclick="exportToExcel();" class="btn btn-sm btn-success"><i class="far fa-file-excel"></i> Raw Fabric Stock</a>*@
+
+@*                    @if (User.IsInRole("Authorize", AuthType.Full))
                     {
                         <a onclick="exportToExcelAllStock();" class="btn btn-sm btn-danger"><i class="far fa-file-excel"></i> Export All Stock</a>
-                    }
+                    }*@
                 </div>
             </th>
         </tr>
@@ -204,6 +219,9 @@
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.RuloMigrationList[0].WeavingShift)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model=> model.RuloMigrationList[0].Location)
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.RuloMigrationList[0].Observations)
@@ -344,6 +362,11 @@
                     @Html.DisplayFor(modelItem => item.WeavingShift)
                 </td>
                 <td>
+                    <div style="display:block;width:70px;">
+                        @Html.DisplayFor(modelItem => item.Location.Name)
+                    </div>
+                </td>
+                <td>
                     <div style="display:block;width:260px;">
                         @Html.DisplayFor(modelItem => item.Observations)
                     </div>
@@ -437,6 +460,7 @@
     document.getElementById("numLoom").value = '@ViewBag.numLoom';
     document.getElementById("txtStyle").value = '@ViewBag.txtStyle';
     document.getElementById("numMigrationCategory").value = '@ViewBag.numMigrationCategory';
+    document.getElementById("txtLocation").value = '@ViewBag.txtLocation';
 
     function changeDate(option) {
         if (option == 1) {
@@ -473,9 +497,11 @@
         document.getElementById("numLoom").value = 0;
         document.getElementById("txtStyle").value = '';
         document.getElementById("numMigrationCategory").value = 0;
+        document.getElementById("txtLocation").value = '';
 
         document.getElementById("formFilters").action = "/Migration/Index";
         document.getElementById("formFilters").submit();
+
     }
 
     function validateCreateRulo(lote, ruloMigrationId) {

@@ -14,6 +14,9 @@ namespace GD.FinishingSystem.Entities.ViewModels
     {
         [Display(Name="Machine Name")]
         public string Name { get; set; }
+        public string Origin { get; set; }
+        [Display(Name = "Main Origin")]
+        public string MainOrigin { get; set; }
         [Display(Name = "Shift")]
         public int Shift { get; set; }
         [Display(Name = "Style")]
@@ -23,10 +26,12 @@ namespace GD.FinishingSystem.Entities.ViewModels
         [Display(Name = "Lote")]
         public string Lote { get; set; }
         [Display(Name = "Entrance Length")]
-        public decimal? FinishMeterRama { get; set; }
-        [Display(Name = "Finish Meter Rulo Process")]
-        public decimal? FinishMeterRP { get; set; }
+        public decimal? EntranceLength { get; set; }
+        [Display(Name = "Exit Rama Chamuscado")]
+        public decimal? ExitRamaChamuscado { get; set; }
         [Display(Name = "Exit Length")]
         public decimal? ExitLength { get; set; }
+        [Display(Name = "Finish Meter Rulo Process")]
+        public decimal? FinishMeterRP { get; set; }
     }
 }

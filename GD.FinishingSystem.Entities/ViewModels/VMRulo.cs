@@ -64,6 +64,8 @@ namespace GD.FinishingSystem.Entities.ViewModels
         public DateTime? DateTestResult { get; set; }
         [Display(Name = "Batch Numbers")]
         public string BatchNumbers { get; set; }
+        [Display(Name = "Main Origin")]
+        public string MainOriginCode { get; set; }
         [Display(Name = "OriginID")]
         public int OriginID { get; set; } //Agregado de VMRulo
         [Display(Name = "Origin")]

@@ -3,7 +3,7 @@
 }
 
 <div class="row">
-    <h1 class="mt-4">Rulo Reports</h1>
+    <h1 class="mt-4">Raw Reports</h1>
 </div>
 
 <form asp-action="Index" method="post" id="formFilters">
@@ -33,6 +33,12 @@
             </div>
         </div>
 
+@*        <div class="col-md-2">
+            <div class="form-group">
+                <label for="numLote">Stop</label><br>
+                <input style="width:100% !important;" id="txtStop" name="txtStop">
+            </div>
+        </div>*@
         <div class="col-md-2">
             <div class="form-group">
                 <label for="numLoom">Loom</label><br>
@@ -57,7 +63,6 @@
 
     @*SECOND ROW*@
     <div class="row">
-
         <div class="col-md-2">
             <div class="form-group">
                 <label for="numLote">Shift</label><br>
@@ -70,16 +75,15 @@
     <div class="row">
         <div class="col-md-12">
             <div class="form-group">
-                <input type="radio" id="finishedFabricReport" name="typeReport" checked value="1" style="zoom: 1.5">
-                <label for="finishedFabricReport" style="font-size: x-large">Finished Fabric Report</label>
+                <input type="radio" id="finishedRawFabricEntrance" name="typeReport" checked value="1" style="zoom: 1.5" />
+                <label for="finishedRawFabricEntrance" style="font-size: x-large">Finished Raw Fabric Entrance</label>
             </div>
         </div>
 
         <div class="col-md-12">
             <div class="form-group">
-                <input type="radio" id="finishingFabricDetailedReport" name="typeReport" value="2" style="zoom: 1.5" />
-                <label for="finishingFabricDetailedReport" style="font-size: x-large">Finishing Fabric Detailed Report</label>
-                <ul><Label><input id="chkWithBatchesTmp" type="checkbox" name="chkWithBatchesTmp" onclick="chageWithBatches();" /> Report with Batches</Label></ul>
+                <input type="radio" id="rawFabricStock" name="typeReport" value="2" style="zoom: 1.5">
+                <label for="rawFabricStock" style="font-size: x-large">Raw Fabric Stock</label>
             </div>
         </div>
     </div>
@@ -91,11 +95,11 @@
         </div>
     </div>
 
-    <input type="hidden" id="withBatches" name="withBatches" />
-
 </form>
 
 <script>
+
+
     document.getElementById('dtBegin').value = '@ViewBag.dtBegin.ToString()';
     document.getElementById('dtEnd').value = '@ViewBag.dtEnd.ToString()';
     document.getElementById("numLote").value = '@ViewBag.numLote';
@@ -106,7 +110,7 @@
     document.getElementById("numShift").value = '@ViewBag.numShift';
 
     function setIndex() {
-        document.getElementById("formFilters").action = "/Rulo/Index";
+        document.getElementById("formFilters").action = "/RawRulo/Index";
         document.getElementById("formFilters").submit();
     }
 
@@ -120,17 +124,12 @@
     }
 
     function exportToExcel() {
-        document.getElementById("formFilters").action = "/Report/ExportToExcel";
+        document.getElementById("formFilters").action = "/RawReport/ExportToExcel";
         document.getElementById("formFilters").submit();
     }
 
     function exportToPDF() {
-        document.getElementById("formFilters").action = "/Report/ExportToPDF";
+        document.getElementById("formFilters").action = "/RawReport/ExportToPDF";
         document.getElementById("formFilters").submit();
-    }
-
-    function chageWithBatches() {
-        var selectedValue = document.getElementById("chkWithBatchesTmp");
-        document.getElementById("withBatches").value = selectedValue.checked == true ? true : false;
     }
 </script>

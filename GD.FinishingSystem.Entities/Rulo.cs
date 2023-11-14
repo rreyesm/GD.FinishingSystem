@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.IO;
 
 namespace GD.FinishingSystem.Entities
 {
@@ -39,12 +40,13 @@ namespace GD.FinishingSystem.Entities
         public decimal Shrinkage { get; set; }
         public int Shift { get; set; }
         [Display(Name = "Is Waiting Answer From Test")]
-
         public bool IsWaitingAnswerFromTest { get; set; }
         public int? TestResultID { get; set; }
         [ForeignKey("TestResultID")]
         public TestResult TestResult { get; set; }
         public int? TestResultAuthorizer { get; set; }
+        [Display(Name = "Main Origin")]
+        public int MainOriginID { get; set; }
         [Display(Name = "Origin")]
         public int OriginID { get; set; }
         public string Observations { get; set; }
@@ -68,5 +70,6 @@ namespace GD.FinishingSystem.Entities
         [ForeignKey(name: "WarehouseCategoryID")]
         public WarehouseCategory WarehouseCatgory { get; set; }
         public int? WarehouseCategoryID { get; set; }
+
     }
 }

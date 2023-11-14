@@ -9,6 +9,8 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Reflection.Metadata.Ecma335;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Transactions;
@@ -23,6 +25,9 @@ namespace GD.FinishingSystem.Bussines.Concrete
         IAsyncRepository<DefinationProcess> repositoryProcess = null;
         IAsyncRepository<OriginCategory> repositoryOriginCategory = null;
         IAsyncRepository<WarehouseCategory> repositoryWarehouseCategory = null;
+        IAsyncRepository<Location> repositoryLocation = null;
+        IAsyncRepository<TblFinishRawFabricEntrance> repositoryFinishRawFabricEntrance = null;
+        IAsyncRepository<Floor> repositoryFloor = null;
         public RuloMigrationsManager(DbContext context)
         {
             this.repository = new GenericRepository<RuloMigration>(context);
@@ -31,6 +36,9 @@ namespace GD.FinishingSystem.Bussines.Concrete
             this.repositoryProcess = new GenericRepository<DefinationProcess>(context);
             this.repositoryOriginCategory = new GenericRepository<OriginCategory>(context);
             this.repositoryWarehouseCategory = new GenericRepository<WarehouseCategory>(context);
+            this.repositoryLocation = new GenericRepository<Location>(context);
+            this.repositoryFinishRawFabricEntrance = new GenericRepository<TblFinishRawFabricEntrance>(context);
+            this.repositoryFloor = new GenericRepository<Floor>(context);
         }
         public override async Task Add(RuloMigration ruloMigration, int adderRef)
         {
@@ -69,11 +77,11 @@ namespace GD.FinishingSystem.Bussines.Concrete
                 var definitionProcess = await repositoryProcess.GetByPrimaryKey(result.DefinitionProcessID);
                 result.DefinitionProcess = definitionProcess;
 
-                var category = await repositoryMigrationCategory.GetByPrimaryKey(result.MigrationCategoryID);
-                result.MigrationCategory = category;
-
                 var origin = await repositoryOriginCategory.GetByPrimaryKey(result.OriginID);
                 result.OriginCategory = origin;
+
+                var location = await repositoryLocation.GetByPrimaryKey(result.LocationID);
+                result.Location = location;
             }
 
             return result;
@@ -105,17 +113,25 @@ namespace GD.FinishingSystem.Bussines.Concrete
 
             var migrationCategories = await repositoryMigrationCategory.GetWhere(x => !x.IsDeleted);
             var definitionProcessess = await repositoryProcess.GetWhere(x => !x.IsDeleted);
+            var locations = await repositoryLocation.GetWhere(x => !x.IsDeleted);
+            var floors = await repositoryFloor.GetWhere(x => !x.IsDeleted);
 
             var rulosMigration = (from rm in query.ToList()
                                   join mc in migrationCategories on rm.MigrationCategoryID equals mc.MigrationCategoryID
                                   join dp in definitionProcessess on rm.DefinitionProcessID equals dp.DefinationProcessID
                                   into ljDP from subDP in ljDP.DefaultIfEmpty()
+                                  join l in locations on rm.LocationID equals l.LocationID
+                                  into ll from subL in ll.DefaultIfEmpty()
+                                  join f in floors on subL?.FloorID equals f.FloorID
+                                  into lf from subF in lf.DefaultIfEmpty()
                                   where
                                   (!(ruloFilters.numLote > 0) || rm.Lote == ruloFilters.numLote.ToString()) &&
                                   (!(ruloFilters.numBeam > 0) || rm.Beam == ruloFilters.numBeam) &&
                                   (!(ruloFilters.numLoom > 0) || rm.Loom == ruloFilters.numLoom) &&
                                   ((string.IsNullOrWhiteSpace(ruloFilters.txtStyle) || rm.Style.Contains(ruloFilters.txtStyle))) &&
-                                  (!(ruloFilters.numMigrationCategory > 0) || rm.MigrationCategoryID == ruloFilters.numMigrationCategory)
+                                  (!(ruloFilters.numMigrationCategory > 0) || rm.MigrationCategoryID == ruloFilters.numMigrationCategory) &&
+                                  (string.IsNullOrWhiteSpace(ruloFilters.txtLocation) || (subL != null && subL.Name.Equals(ruloFilters.txtLocation, StringComparison.InvariantCultureIgnoreCase)))
+                                  orderby rm.RuloMigrationID descending
                                   select new RuloMigration
                                   {
                                       RuloMigrationID = rm.RuloMigrationID,
@@ -141,7 +157,9 @@ namespace GD.FinishingSystem.Bussines.Concrete
                                       DefinitionProcess = subDP,
                                       DefinitionProcessID = rm.DefinitionProcessID,
                                       IsToyotaMigration = rm.IsToyotaMigration,
-                                      OriginID = rm.OriginID
+                                      OriginID = rm.OriginID,
+                                      Location = subL != null ? new Location() { LocationID = subL.LocationID, Name = $"{subL.Name} {subF.FloorName}", Floor = subL.Floor } : null,
+                                      LocationID = rm?.LocationID,
                                   }
                          ).ToList();
 
@@ -171,7 +189,7 @@ namespace GD.FinishingSystem.Bussines.Concrete
             return styleList;
         }
 
-        public override async Task<IEnumerable<VMRuloMigrationReport>> GetRuloMigrationReportListFromFilters(VMRuloFilters ruloFilters)
+        public override async Task<IEnumerable<VMRuloMigrationReport>> GetRawFabricStocktFromFilters(VMRuloFilters ruloFilters)
         {
             var query = repository.GetQueryable(x => !x.IsDeleted && ((x.Date <= ruloFilters.dtEnd && x.Date >= ruloFilters.dtBegin) || (x.Date <= ruloFilters.dtBegin && x.Date >= ruloFilters.dtEnd)));
 
@@ -194,7 +212,8 @@ namespace GD.FinishingSystem.Bussines.Concrete
                                   (!(ruloFilters.numBeam > 0) || rm.Beam == ruloFilters.numBeam) &&
                                   (!(ruloFilters.numLoom > 0) || rm.Loom == ruloFilters.numLoom) &&
                                   ((string.IsNullOrWhiteSpace(ruloFilters.txtStyle) || rm.Style.Contains(ruloFilters.txtStyle))) &&
-                                  (!(ruloFilters.numMigrationCategory > 0) || rm.MigrationCategoryID == ruloFilters.numMigrationCategory)
+                                  (!(ruloFilters.numMigrationCategory > 0) || rm.MigrationCategoryID == ruloFilters.numMigrationCategory) &&
+                                  (rm.RuloID == null)
                                   select new VMRuloMigrationReport
                                   {
                                       RuloMigrationID = rm.RuloMigrationID,
@@ -354,7 +373,90 @@ namespace GD.FinishingSystem.Bussines.Concrete
             return isOk;
         }
 
-  
+        public override async Task<IEnumerable<Location>> GetLocationList()
+        {
+            return await repositoryLocation.GetWhere(x => !x.IsDeleted);
+        }
+
+        public override async Task<bool> Exists(RuloMigration ruloMigration)
+        {
+            //Validamos si existe algún registro
+            var count = await repository.CountWhere(x => !x.IsDeleted && x.Lote == ruloMigration.Lote && x.Beam == ruloMigration.Beam && x.Loom == ruloMigration.Loom && x.PieceNo == ruloMigration.PieceNo && x.BeamStop == ruloMigration.BeamStop);
+
+            if (count == 0)
+            {
+                return false;
+            }
+            else
+            {
+                //Si existe un registro validamos si el rulo migration pasado es 0 es porque es un registro nuevo y por lo tanto se repetiría con uno ya existentes
+                if (ruloMigration.RuloMigrationID == 0)
+                {
+                    return true;
+                }
+                else
+                {
+                    //Si no es un registro nuevo y es uno que se está modificando, validar si es el mismo registros se tomaría como que no existe, si es diferente registros entonces se estaría duplicando con uno que ya existe al modificar el registroa actual
+                    var rm = await repository.GetWhereWithNoTrack(x => !x.IsDeleted && x.Lote == ruloMigration.Lote && x.Beam == ruloMigration.Beam && x.Loom == ruloMigration.Loom && x.PieceNo == ruloMigration.PieceNo && x.BeamStop == ruloMigration.BeamStop);
+                    if (rm.FirstOrDefault().RuloMigrationID != ruloMigration.RuloMigrationID)
+                    {
+                        return true;
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                }
+            }
+        }
+
+        public override async Task<bool> Exists(int ruloId)
+        {
+            var count = await repository.CountWhere(x => x.RuloID == ruloId);
+
+            return count > 0; 
+        }
+
+        public async override Task<IEnumerable<TblFinishRawFabricEntrance>> GetFinishedRawFabricEntrance(VMReportFilter reportFilter)
+        {
+            string query = string.Empty;
+
+            //Order in stored procedure
+            var txtStyle = string.IsNullOrWhiteSpace(reportFilter.txtStyle) ? reportFilter.txtStyle : null;
+            var numLote = reportFilter.numLote != 0 ? (int?)reportFilter.numLote : null;
+            var numBeam = reportFilter.numBeam != 0 ? (int?)reportFilter.numBeam : null;
+            var numLoom = reportFilter.numLoom != 0 ? (int?)reportFilter.numLoom : null;
+            var shift = reportFilter.shift != 0 ? (int?)reportFilter.shift : null;
+
+            object[] parameters = null;
+            switch (reportFilter.typeReport)
+            {
+                case 1:
+                    //Este es el reporte que indicó Alfredo que se modificara
+                    query = "spFinishedRawFabricEntrance @p0,@p1,@p2,@p3,@p4,@p5,@p6"; //Anterior: spGetProcessesCompletedReport
+
+                    parameters = new object[] {
+                    reportFilter.dtBegin.ToString("yyyy-MM-dd HH:mm:ss"),
+                    reportFilter.dtEnd.ToString("yyyy-MM-dd HH:mm:ss"),
+                    txtStyle,
+                    numLote,
+                    numBeam,
+                    numLoom,
+                    shift
+                    };
+
+                    break;
+                case 2:
+
+                    break;
+                default:
+                    break;
+            }
+
+            var rawReportList = await repositoryFinishRawFabricEntrance.GetWithRawSql(query, parameters);
+
+            return rawReportList;
+        }
 
     }
 }

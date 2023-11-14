@@ -76,6 +76,10 @@ namespace GD.FinishingSystem.Entities
         public int? WarehouseCategoryID { get; set; }
         public int? Partiality { get; set; }
         public bool FabricAdvance { get; set; }
+        [Display(Name = "Location")]
+        [ForeignKey("LocationID")]
+        public Location Location { get; set; }
+        public int? LocationID { get; set; }
 
     }
 }

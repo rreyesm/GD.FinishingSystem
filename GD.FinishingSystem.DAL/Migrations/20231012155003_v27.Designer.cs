@@ -4,14 +4,16 @@ using GD.FinishingSystem.DAL.Concrete.EntityFramework;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace GD.FinishingSystem.DAL.Migrations
 {
     [DbContext(typeof(FinishingSystemContext))]
-    partial class FinishingSystemContextModelSnapshot : ModelSnapshot
+    [Migration("20231012155003_v27")]
+    partial class v27
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -99,48 +101,6 @@ namespace GD.FinishingSystem.DAL.Migrations
                     b.HasKey("FloorID");
 
                     b.ToTable("tblFloors");
-                });
-
-            modelBuilder.Entity("GD.FinishingSystem.Entities.Location", b =>
-                {
-                    b.Property<int>("LocationID")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("CreatorID")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime?>("DeletedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int?>("DeleterID")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("FloorID")
-                        .HasColumnType("int");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
-
-                    b.Property<DateTime>("LastUpdateDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("LastUpdaterID")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Name")
-                        .HasMaxLength(10)
-                        .HasColumnType("nvarchar(10)");
-
-                    b.HasKey("LocationID");
-
-                    b.HasIndex("FloorID");
-
-                    b.ToTable("tblLocations");
                 });
 
             modelBuilder.Entity("GD.FinishingSystem.Entities.Machine", b =>
@@ -462,7 +422,7 @@ namespace GD.FinishingSystem.DAL.Migrations
                     b.Property<string>("Lote")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("MainOriginID")
+                    b.Property<int>("MainOrigin")
                         .HasColumnType("int");
 
                     b.Property<string>("Observations")
@@ -589,9 +549,6 @@ namespace GD.FinishingSystem.DAL.Migrations
                     b.Property<int>("LastUpdaterID")
                         .HasColumnType("int");
 
-                    b.Property<int?>("LocationID")
-                        .HasColumnType("int");
-
                     b.Property<int>("Loom")
                         .HasColumnType("int");
 
@@ -640,8 +597,6 @@ namespace GD.FinishingSystem.DAL.Migrations
                     b.HasKey("RuloMigrationID");
 
                     b.HasIndex("DefinitionProcessID");
-
-                    b.HasIndex("LocationID");
 
                     b.HasIndex("MigrationCategoryID");
 
@@ -1168,7 +1123,7 @@ namespace GD.FinishingSystem.DAL.Migrations
                     b.Property<string>("Machine")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("MainOriginCode")
+                    b.Property<string>("MainOrigin")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<decimal>("MeterContraction")
@@ -1313,15 +1268,6 @@ namespace GD.FinishingSystem.DAL.Migrations
                     b.ToTable("tblWarehouseCategories");
                 });
 
-            modelBuilder.Entity("GD.FinishingSystem.Entities.Location", b =>
-                {
-                    b.HasOne("GD.FinishingSystem.Entities.Floor", "Floor")
-                        .WithMany()
-                        .HasForeignKey("FloorID");
-
-                    b.Navigation("Floor");
-                });
-
             modelBuilder.Entity("GD.FinishingSystem.Entities.Machine", b =>
                 {
                     b.HasOne("GD.FinishingSystem.Entities.DefinationProcess", "DefinationProcess")
@@ -1394,10 +1340,6 @@ namespace GD.FinishingSystem.DAL.Migrations
                         .WithMany()
                         .HasForeignKey("DefinitionProcessID");
 
-                    b.HasOne("GD.FinishingSystem.Entities.Location", "Location")
-                        .WithMany()
-                        .HasForeignKey("LocationID");
-
                     b.HasOne("GD.FinishingSystem.Entities.MigrationCategory", "MigrationCategory")
                         .WithMany()
                         .HasForeignKey("MigrationCategoryID")
@@ -1417,8 +1359,6 @@ namespace GD.FinishingSystem.DAL.Migrations
                         .HasForeignKey("WarehouseCategoryID");
 
                     b.Navigation("DefinitionProcess");
-
-                    b.Navigation("Location");
 
                     b.Navigation("MigrationCategory");
 

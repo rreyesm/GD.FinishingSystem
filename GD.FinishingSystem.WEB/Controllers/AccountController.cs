@@ -114,7 +114,7 @@ namespace GD.FinishingSystem.WEB.Controllers
 
         async Task CheckAdminUser()
         {
-            string UserName = "EnesMY";
+            string UserName = "raulrm";
             string Password = "123456";
             string Role = "Admin";
             var res = await factory.Users.CheckLoginUser(UserName, Password);
@@ -123,8 +123,8 @@ namespace GD.FinishingSystem.WEB.Controllers
                 var user = new User
                 {
 
-                    Name = "Enes Murat",
-                    LastName = "YILDIRIM",
+                    Name = "Raúl",
+                    LastName = "Reyes",
                     UserName = UserName,
                     Password = Password,
                     IsActive = true,

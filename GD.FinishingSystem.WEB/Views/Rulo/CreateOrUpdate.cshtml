@@ -25,7 +25,7 @@
 
 
 <div class="alert alert-success">
-    <form asp-action="Save">
+    <form asp-action="Save" onsubmit="enableFields()">
         @Html.HiddenFor(o => o.RuloID)
         @Html.AntiForgeryToken()
         <div asp-validation-summary="ModelOnly" class="text-danger"></div>
@@ -96,13 +96,16 @@
                     <span asp-validation-for="Width" class="text-danger"></span>
                 </div>
             </div>
-            <div class="col-lg-3 col-md-4 col-sm-12">
-                <div class="form-group">
+            @if ((bool)ViewBag.OriginEnabled == false) //If origin is enabled, it is a reprocess, therefore people can't enter value in Weaving value and this will be 0.
+            {
+                <div class="col-lg-3 col-md-4 col-sm-12">
+                    <div class="form-group">
                     <label asp-for="WeavingLength" class="control-label"></label>
                     <input asp-for="WeavingLength" class="form-control" type="number" />
                     <span asp-validation-for="WeavingLength" class="text-danger"></span>
                 </div>
             </div>
+            }
             <div class="col-lg-3 col-md-4 col-sm-12">
                 <div class="form-group">
                     <label asp-for="EntranceLength" class="control-label"></label>
@@ -119,8 +122,29 @@
             </div>
             <div class="col-lg-3 col-md-4 col-sm-12">
                 <div class="form-group">
+                    <label asp-for="MainOriginID" class="control-label"></label>
+                    @if ((bool)ViewBag.OriginEnabled) //If origin is enabled, it is a reprocess and people can modify main origin and origin, otherwise people can't modify
+                    {
+                        <select asp-for="MainOriginID" asp-items="@ViewBag.MainOriginList" class="form-control"></select>
+                    }
+                    else
+                    {
+                        <select asp-for="MainOriginID" asp-items="@ViewBag.MainOriginList" class="form-control" disabled></select>
+                    }
+                    <span asp-validation-for="MainOriginID" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-4 col-sm-12">
+                <div class="form-group">
                     <label asp-for="OriginID" class="control-label"></label>
-                    <select asp-for="OriginID" asp-items="@ViewBag.OriginList" class="form-control"></select>
+                    @if ((bool)ViewBag.OriginEnabled)
+                    {
+                        <select asp-for="OriginID" asp-items="@ViewBag.OriginList" class="form-control"></select>
+                    }
+                    else
+                    {
+                        <select asp-for="OriginID" asp-items="@ViewBag.OriginList" class="form-control" disabled></select>
+                    }
                     <span asp-validation-for="OriginID" class="text-danger"></span>
                 </div>
             </div>
@@ -237,6 +261,11 @@
                 document.getElementById('StyleName').disabled = true;
             }
         }
+    }
+
+    function enableFields(){
+        document.getElementById("MainOriginID").disabled = false;
+        document.getElementById("OriginID").disabled = false;
     }
 
 </script>

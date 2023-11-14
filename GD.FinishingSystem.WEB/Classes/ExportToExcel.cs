@@ -1,5 +1,7 @@
 ﻿using ClosedXML.Excel;
+using DocumentFormat.OpenXml.Spreadsheet;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.CodeAnalysis.VisualBasic.Syntax;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -9,11 +11,19 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 
 namespace GD.FinishingSystem.WEB.Classes
 {
     public class ExportToExcel
     {
+        private class Total
+        {
+            internal string Name { get; set; }
+            internal decimal Value { get; set; }
+            internal int Column { get; set; }
+        }
+
         public async Task<Tuple<bool, FileStreamResult>> Export<T>(string nameFabric, string area, string title, string fileName, List<T> list)
         {
             bool isOk = true;
@@ -137,7 +147,7 @@ namespace GD.FinishingSystem.WEB.Classes
 
         }
 
-        public async Task<Tuple<bool, FileStreamResult>> ExportWithDisplayName<T>(string nameFabric, string area, string title, string fileName, List<T> list, List<string> excludeFieldList = null, List<Tuple<int, string>> withColorList = null, string idFieldName = "")
+        public async Task<Tuple<bool, FileStreamResult>> ExportWithDisplayName<T>(string nameFabric, string area, string title, string fileName, List<T> list, List<string> excludeFieldList = null, List<Tuple<int, string>> withColorList = null, string idFieldName = "", string setDateRange = "", List<string> totaleList = null)
         {
             bool isOk = true;
 
@@ -183,6 +193,16 @@ namespace GD.FinishingSystem.WEB.Classes
                 workSheet.Range(rowIni, colIni, rowEnd, colEndCount).Style.Font.Bold = true;
                 workSheet.Range(rowIni, colIni, rowEnd, colEndCount).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
 
+                if (setDateRange != string.Empty)
+                {
+                    ++rowIni;
+                    ++rowEnd;
+                    workSheet.Cell(rowIni, colIni).Value = setDateRange;
+                    workSheet.Range(rowIni, colIni, rowEnd, colEndCount).Merge();
+                    workSheet.Range(rowIni, colIni, rowEnd, colEndCount).Style.Font.Bold = true;
+                    workSheet.Range(rowIni, colIni, rowEnd, colEndCount).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+                }
+
                 rowIni++;
                 colIni = 0;
 
@@ -200,6 +220,11 @@ namespace GD.FinishingSystem.WEB.Classes
                         workSheet.Cell(rowIni, ++colIni).Value = propInfo.Name;
                     workSheet.Cell(rowIni, colIni).Style.Font.Bold = true;
                 }
+
+                List<Total> totals = null;
+                //Validate if exists totals
+                if (totaleList != null && totaleList.Count > 0)
+                    totals = new List<Total>();
 
                 //go through each property on T and add each value to the table
                 foreach (T item in list)
@@ -219,7 +244,7 @@ namespace GD.FinishingSystem.WEB.Classes
                             color = withColorList.Where(x => x.Item1 == (int)valueRuloID).Select(x => x.Item2).FirstOrDefault();
                         }
                     }
-                    
+
                     foreach (var propInfo in elementType.GetProperties())
                     {
                         if (excludeFieldList?.Contains(propInfo.Name) ?? false)
@@ -258,11 +283,26 @@ namespace GD.FinishingSystem.WEB.Classes
                             case TypeCode.Int64:
                             case TypeCode.UInt64:
                                 workSheet.Cell(rowIni, colIni).Style.NumberFormat.Format = "###0";
+                                if (totaleList != null && totaleList.Any(x=> x.Contains(propInfo.Name, StringComparison.InvariantCultureIgnoreCase)) && !totals.Any(x => x.Name == propInfo.Name))
+                                    totals.Add(new Total() { Name = propInfo.Name, Value = value != DBNull.Value ? (decimal)value : 0, Column = colIni });
+                                else if (totaleList != null && totaleList.Any(x => x.Contains(propInfo.Name, StringComparison.InvariantCultureIgnoreCase)))
+                                {
+                                    var element = totals.Where(x => x.Name == propInfo.Name).FirstOrDefault();
+                                    element.Value += value != DBNull.Value ? (decimal)value : 0;
+                                }
                                 break;
                             case TypeCode.Single:
                             case TypeCode.Double:
                             case TypeCode.Decimal:
                                 workSheet.Cell(rowIni, colIni).Style.NumberFormat.Format = "#,##0.00";
+                                workSheet.Cell(rowIni, colIni).Style.NumberFormat.Format = "###0";
+                                if (totaleList != null && totaleList.Any(x => x.Contains(propInfo.Name, StringComparison.InvariantCultureIgnoreCase)) && !totals.Any(x => x.Name == propInfo.Name))
+                                    totals.Add(new Total() { Name = propInfo.Name, Value = value != DBNull.Value ? (decimal)value : 0, Column = colIni });
+                                else if (totaleList != null && totaleList.Any(x => x.Contains(propInfo.Name, StringComparison.InvariantCultureIgnoreCase)))
+                                {
+                                    var element = totals.Where(x => x.Name == propInfo.Name).FirstOrDefault();
+                                    element.Value += value != DBNull.Value ? (decimal)value : 0;
+                                }
                                 break;
                             case TypeCode.DateTime:
                                 break;
@@ -274,6 +314,19 @@ namespace GD.FinishingSystem.WEB.Classes
 
                     }
 
+                }
+
+                if (totals != null && totals.Count > 0)
+                {
+                    ++rowIni;
+                    workSheet.Cell(rowIni, 1).Style.Font.Bold = true;
+                    workSheet.Cell(rowIni, 1).Value = "Total";
+                    foreach (var item in totals)
+                    {
+                        workSheet.Cell(rowIni, item.Column).Style.Font.Bold = true;
+                        workSheet.Cell(rowIni, item.Column).Style.NumberFormat.Format = "#,##0.00";
+                        workSheet.Cell(rowIni, item.Column).Value = item.Value;
+                    }
                 }
 
                 for (int i = 1; i < colEndCount; i++)

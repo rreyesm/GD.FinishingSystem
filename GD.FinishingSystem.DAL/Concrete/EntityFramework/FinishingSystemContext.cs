@@ -105,6 +105,7 @@ namespace GD.FinishingSystem.DAL.Concrete.EntityFramework
         public DbSet<VMRuloBatch> RuloBatches { get; set; }
         public DbSet<OriginCategory> OriginCategories { get; set; }
         public DbSet<WarehouseCategory> WarehouseCategories { get; set; }
+        public DbSet<Location> Locations { get; set; }
         #endregion
 
         #region Settings
@@ -154,6 +155,8 @@ namespace GD.FinishingSystem.DAL.Concrete.EntityFramework
             modelBuilder.Entity<TotalResult>().HasNoKey();
 
             modelBuilder.Entity<WarehouseStock>().HasNoKey();
+
+            modelBuilder.Entity<TblFinishRawFabricEntrance>().HasNoKey();
         }
 
 

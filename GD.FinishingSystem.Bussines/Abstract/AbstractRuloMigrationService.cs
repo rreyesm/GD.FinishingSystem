@@ -24,7 +24,7 @@ namespace GD.FinishingSystem.Bussines.Abstract
         public abstract Task UpdateMigrationControls(MigrationControl migrationContol, int addRef);
         public abstract Task<int> CountByFileName(string fileName);
         public abstract Task<IEnumerable<String>> GetRuloMigrationStyleList();
-        public abstract Task<IEnumerable<VMRuloMigrationReport>> GetRuloMigrationReportListFromFilters(VMRuloFilters ruloFilters);
+        public abstract Task<IEnumerable<VMRuloMigrationReport>> GetRawFabricStocktFromFilters(VMRuloFilters ruloFilters);
         public abstract Task<IEnumerable<VMRuloMigrationReport>> GetAllVMRuloReportList(DateTime dtEnd);
         public abstract Task<IEnumerable<DefinationProcess>> GetDefinitionProcessList();
         public abstract Task<IEnumerable<OriginCategory>> GetOriginCategoryList();
@@ -32,5 +32,9 @@ namespace GD.FinishingSystem.Bussines.Abstract
         public abstract Task<bool> ExistRuloInRuloMigration(int ruloID);
         public abstract Task<decimal> GetTotalMetersByRuloMigration(string lote, int beam);
         public abstract Task<bool> UpdateRuloMigrationsFromRuloMigrationID(int ruloMigrationID, int ruloID, int userID);
+        public abstract Task<IEnumerable<Location>> GetLocationList();
+        public abstract Task<bool> Exists(RuloMigration ruloMigration);
+        public abstract Task<bool> Exists(int ruloId);
+        public abstract Task<IEnumerable<TblFinishRawFabricEntrance>> GetFinishedRawFabricEntrance(VMReportFilter reportFilter);
     }
 }

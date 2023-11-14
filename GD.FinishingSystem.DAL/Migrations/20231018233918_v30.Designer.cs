@@ -4,14 +4,16 @@ using GD.FinishingSystem.DAL.Concrete.EntityFramework;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace GD.FinishingSystem.DAL.Migrations
 {
     [DbContext(typeof(FinishingSystemContext))]
-    partial class FinishingSystemContextModelSnapshot : ModelSnapshot
+    [Migration("20231018233918_v30")]
+    partial class v30
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -120,9 +122,6 @@ namespace GD.FinishingSystem.DAL.Migrations
                     b.Property<int?>("DeleterID")
                         .HasColumnType("int");
 
-                    b.Property<int?>("FloorID")
-                        .HasColumnType("int");
-
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
@@ -138,9 +137,7 @@ namespace GD.FinishingSystem.DAL.Migrations
 
                     b.HasKey("LocationID");
 
-                    b.HasIndex("FloorID");
-
-                    b.ToTable("tblLocations");
+                    b.ToTable("tblLocation");
                 });
 
             modelBuilder.Entity("GD.FinishingSystem.Entities.Machine", b =>
@@ -589,8 +586,8 @@ namespace GD.FinishingSystem.DAL.Migrations
                     b.Property<int>("LastUpdaterID")
                         .HasColumnType("int");
 
-                    b.Property<int?>("LocationID")
-                        .HasColumnType("int");
+                    b.Property<string>("Location")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("Loom")
                         .HasColumnType("int");
@@ -640,8 +637,6 @@ namespace GD.FinishingSystem.DAL.Migrations
                     b.HasKey("RuloMigrationID");
 
                     b.HasIndex("DefinitionProcessID");
-
-                    b.HasIndex("LocationID");
 
                     b.HasIndex("MigrationCategoryID");
 
@@ -1313,15 +1308,6 @@ namespace GD.FinishingSystem.DAL.Migrations
                     b.ToTable("tblWarehouseCategories");
                 });
 
-            modelBuilder.Entity("GD.FinishingSystem.Entities.Location", b =>
-                {
-                    b.HasOne("GD.FinishingSystem.Entities.Floor", "Floor")
-                        .WithMany()
-                        .HasForeignKey("FloorID");
-
-                    b.Navigation("Floor");
-                });
-
             modelBuilder.Entity("GD.FinishingSystem.Entities.Machine", b =>
                 {
                     b.HasOne("GD.FinishingSystem.Entities.DefinationProcess", "DefinationProcess")
@@ -1394,10 +1380,6 @@ namespace GD.FinishingSystem.DAL.Migrations
                         .WithMany()
                         .HasForeignKey("DefinitionProcessID");
 
-                    b.HasOne("GD.FinishingSystem.Entities.Location", "Location")
-                        .WithMany()
-                        .HasForeignKey("LocationID");
-
                     b.HasOne("GD.FinishingSystem.Entities.MigrationCategory", "MigrationCategory")
                         .WithMany()
                         .HasForeignKey("MigrationCategoryID")
@@ -1417,8 +1399,6 @@ namespace GD.FinishingSystem.DAL.Migrations
                         .HasForeignKey("WarehouseCategoryID");
 
                     b.Navigation("DefinitionProcess");
-
-                    b.Navigation("Location");
 
                     b.Navigation("MigrationCategory");
 

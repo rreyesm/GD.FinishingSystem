@@ -114,6 +114,12 @@
         <dd class="col-sm-10">
             @Html.Raw(Model.OriginCategory?.Name)
         </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.LocationID)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.Raw(Model.Location?.Name)
+        </dd>
     </dl>
 </div>
 <div>

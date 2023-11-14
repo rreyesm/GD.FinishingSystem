@@ -92,8 +92,9 @@ namespace GD.FinishingSystem.Bussines.Concrete
             //if (Enum.TryParse(rulo.OriginID.ToString(), true, out originType))
             //    sOriginType = originType.ToString(); //.SplitCamelCase();
 
-            var origins = await originRepository.GetWhere(x => !x.IsDeleted && x.OriginCategoryID == rulo.OriginID);
-            var origin = origins.FirstOrDefault();
+            var origins = await originRepository.GetWhere(x => !x.IsDeleted);
+            var origin = origins.Where(x=> x.OriginCategoryID == rulo.OriginID).FirstOrDefault();
+            var mainOrigin = origins.Where(x => x.OriginCategoryID == rulo.MainOriginID).FirstOrDefault();
 
             var warehouses = await warehouseRepository.GetWhere(x => !x.IsDeleted && x.WarehouseCategoryID == rulo.WarehouseCategoryID);
             var warehouse = warehouses.FirstOrDefault();
@@ -111,6 +112,7 @@ namespace GD.FinishingSystem.Bussines.Concrete
                 BeamStop = rulo.BeamStop,
                 Loom = rulo.Loom,
                 IsToyotaValue = rulo.IsToyota,
+                IsToyota = rulo.IsToyota ? "Yes" : "No",
                 Style = rulo.Style,
                 StyleName = rulo.StyleName,
                 Width = rulo.Width,
@@ -130,9 +132,10 @@ namespace GD.FinishingSystem.Bussines.Concrete
                 CanContinue = (testResults.FirstOrDefault()?.CanContinue ?? false) == true ? "YES" : "NO",
                 TestCategoryID = testCategory?.TestCategoryID ?? 0,
                 TestCategoryCode = testCategory?.TestCode ?? string.Empty,
-                OriginCode = origin.OriginCode, //sOriginType,
+                MainOriginCode = mainOrigin?.OriginCode,
+                OriginCode = origin?.OriginCode, //sOriginType,
                 TestResultAuthorizer = testResultAuthorizerUser?.UserName ?? string.Empty,
-                WarehouseCode = warehouse.WarehouseCode,
+                WarehouseCode = warehouse?.WarehouseCode,
             };
 
             return vwRulo;
@@ -170,6 +173,9 @@ namespace GD.FinishingSystem.Bussines.Concrete
                           join o in originList on r.OriginID equals o.OriginCategoryID
                           into ljO
                           from subO in ljO.DefaultIfEmpty()
+                          join mainO in originList on r.OriginID equals mainO.OriginCategoryID
+                          into ljmainO
+                          from submainO in ljmainO.DefaultIfEmpty()
 
                           join wh in warehouses.ToList() on r.WarehouseCategoryID equals wh.WarehouseCategoryID
                           into ljWH
@@ -200,6 +206,7 @@ namespace GD.FinishingSystem.Bussines.Concrete
                               CanContinue = (subTR?.CanContinue ?? false) == true ? "YES" : "NO",
                               TestCategoryID = subTC?.TestCategoryID ?? 0,
                               TestCategoryCode = subTC?.TestCode ?? string.Empty,
+                              MainOriginCode = submainO?.OriginCode ?? string.Empty,
                               OriginCode = subO?.OriginCode,
                               TestResultAuthorizer = subuResultAutho?.UserName ?? string.Empty,
                               WarehouseCode = subWH?.WarehouseCode
@@ -240,6 +247,9 @@ namespace GD.FinishingSystem.Bussines.Concrete
                           join o in originList.ToList() on r.OriginID equals o.OriginCategoryID
                           into ljO
                           from subO in ljO.DefaultIfEmpty()
+                          join mainO in originList on r.OriginID equals mainO.OriginCategoryID
+                          into ljmainO
+                          from submainO in ljmainO.DefaultIfEmpty()
 
                           join wh in warehouses.ToList() on r.WarehouseCategoryID equals wh.WarehouseCategoryID
                           into ljWH
@@ -252,6 +262,7 @@ namespace GD.FinishingSystem.Bussines.Concrete
                               BeamStop = r.BeamStop,
                               Loom = r.Loom,
                               IsToyotaValue = r.IsToyota,
+                              IsToyota = r.IsToyota ? "Yes" : "No",
                               Style = r.Style,
                               StyleName = r.StyleName,
                               Width = r.Width,
@@ -270,6 +281,7 @@ namespace GD.FinishingSystem.Bussines.Concrete
                               CanContinueValue = subTR?.CanContinue ?? false,
                               TestCategoryID = subTC?.TestCategoryID ?? 0,
                               TestCategoryCode = subTC?.TestCode ?? string.Empty,
+                              MainOriginCode = submainO?.OriginCode ?? string.Empty,
                               OriginCode = subO?.OriginCode,
                               TestResultAuthorizer = subuResultAutho?.UserName ?? string.Empty,
                               WarehouseCode = subWH?.WarehouseCode
@@ -916,7 +928,7 @@ namespace GD.FinishingSystem.Bussines.Concrete
             return tblCustomPerformanceMasiveForFinishingList;
         }
 
-        public async override Task<IEnumerable<TblCustomReport>> GetCustomReportList(VMReportFilter reportFilter)
+        public async override Task<IEnumerable<TblCustomReport>> GetFinishedFabricReport(VMReportFilter reportFilter)
         {
             string query = string.Empty;
 
@@ -924,32 +936,33 @@ namespace GD.FinishingSystem.Bussines.Concrete
             var txtStyle = string.IsNullOrWhiteSpace(reportFilter.txtStyle) ? reportFilter.txtStyle : null;
             var numLote = reportFilter.numLote != 0 ? (int?)reportFilter.numLote : null;
             var numBeam = reportFilter.numBeam != 0 ? (int?)reportFilter.numBeam : null;
-            var stop = string.IsNullOrWhiteSpace(reportFilter.stop) ? reportFilter.stop : null;
             var numLoom = reportFilter.numLoom != 0 ? (int?)reportFilter.numLoom : null;
             var shift = reportFilter.shift != 0 ? (int?)reportFilter.shift : null;
 
+            object[] parameters = null;
             switch (reportFilter.typeReport)
             {
                 case 1:
-                    query = "spGetProcessesCompletedReport @p0,@p1,@p2,@p3,@p4,@p5,@p6,@p7";
+                    //Este es el reporte que indicó Alfredo que se modificara
+                    query = "spFinishedFabricReport @p0,@p1,@p2,@p3,@p4,@p5,@p6"; //Antrior: spGetProcessesCompletedReport
+
+                    parameters = new object[] {
+                    reportFilter.dtBegin.ToString("yyyy-MM-dd HH:mm:ss"),
+                    reportFilter.dtEnd.ToString("yyyy-MM-dd HH:mm:ss"),
+                    txtStyle,
+                    numLote,
+                    numBeam,
+                    numLoom,
+                    shift
+                    };
+
                     break;
                 case 2:
-                    query = "spGetAllProcessesReport @p0,@p1,@p2,@p3,@p4,@p5,@p6,@p7";
+
                     break;
                 default:
                     break;
             }
-
-            object[] parameters = new object[] {
-            reportFilter.dtBegin.ToString("yyyy-MM-dd HH:mm:ss"),
-            reportFilter.dtEnd.ToString("yyyy-MM-dd HH:mm:ss"),
-            txtStyle,
-            numLote,
-            numBeam,
-            stop,
-            numLoom,
-            shift
-            };
 
             var ruloReportList = await customReportRepository.GetWithRawSql(query, parameters);
 

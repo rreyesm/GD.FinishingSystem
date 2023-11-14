@@ -164,7 +164,16 @@
                                 <div class="sb-nav-link-icon">
                                     <i class="far fa-file-alt"></i>
                                 </div>
-                                Custom Reports
+                                Rulo Reports
+                            </a>
+                        }
+                        @if (User.IsInRole("RawReport", AuthType.Show) || User.IsInRole("RawReport", AuthType.Full))
+                        {
+                            <a class="nav-link" asp-controller="RawReport" asp-action="Index">
+                                <div class="sb-nav-link-icon">
+                                    <i class="far fa-file-alt"></i>
+                                </div>
+                                Raw Reports
                             </a>
                         }
                     </div>

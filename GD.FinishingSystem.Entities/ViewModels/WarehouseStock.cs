@@ -11,6 +11,7 @@ namespace GD.FinishingSystem.Entities.ViewModels
     {
         public string Code { get; set; }
         public string Description { get; set; }
+        public string StockSymbol { get; set; }
         public decimal Stock { get; set; }
     }
 }

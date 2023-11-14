@@ -1,5 +1,9 @@
 ﻿@model GD.FinishingSystem.Entities.RuloMigration
 
+@{
+    var locationList = ViewBag.LocationList;
+}
+
 <div class="alert alert-info">
     <h1 class="mt-4">
         @if (Model.RuloMigrationID == 0)
@@ -139,12 +143,18 @@
             </div>
             <div class="col-lg-3 col-md-4 col-sm-12">
                 <div class="form-group">
+                    <label asp-for="Location">Location</label><br />
+                    <select asp-for="LocationID" asp-items="@ViewBag.LocationList" class="form-control"></select>
+                    <span asp-validation-for="LocationID" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-4 col-sm-12">
+                <div class="form-group">
                     <label asp-for="Observations" class="control-label"></label>
                     <textarea asp-for="Observations" rows="3" class="form-control"></textarea>
                     <span asp-validation-for="Observations" class="text-danger"></span>
                 </div>
             </div>
-
 
             <div class="col-12">
                 @if ((bool)ViewBag.Error)
@@ -235,9 +245,13 @@
             if (document.getElementById('IsTestStyle').checked) {
                 document.getElementById('Style').disabled = false;
                 document.getElementById('StyleName').disabled = false;
+
+                document.getElementById('DefinitionProcessID').disabled = true;
             } else {
                 document.getElementById('Style').disabled = true;
                 document.getElementById('StyleName').disabled = true;
+
+                document.getElementById('DefinitionProcessID').disabled = false;
             }
         }
     }

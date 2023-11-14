@@ -146,6 +146,7 @@ namespace GD.FinishingSystem.WEB.Controllers
         {
             ViewBag.Error = false;
             ViewBag.ErrorMessage = "";
+
             await SetViewBagsForCreateOrEdit(false);
 
             var systemPrinter = await WebUtilities.GetSystemPrinter(factory, this.HttpContext);
@@ -191,15 +192,19 @@ namespace GD.FinishingSystem.WEB.Controllers
         private async Task SetViewBagsForCreateOrEdit(bool isFromRuloMigration)
         {
             //var list = WebUtilities.Create<OriginType>();
-            var list = await factory.OriginCategories.GetOriginCategoryList();
+            var mainOriginList = await factory.OriginCategories.GetOriginCategoryList();
+            IEnumerable<OriginCategory> originList = mainOriginList;
             //If rulo is not from Raw it's not show 1-PP00 and 7-DES0
             if (!isFromRuloMigration)
-                list = list.Where(x => x.OriginCategoryID != 1 && x.OriginCategoryID != 7);
-            ViewBag.OriginList = WebUtilities.Create<OriginCategory>(list, "OriginCategoryID", "Name", false);
+                originList = mainOriginList.Where(x => x.OriginCategoryID != 1 && x.OriginCategoryID != 7);
+            ViewBag.MainOriginList = WebUtilities.Create<OriginCategory>(mainOriginList, "OriginCategoryID", "Name", false);
+            ViewBag.OriginList = WebUtilities.Create<OriginCategory>(originList, "OriginCategoryID", "Name", false);
 
             var sentAuthorizerList = await factory.Users.GetAll();
             var sentAuthorizerListItem = WebUtilities.Create<User>(sentAuthorizerList, "UserID", "Name", true);
             ViewBag.SentAuthorizer = sentAuthorizerListItem;
+
+            ViewBag.OriginEnabled = !isFromRuloMigration;
         }
 
         [HttpPost]
@@ -378,6 +383,7 @@ namespace GD.FinishingSystem.WEB.Controllers
                 foundRulo.WeavingLength = rulo.WeavingLength;
                 foundRulo.EntranceLength = rulo.EntranceLength;
                 foundRulo.Shift = rulo.Shift;
+                foundRulo.MainOriginID = rulo.MainOriginID;
                 foundRulo.OriginID = rulo.OriginID;
                 foundRulo.Observations = rulo.Observations;
 
@@ -406,12 +412,14 @@ namespace GD.FinishingSystem.WEB.Controllers
         [Authorize(AuthenticationSchemes = SystemStatics.DefaultScheme, Roles = "RuloDel, AdminFull, RuloFull")]
         public async Task<IActionResult> Delete(int ruloId)
         {
+            ViewBag.Error = false;
+
             var foundVMRulo = await factory.Rulos.GetVMRuloFromRuloID(ruloId);
             if (foundVMRulo == null)
             {
                 return RedirectToAction("Error", "Home");
             }
-
+             
             return View(foundVMRulo);
         }
 
@@ -419,8 +427,19 @@ namespace GD.FinishingSystem.WEB.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int ruloId)
         {
+            ViewBag.Error = false;
+
             if (!(User.IsInRole("RuloDel") || User.IsInRole("AdminFull") || User.IsInRole("RuloFull")))
                 return Unauthorized();
+
+            //TODO: Validar si existe un RuloMigrations relacionado, mostrar un error de que no se puede elimimnar
+            if (await factory.RuloMigrations.Exists(ruloId))
+            {
+                ViewBag.Error = true;
+                ViewBag.ErrorMessage = "El rulo no se puede eliminar porque ya se encuenta relacionado con un registro de Crudo";
+                var foundVMRulo = await factory.Rulos.GetVMRuloFromRuloID(ruloId);
+                return View("Delete", foundVMRulo);
+            }
 
             var rulo = await factory.Rulos.GetRuloFromRuloID(ruloId);
 
@@ -672,8 +691,9 @@ namespace GD.FinishingSystem.WEB.Controllers
                 ExportToExcel export = new ExportToExcel();
                 string reportName = "Finishing Report Warehouses Stock";
                 string fileName = $"Finishing Report Warehouses Stock_{DateTime.Today.Year}_{DateTime.Today.Month.ToString().PadLeft(2, '0')}_{DateTime.Today.Day.ToString().PadLeft(2, '0')}.xlsx";
+                string setDateRange = $"From {ruloFilters.dtBegin.ToString("dd/MM/yyyy HH:mm")} to {ruloFilters.dtEnd.ToString("dd/MM/yyyy HH:mm")}";
 
-                var fileResult = await export.ExportWithDisplayName<WarehouseStock>("Global Denim S.A. de C.V.", "Finishing", reportName, fileName, result.ToList());
+                var fileResult = await export.ExportWithDisplayName<WarehouseStock>("Global Denim S.A. de C.V.", "Finishing", reportName, fileName, result.ToList(), setDateRange: setDateRange);
 
                 if (!fileResult.Item1) return NotFound();
 

@@ -101,7 +101,7 @@ namespace GD.FinishingSystem.WEB.Controllers
 
             var definitionProcessess = await factory.RuloMigrations.GetDefinitionProcessList();
             var definitionProcessessList = WebUtilities.Create<DefinationProcess>(definitionProcessess, "DefinationProcessID", "Name", true);
-            
+
             var originCategories = await factory.RuloMigrations.GetOriginCategoryList();
             originCategories = originCategories.Where(x => x.OriginCategoryID == 1 || x.OriginCategoryID == 7); //1=PP00, 7=DES0
             var originCategoryList = WebUtilities.Create<OriginCategory>(originCategories, "OriginCategoryID", "OriginCode", true);
@@ -116,10 +116,14 @@ namespace GD.FinishingSystem.WEB.Controllers
             ViewBag.numPiece = ruloFilters.numPiece;
             ViewBag.txtStyle = ruloFilters.txtStyle;
             ViewBag.numMigrationCategory = ruloFilters.numMigrationCategory;
+            ViewBag.txtLocation = ruloFilters.txtLocation;
 
             //Style list
             var styleList = await factory.RuloMigrations.GetRuloMigrationStyleList();
             ViewBag.StyleList = styleList;
+
+            var locations = await factory.RuloMigrations.GetLocationList();
+            ViewBag.LocationList = locations.Select(x => x.Name);
 
             ViewBag.PositionRuloMigrationId = positionRuloMigrationId;
         }
@@ -258,16 +262,31 @@ namespace GD.FinishingSystem.WEB.Controllers
             var migrationCategories = await factory.RuloMigrations.GetMigrationCategoryList();
             var migrationCategorylist = WebUtilities.Create<MigrationCategory>(migrationCategories, "MigrationCategoryID", "Name", true);
 
-            var definitionProcessess= await factory.RuloMigrations.GetDefinitionProcessList();
+            var definitionProcessess = await factory.RuloMigrations.GetDefinitionProcessList();
             var definitionProcessList = WebUtilities.Create<DefinationProcess>(definitionProcessess.ToList(), "DefinationProcessID", "Name", true);
 
             var originCategories = await factory.RuloMigrations.GetOriginCategoryList();
             originCategories = originCategories.Where(x => x.OriginCategoryID == 1 || x.OriginCategoryID == 7); //1=PP00, 7=DES0
             var originCategoryList = WebUtilities.Create<OriginCategory>(originCategories.ToList(), "OriginCategoryID", "Name", true);
 
+            var locations = await factory.RuloMigrations.GetLocationList();
+            var floors = await factory.Floors.GetFloorList();
+
+            var list = from l in locations
+                       join f in floors on l.Floor?.FloorID equals f.FloorID
+                       into ljL
+                       from subL in ljL.DefaultIfEmpty()
+                       select new Location{
+                           LocationID = l.LocationID,
+                           Name = $"{l.Name} ({subL?.FloorName})"
+                       };
+
+            var locationList = WebUtilities.Create<Location>(list.ToList(), "LocationID", "Name", true);
+
             ViewBag.MigrationCategoryList = migrationCategorylist;
             ViewBag.DefinitionProcessList = definitionProcessList;
             ViewBag.OriginCategoryList = originCategoryList;
+            ViewBag.LocationList = locationList;
         }
 
         // GET: RuloMigration/Edit/5
@@ -292,9 +311,18 @@ namespace GD.FinishingSystem.WEB.Controllers
 
             try
             {
+
                 if (ruloMigration.RuloMigrationID == 0)
                 {
                     if (!User.IsInRole("RuloMigration", AuthType.Add)) return Unauthorized();
+
+                    //Validate if this rulo don't exists
+                    if (await factory.RuloMigrations.Exists(ruloMigration))
+                    {
+                        ViewBag.Error = false;
+                        ViewBag.ErrorMessage = $"Ya existe un registro en la base de datos con la informción lote: {ruloMigration.Lote}, julio: {ruloMigration.Beam}, telar: {ruloMigration.Loom}, pieza: {ruloMigration.PieceNo}, parada: {ruloMigration.BeamStop}.";
+                        return View("CreateOrUpdate", ruloMigration);
+                    }
 
                     ruloMigration.Date = DateTime.Now;
                     ruloMigration.WarehouseCategoryID = 1; //Default 1=RAW
@@ -309,6 +337,14 @@ namespace GD.FinishingSystem.WEB.Controllers
                 else
                 {
                     if (!User.IsInRole("RuloMigration", AuthType.Update)) return Unauthorized();
+
+                    //Validate if this rulo don't exists
+                    if (await factory.RuloMigrations.Exists(ruloMigration))
+                    {
+                        ViewBag.Error = false;
+                        ViewBag.ErrorMessage = $"Ya existe un registro en la base de datos con la informción lote: {ruloMigration.Lote}, julio: {ruloMigration.Beam}, telar: {ruloMigration.Loom}, pieza: {ruloMigration.PieceNo}, parada: {ruloMigration.BeamStop}.";
+                        return View("CreateOrUpdate", ruloMigration);
+                    }
 
                     var foundRuloMigration = await factory.RuloMigrations.GetRuloMigrationFromRuloMigrationID(ruloMigration.RuloMigrationID);
 
@@ -336,6 +372,7 @@ namespace GD.FinishingSystem.WEB.Controllers
                     foundRuloMigration.DefinitionProcessID = ruloMigration.DefinitionProcessID;
                     foundRuloMigration.IsToyotaMigration = ruloMigration.IsToyotaMigration;
                     foundRuloMigration.OriginID = ruloMigration.OriginID;
+                    foundRuloMigration.LocationID = ruloMigration.LocationID;
 
                     await factory.RuloMigrations.Update(foundRuloMigration, int.Parse(User.Identity.Name));
                 }
@@ -474,6 +511,7 @@ namespace GD.FinishingSystem.WEB.Controllers
             newRulo.EntranceLength = 0;
 
             newRulo.Shift = GetTurno(DateTime.Now); //This Shift is from Loom
+            newRulo.MainOriginID = foundRuloMigration.OriginID.HasValue ? (int)foundRuloMigration.OriginID : 1; //1 = PP00;
             newRulo.OriginID = foundRuloMigration.OriginID.HasValue ? (int)foundRuloMigration.OriginID : 1; //1 = PP00;
             newRulo.Observations = foundRuloMigration.Observations;
 
@@ -493,11 +531,11 @@ namespace GD.FinishingSystem.WEB.Controllers
         {
 
             ruloFilters.dtEnd = ruloFilters.dtEnd.AddDays(1).AddMilliseconds(-1);
-            var result = await factory.RuloMigrations.GetRuloMigrationReportListFromFilters(ruloFilters);
+            var result = await factory.RuloMigrations.GetRawFabricStocktFromFilters(ruloFilters);
 
             ExportToExcel export = new ExportToExcel();
-            string reportName = "Finishing Report Rulo Raw";
-            string fileName = $"Finishing Report Rulo Raw_{DateTime.Today.Year}_{DateTime.Today.Month.ToString().PadLeft(2, '0')}_{DateTime.Today.Day.ToString().PadLeft(2, '0')}.xlsx";
+            string reportName = "Raw Fabric Stock";
+            string fileName = $"Raw Fabric Stock_{DateTime.Today.Year}_{DateTime.Today.Month.ToString().PadLeft(2, '0')}_{DateTime.Today.Day.ToString().PadLeft(2, '0')}.xlsx";
 
             var fileResult = await export.ExportWithDisplayName<VMRuloMigrationReport>("Global Denim S.A. de C.V.", "Finishing", reportName, fileName, result.ToList());
 
@@ -580,9 +618,9 @@ namespace GD.FinishingSystem.WEB.Controllers
                 beam = ruloMigrationOrigin.Beam;
 
                 RuloMigration ruloMigrationDestination = new RuloMigration();
-            
+
                 GD.FinishingSystem.WEB.Classes.Extensions.CopyProperties(ruloMigrationOrigin, ruloMigrationDestination);
-            
+
                 //Change Rulo Migration ID
                 ruloMigrationDestination.RuloMigrationID = 0;
                 ruloMigrationDestination.Meters = meter;
@@ -593,14 +631,14 @@ namespace GD.FinishingSystem.WEB.Controllers
 
                 await factory.RuloMigrations.Add(ruloMigrationDestination, int.Parse(User.Identity.Name));
                 await factory.RuloMigrations.Update(ruloMigrationOrigin, int.Parse(User.Identity.Name));
-           
+
             }
             catch (Exception)
             {
                 errorMessage = $"Error al crear el avance de tela en el Crudo: {ruloMigrationID}";
             }
 
-            return new JsonResult(new { errorMessage = errorMessage, lote = lote, beam = beam  });
+            return new JsonResult(new { errorMessage = errorMessage, lote = lote, beam = beam });
         }
 
     }
