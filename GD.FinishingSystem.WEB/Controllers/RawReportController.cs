@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
+using SQLitePCL;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -102,7 +103,26 @@ namespace GD.FinishingSystem.WEB.Controllers
                     if (!fileResult2.Item1) return NotFound();
 
                     fileStreamResult = fileResult2.Item2;
-                    //return fileResult2.Item2;
+                    break;
+                case 3:
+                    reportFilter.dtEnd = reportFilter.dtEnd.AddDays(1).AddMilliseconds(-1);
+                    var result3 = await factory.RuloMigrations.GetAllTheInformationFromRawFabric(reportFilter.dtEnd);
+
+                    reportName = "All The Information From Raw Fabric";
+                    fileName = $"All The Information From Raw Fabric_{DateTime.Today.Year}_{DateTime.Today.Month.ToString().PadLeft(2, '0')}_{DateTime.Today.Day.ToString().PadLeft(2, '0')}.xlsx";
+
+                    var fileResult3 = await export.ExportWithDisplayName<VMRuloMigrationReport>("Global Denim S.A. de C.V.", "Finishing", reportName, fileName, result3.ToList());
+
+                    if (!fileResult3.Item1) return NotFound();
+
+                    //reportName = "Processed Raw Fabric " + reportFilter.dtBegin.ToString("dd-MM-yyyy HH:mm") + " To " + reportFilter.dtEnd.ToString("dd-MM-yyyy HH:mm");
+                    //fileName = $"Processed Raw Fabric_{DateTime.Today.Year}_{DateTime.Today.Month.ToString().PadLeft(2, '0')}_{DateTime.Today.Day.ToString().PadLeft(2, '0')}.xlsx";
+
+                    //var ruloMigrations2 = await factory.RuloMigrations.GetProcessedRawFabricFromFilters(reportFilter);
+
+                    //var fileResult3 = await export.ExportWithDisplayName<VMRuloMigrationReport>("Global Denim S.A. de C.V.", "Finishing", reportName, fileName, ruloMigrations2.ToList());
+
+                    fileStreamResult = fileResult3.Item2;
                     break;
                 default:
                     break;

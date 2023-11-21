@@ -244,7 +244,8 @@ namespace GD.FinishingSystem.Bussines.Concrete
             return rulosMigration;
         }
 
-        public override async Task<IEnumerable<VMRuloMigrationReport>> GetAllVMRuloReportList(DateTime dtEnd)
+
+        public override async Task<IEnumerable<VMRuloMigrationReport>> GetAllTheInformationFromRawFabric(DateTime dtEnd)
         {
             var query = repository.GetQueryable(x => !x.IsDeleted && x.Date <= dtEnd);
 
@@ -354,7 +355,8 @@ namespace GD.FinishingSystem.Bussines.Concrete
                 }
                 else
                 {
-                    var results = await repository.GetWhere(x => x.Lote == result.Lote && x.Beam == result.Beam && x.RuloID == null && x.FabricAdvance != true);
+                    //TODO: Revisar si es que está bien agregar el telar o no, porque funcionada bien hasta que solo varió por el telar y jaló unos registros de más
+                    var results = await repository.GetWhere(x => x.Lote == result.Lote && x.Beam == result.Beam && x.Loom == result.Loom && x.RuloID == null && x.FabricAdvance != true);
 
                     foreach (var item in results)
                     {

@@ -549,7 +549,7 @@ namespace GD.FinishingSystem.WEB.Controllers
         public async Task<IActionResult> ExportToExcelAllStock(VMRuloFilters ruloFilters)
         {
             ruloFilters.dtEnd = ruloFilters.dtEnd.AddDays(1).AddMilliseconds(-1);
-            var result = await factory.RuloMigrations.GetAllVMRuloReportList(ruloFilters.dtEnd);
+            var result = await factory.RuloMigrations.GetAllTheInformationFromRawFabric(ruloFilters.dtEnd);
 
             ExportToExcel export = new ExportToExcel();
             string reportName = "Finishing Report Rulo Raw All";
