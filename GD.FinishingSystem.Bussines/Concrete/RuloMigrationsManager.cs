@@ -28,6 +28,7 @@ namespace GD.FinishingSystem.Bussines.Concrete
         IAsyncRepository<Location> repositoryLocation = null;
         IAsyncRepository<TblFinishRawFabricEntrance> repositoryFinishRawFabricEntrance = null;
         IAsyncRepository<Floor> repositoryFloor = null;
+        private DbContext context = null;
         public RuloMigrationsManager(DbContext context)
         {
             this.repository = new GenericRepository<RuloMigration>(context);
@@ -39,6 +40,7 @@ namespace GD.FinishingSystem.Bussines.Concrete
             this.repositoryLocation = new GenericRepository<Location>(context);
             this.repositoryFinishRawFabricEntrance = new GenericRepository<TblFinishRawFabricEntrance>(context);
             this.repositoryFloor = new GenericRepository<Floor>(context);
+            this.context = context;
         }
         public override async Task Add(RuloMigration ruloMigration, int adderRef)
         {
@@ -244,6 +246,33 @@ namespace GD.FinishingSystem.Bussines.Concrete
             return rulosMigration;
         }
 
+        public override async Task<IEnumerable<VMRuloMigrationReport>> GetFinishedProcessRawFabric(VMReportFilter reportFilter)
+        {
+            string query = string.Empty;
+
+            //Order in stored procedure
+            var txtStyle = string.IsNullOrWhiteSpace(reportFilter.txtStyle) ? reportFilter.txtStyle : null;
+            var numLote = reportFilter.numLote != 0 ? (int?)reportFilter.numLote : null;
+            var numBeam = reportFilter.numBeam != 0 ? (int?)reportFilter.numBeam : null;
+            var numLoom = reportFilter.numLoom != 0 ? (int?)reportFilter.numLoom : null;
+            var shift = reportFilter.shift != 0 ? (int?)reportFilter.shift : null;
+
+            object[] parameters = new object[] {
+                    reportFilter.dtBegin.ToString("yyyy-MM-dd HH:mm:ss"),
+                    reportFilter.dtEnd.ToString("yyyy-MM-dd HH:mm:ss"),
+                    txtStyle,
+                    numLote,
+                    numBeam,
+                    numLoom,
+                    shift
+                    };
+
+            //var rawReportList = await repository.GetWithRawSql(query, parameters);
+
+            var rawReportList = context.Set<VMRuloMigrationReport>().FromSqlRaw("exec spFinishedProcessRawFabric @p0,@p1,@p2,@p3,@p4,@p5,@p6", parameters);
+
+            return rawReportList;
+        }
 
         public override async Task<IEnumerable<VMRuloMigrationReport>> GetAllTheInformationFromRawFabric(DateTime dtEnd)
         {

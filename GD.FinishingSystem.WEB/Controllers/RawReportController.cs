@@ -106,21 +106,15 @@ namespace GD.FinishingSystem.WEB.Controllers
                     break;
                 case 3:
                     reportFilter.dtEnd = reportFilter.dtEnd.AddDays(1).AddMilliseconds(-1);
-                    var result3 = await factory.RuloMigrations.GetAllTheInformationFromRawFabric(reportFilter.dtEnd);
+                    var result3 = await factory.RuloMigrations.GetFinishedProcessRawFabric(reportFilter);
 
-                    reportName = "All The Information From Raw Fabric";
-                    fileName = $"All The Information From Raw Fabric_{DateTime.Today.Year}_{DateTime.Today.Month.ToString().PadLeft(2, '0')}_{DateTime.Today.Day.ToString().PadLeft(2, '0')}.xlsx";
+                    reportName = "Finished Process Raw Fabric From " + reportFilter.dtBegin.ToString("dd-MM-yyyy HH:mm") + " To " + reportFilter.dtEnd.ToString("dd-MM-yyyy HH:mm");
+                    fileName = $"Finished Process Raw Fabric_{DateTime.Today.Year}_{DateTime.Today.Month.ToString().PadLeft(2, '0')}_{DateTime.Today.Day.ToString().PadLeft(2, '0')}.xlsx";
 
-                    var fileResult3 = await export.ExportWithDisplayName<VMRuloMigrationReport>("Global Denim S.A. de C.V.", "Finishing", reportName, fileName, result3.ToList());
+                    exclude = new List<string>() { "IsToyota", "WarehouseCategoryID", "Partiality" };
+                    var fileResult3 = await export.ExportWithDisplayName<VMRuloMigrationReport>("Global Denim S.A. de C.V.", "Finishing", reportName, fileName, result3.ToList(), excludeFieldList: exclude);
 
                     if (!fileResult3.Item1) return NotFound();
-
-                    //reportName = "Processed Raw Fabric " + reportFilter.dtBegin.ToString("dd-MM-yyyy HH:mm") + " To " + reportFilter.dtEnd.ToString("dd-MM-yyyy HH:mm");
-                    //fileName = $"Processed Raw Fabric_{DateTime.Today.Year}_{DateTime.Today.Month.ToString().PadLeft(2, '0')}_{DateTime.Today.Day.ToString().PadLeft(2, '0')}.xlsx";
-
-                    //var ruloMigrations2 = await factory.RuloMigrations.GetProcessedRawFabricFromFilters(reportFilter);
-
-                    //var fileResult3 = await export.ExportWithDisplayName<VMRuloMigrationReport>("Global Denim S.A. de C.V.", "Finishing", reportName, fileName, ruloMigrations2.ToList());
 
                     fileStreamResult = fileResult3.Item2;
                     break;
