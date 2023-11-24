@@ -157,6 +157,8 @@ namespace GD.FinishingSystem.DAL.Concrete.EntityFramework
             modelBuilder.Entity<WarehouseStock>().HasNoKey();
 
             modelBuilder.Entity<TblFinishRawFabricEntrance>().HasNoKey();
+
+            modelBuilder.Entity<VMRuloMigrationReport>().HasNoKey();
         }
 
 
