@@ -1,0 +1,18 @@
+﻿USE dbFinishingSystem
+SET IDENTITY_INSERT [tblLocations] ON
+GO
+INSERT INTO [dbo].[tblLocations] ([LocationID],[Name],[CreatorID],[CreatedDate],[LastUpdaterID],[LastUpdateDate],[IsDeleted],[DeletedDate],[DeleterID],[FloorID]) VALUES (297,'Pasillo A-B ',1,'2023-11-20 15:00',1,'2023-11-20 15:00',0,NULL,NULL,1)
+INSERT INTO [dbo].[tblLocations] ([LocationID],[Name],[CreatorID],[CreatedDate],[LastUpdaterID],[LastUpdateDate],[IsDeleted],[DeletedDate],[DeleterID],[FloorID]) VALUES (298,'Pasillo C-D ',1,'2023-11-20 15:00',1,'2023-11-20 15:00',0,NULL,NULL,1)
+INSERT INTO [dbo].[tblLocations] ([LocationID],[Name],[CreatorID],[CreatedDate],[LastUpdaterID],[LastUpdateDate],[IsDeleted],[DeletedDate],[DeleterID],[FloorID]) VALUES (299,'Area de Carga ',1,'2023-11-20 15:00',1,'2023-11-20 15:00',0,NULL,NULL,1)
+INSERT INTO [dbo].[tblLocations] ([LocationID],[Name],[CreatorID],[CreatedDate],[LastUpdaterID],[LastUpdateDate],[IsDeleted],[DeletedDate],[DeleterID],[FloorID]) VALUES (300,'Pasillo 1 (escritorio)',1,'2023-11-20 15:00',1,'2023-11-20 15:00',0,NULL,NULL,1)
+INSERT INTO [dbo].[tblLocations] ([LocationID],[Name],[CreatorID],[CreatedDate],[LastUpdaterID],[LastUpdateDate],[IsDeleted],[DeletedDate],[DeleterID],[FloorID]) VALUES (301,'Pasillo 2 (lavanderia)',1,'2023-11-20 15:00',1,'2023-11-20 15:00',0,NULL,NULL,1)
+INSERT INTO [dbo].[tblLocations] ([LocationID],[Name],[CreatorID],[CreatedDate],[LastUpdaterID],[LastUpdateDate],[IsDeleted],[DeletedDate],[DeleterID],[FloorID]) VALUES (302,'Pasillo A-B ',1,'2023-11-20 15:00',1,'2023-11-20 15:00',0,NULL,NULL,2)
+INSERT INTO [dbo].[tblLocations] ([LocationID],[Name],[CreatorID],[CreatedDate],[LastUpdaterID],[LastUpdateDate],[IsDeleted],[DeletedDate],[DeleterID],[FloorID]) VALUES (303,'Pasillo C-D ',1,'2023-11-20 15:00',1,'2023-11-20 15:00',0,NULL,NULL,2)
+INSERT INTO [dbo].[tblLocations] ([LocationID],[Name],[CreatorID],[CreatedDate],[LastUpdaterID],[LastUpdateDate],[IsDeleted],[DeletedDate],[DeleterID],[FloorID]) VALUES (304,'Tepango ',1,'2023-11-20 15:00',1,'2023-11-20 15:00',0,NULL,NULL,2)
+INSERT INTO [dbo].[tblLocations] ([LocationID],[Name],[CreatorID],[CreatedDate],[LastUpdaterID],[LastUpdateDate],[IsDeleted],[DeletedDate],[DeleterID],[FloorID]) VALUES (305,'Mario crosta ',1,'2023-11-20 15:00',1,'2023-11-20 15:00',0,NULL,NULL,2)
+INSERT INTO [dbo].[tblLocations] ([LocationID],[Name],[CreatorID],[CreatedDate],[LastUpdaterID],[LastUpdateDate],[IsDeleted],[DeletedDate],[DeleterID],[FloorID]) VALUES (306,'Penteck ',1,'2023-11-20 15:00',1,'2023-11-20 15:00',0,NULL,NULL,2)
+INSERT INTO [dbo].[tblLocations] ([LocationID],[Name],[CreatorID],[CreatedDate],[LastUpdaterID],[LastUpdateDate],[IsDeleted],[DeletedDate],[DeleterID],[FloorID]) VALUES (307,'Puerta de Tejido 1',1,'2023-11-20 15:00',1,'2023-11-20 15:00',0,NULL,NULL,2)
+INSERT INTO [dbo].[tblLocations] ([LocationID],[Name],[CreatorID],[CreatedDate],[LastUpdaterID],[LastUpdateDate],[IsDeleted],[DeletedDate],[DeleterID],[FloorID]) VALUES (308,'Pizo A1',1,'2023-11-20 15:00',1,'2023-11-20 15:00',0,NULL,NULL,2)
+GO
+SET IDENTITY_INSERT [tblLocations] OFF
+GO

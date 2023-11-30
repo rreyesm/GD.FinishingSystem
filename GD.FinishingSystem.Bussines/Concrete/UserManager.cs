@@ -59,7 +59,7 @@ namespace GD.FinishingSystem.Bussines.Concrete
             var user = await repository.GetByPrimaryKey(UserID);
             if (user == null || !user.IsActive || user.IsDeleted) return (new string[] { });
             var AllRoles = await userRoleRepository.GetWhere(o => !o.IsDeleted && o.UserID == UserID);
-            
+
             return AllRoles.ToList().Select(o => o.GetAuthCode);
         }
 

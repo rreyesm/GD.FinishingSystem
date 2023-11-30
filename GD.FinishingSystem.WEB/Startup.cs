@@ -30,7 +30,8 @@ namespace GD.FinishingSystem.WEB
         {
             services.AddSingleton<IFileProvider>(
     new PhysicalFileProvider(
-        Path.Combine(Directory.GetCurrentDirectory(), "wwwroot")));
+        Path.Combine(Directory.GetCurrentDirectory(), "wwwroot"))
+    );
 
             services.ConfigureWritable<AppSettings>(Configuration.GetSection("AppSettings"));
             //services.Configure<AppSettings>(Configuration.GetSection("AppSettings"));

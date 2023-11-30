@@ -41,7 +41,13 @@
                 <input id="Password" name="Password" value="123456" disabled class="form-control" />
             </div>
         </div>
-
+        <div class="col-lg-4 col-md-6 col-sm-12">
+            <div class="form-group">
+                <label asp-for="AreaID" class="control-label">User Area ID Based in General Database (2: Desarrollos, 6: Acabado, 18: Tejido)</label>
+                <input type="number" onfocusout="controlForSmallerThanZero('numLoom')" min="0" asp-for="AreaID" class="form-control" />
+                <span asp-validation-for="AreaID" class="text-danger"></span>
+            </div>
+        </div>
     </div>
     @if ((bool)ViewBag.Error)
     {
@@ -64,3 +70,15 @@
     <a asp-action="UserList" class="btn btn-sm btn-secondary"><i class="lni lni-chevron-left-circle"></i> Back to List</a>
 </div>
 
+<script>
+    function controlForSmallerThanZero(controlID) {
+        try {
+            var value = document.getElementById(controlID).value;
+            var a = parseInt(value);
+            if (!(a > 0)) document.getElementById(controlID).value = "0";
+        }
+        catch (err) {
+            document.getElementById(controlID).value = "0";
+        }
+    }
+</script>

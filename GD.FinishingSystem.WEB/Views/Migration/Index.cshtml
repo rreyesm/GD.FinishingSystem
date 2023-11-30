@@ -1,19 +1,25 @@
-﻿@model GD.FinishingSystem.WEB.Classes.IndexModelMigration
+﻿@using GD.FinishingSystem.Entities.ViewModels
+@model GD.FinishingSystem.WEB.Classes.IndexModelMigration
 @{
     var styleList = ViewBag.StyleList;
     var positionRuloMigrationId = ViewBag.PositionRuloMigrationId;
     var locationList = ViewBag.LocationList;
+    var areaID = ViewBag.AreaID;
 }
 
 <h1 class="mt-4">Rulos Raw</h1>
 
 @if (User.IsInRole("RuloMigration", AuthType.Add))
 {
-    <p>
-        <a asp-action="Create" class="btn btn-sm btn-outline-light border-dark btn-dark">
-            <i class="lni lni-circle-plus"></i> Create New
-        </a>
-    </p>
+    @if (areaID == (int)AreaType.Tejido || areaID == (int)AreaType.Desarrollos)
+    {
+        <p>
+            <a asp-action="Create" class="btn btn-sm btn-outline-light border-dark btn-dark">
+                <i class="lni lni-circle-plus"></i> Create New
+            </a>
+        </p>
+    }
+
 }
 
 <form asp-action="Index" method="post" id="formFilters">
@@ -29,9 +35,9 @@
             <div class="form-group">
                 <label for="dtEnd">End</label><br>
                 <input type="datetime-local" style="width:100% !important;" id="dtEnd" name="dtEnd">
-@*                <div style="width:100% !important;">
-                    <label><input type="radio" id="RealDate" name="EndDateType" onclick="changeDate(1);" value="Real Date" checked /> Real Date</label>
-                    <label><input type="radio" id="AccountingDate" name="EndDateType" onclick="changeDate(2);" value="Accounting Date" /> Accounting Date</label>
+                @*                <div style="width:100% !important;">
+                <label><input type="radio" id="RealDate" name="EndDateType" onclick="changeDate(1);" value="Real Date" checked /> Real Date</label>
+                <label><input type="radio" id="AccountingDate" name="EndDateType" onclick="changeDate(2);" value="Accounting Date" /> Accounting Date</label>
                 </div>*@
                 <input type="hidden" id="isAccountingDate" name="isAccountingDate" />
             </div>
@@ -115,7 +121,6 @@
         <div class="alert alert-success">
             @Html.Raw(ViewBag.OkMessage)
         </div>
-
     }
 
 </div>
@@ -158,9 +163,9 @@
                     Rulo Raw List
                     @*<a onclick="exportToExcel();" class="btn btn-sm btn-success"><i class="far fa-file-excel"></i> Raw Fabric Stock</a>*@
 
-@*                    @if (User.IsInRole("Authorize", AuthType.Full))
+                    @*                    @if (User.IsInRole("Authorize", AuthType.Full))
                     {
-                        <a onclick="exportToExcelAllStock();" class="btn btn-sm btn-danger"><i class="far fa-file-excel"></i> Export All Stock</a>
+                    <a onclick="exportToExcelAllStock();" class="btn btn-sm btn-danger"><i class="far fa-file-excel"></i> Export All Stock</a>
                     }*@
                 </div>
             </th>
@@ -171,7 +176,11 @@
             </th>
             <th></th>
             <th></th>
-            <th></th>
+            @if (areaID == (int)AreaType.Acabado)
+            {
+                <th></th>
+                <th></th>
+            }
             <th>
                 @Html.DisplayNameFor(model => model.RuloMigrationList[0].RuloID)
             </th>
@@ -212,7 +221,7 @@
                 @Html.DisplayNameFor(model => model.RuloMigrationList[0].Meters)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.RuloMigrationList[0].GummedMeters)
+                @Html.DisplayNameFor(model => model.RuloMigrationList[0].SizingMeters)
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.RuloMigrationList[0].MigrationCategoryID)
@@ -221,7 +230,7 @@
                 @Html.DisplayNameFor(model => model.RuloMigrationList[0].WeavingShift)
             </th>
             <th>
-                @Html.DisplayNameFor(model=> model.RuloMigrationList[0].Location)
+                @Html.DisplayNameFor(model => model.RuloMigrationList[0].Location)
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.RuloMigrationList[0].Observations)
@@ -233,31 +242,40 @@
         {
             var color = "bgcolor=transparent";
             if (item.RuloID != null && item.RuloID != 0)
-                color = "bgcolor=66ff66";
+                color = "bgcolor=66ff66"; //Verde
+            else if (item.RuloID == null && item.WarehouseCategoryID != null && item.WarehouseCategoryID != 8) //Deafult 8 = W1
+                color = "bgcolor=ffc300"; //Amarillo
+            else
+                color = "bgcolor=transparent";
 
-            <tr @color id="@("row"+@item.RuloMigrationID)">
+            <tr @color id="@("row" + @item.RuloMigrationID)">
                 <td>
                     <span style="font-weight:bold">
                         @Html.DisplayFor(modelItem => item.RuloMigrationID)
                     </span>
                 </td>
-                <td>
-                    <div style="display:block;width:90px">
-                        @if (User.IsInRole("Rulo", AuthType.Add))
-                        {
-                            if (item.RuloID == null || item.RuloID == 0)
+
+                @if (areaID == (int)AreaType.Acabado)
+                {
+                    <td>
+                        <div style="display:block;width:90px">
+                            @if (User.IsInRole("Rulo", AuthType.Add))
                             {
-
-                                <a id="@("rulo"+@item.RuloMigrationID)" onclick="validateCreateRulo(@item.Lote, @item.RuloMigrationID)" class="btn input-xs btn-dark">
-                                    <i class="lni lni-circle-plus"></i> Create Rulo
-                                </a>
+                                if (item.RuloID == null || item.RuloID == 0)
+                                {
+                                    <a id="@("rulo"+@item.RuloMigrationID)" onclick="validateCreateRulo(@item.Lote, @item.RuloMigrationID)" class="btn input-xs btn-dark">
+                                        <i class="lni lni-circle-plus"></i> Create Rulo
+                                    </a>
+                                }
                             }
-                        }
-                    </div>
-                </td>
+                        </div>
+                    </td>
+                }
 
                 <td>
-                    <div style="display:block;width:75px;">
+                    <div style="display:block;width:105px;">
+                        <a href="#" onclick="printRawLabel(@areaID, @item.RuloMigrationID)" data-toggle="modal" data-target="#modalDialog"><i class="lni lni-printer"></i></a>
+                        @Html.Raw(" | ")
                         @if (User.IsInRole("RuloMigration", AuthType.Update))
                         {
                             <a asp-action="Edit" asp-route-rulomigrationid="@item.RuloMigrationID">
@@ -275,25 +293,41 @@
                         }
                         @if (User.IsInRole("RuloMigration", AuthType.Delete))
                         {
-                            if (User.IsInRole("RuloMigration", AuthType.Show))
-                                @Html.Raw(" | ")
+                            @if (areaID == (int)AreaType.Tejido || areaID == (int)AreaType.Desarrollos)
+                            {
+                                if (User.IsInRole("RuloMigration", AuthType.Show))
+                                    @Html.Raw(" | ")
 
-                            <a asp-action="Delete" asp-route-rulomigrationid="@item.RuloMigrationID">
-                                <i class="lni lni-circle-minus"></i>
-                            </a>
+                                <a asp-action="Delete" asp-route-rulomigrationid="@item.RuloMigrationID">
+                                    <i class="lni lni-circle-minus"></i>
+                                </a>
+                            }
                         }
                     </div>
                 </td>
-                <td>
-                    <div style="display:block;width:90px">
-                        @if (User.IsInRole("Rulo", AuthType.Add))
-                        {
-                            if (item.RuloID == null || item.RuloID == 0)
+                @if (areaID == (int)AreaType.Acabado)
+                {
+                    <td>
+                        <div style="display:block;width:90px">
+                            @if (User.IsInRole("Rulo", AuthType.Add))
                             {
-                                <a id="@("rulo"+@item.RuloMigrationID)" onclick="createFactoryAdvance(@item.RuloMigrationID)" class="btn input-xs btn-dark">
-                                    <i class="lni lni-circle-plus"></i> Adelanto
-                                </a>
+                                if (item.RuloID == null || item.RuloID == 0)
+                                {
+                                    <a id="@("rulo"+@item.RuloMigrationID)" onclick="createFactoryAdvance(@item.RuloMigrationID)" class="btn input-xs btn-dark">
+                                        <i class="lni lni-circle-plus"></i> Adelanto
+                                    </a>
+                                }
                             }
+                        </div>
+                    </td>
+                }
+                <td>
+                    <div style="display:block;width:15px">
+                        @if (areaID == (int)AreaType.Acabado && item.WarehouseCategoryID == 8)
+                        {
+                            <a id="@("rulo"+@item.RuloMigrationID)" onclick="transferFromWeavingToFinishing(@item.RuloMigrationID)" class="btn input-xs btn-danger">
+                                <i class="lni lni-checkmark-circle"></i>
+                            </a>
                         }
                     </div>
                 </td>
@@ -317,7 +351,7 @@
                 <td>
                     @Html.DisplayFor(modelItem => item.Loom)
                 </td>
-                 <td>
+                <td>
                     <div style="display:block;width:75px;">
                         @Html.DisplayFor(modelItem => item.IsToyotaText)
                     </div>
@@ -332,7 +366,7 @@
                         @Html.DisplayFor(modelItem => item.StyleName)
                     </div>
                 </td>
-                 <td>
+                <td>
                     <div style="display:block;width:100;">
                         @Html.DisplayFor(modelItem => item.NextMachine)
                     </div>
@@ -350,7 +384,7 @@
                 </td>
                 <td>
                     <div style="display:block;width:135px;">
-                        @Html.DisplayFor(modelItem => item.GummedMeters)
+                        @Html.DisplayFor(modelItem => item.SizingMeters)
                     </div>
                 </td>
                 <td>
@@ -414,35 +448,56 @@
     <span style="font-weight: bold">
         Pag.: @(Model.RuloMigrationList.PageIndex) of @(Model.RuloMigrationList.TotalPages)
     </span>
+
 </div>
 
-@section scripts{
+<div class="modal fade" id="modalDialog" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        @*modal-lg*@
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Label</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div id="objModal"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts {
     <script>
-            $(document).on('change', '.up', function () {
-                var names = [];
-                var length = $(this).get(0).files.length;
-                for (var i = 0; i < $(this).get(0).files.length; ++i) {
-                    names.push($(this).get(0).files[i].name);
-                }
-                // $("input[name=file]").val(names);
-                if (length > 2) {
-                    var fileName = names.join(', ');
-                    $(this).closest('.form-group').find('.form-control').attr("value", length + " files selected");
-                }
-                else {
-                    $(this).closest('.form-group').find('.form-control').attr("value", names);
-                }
-            });
+        $(document).on('change', '.up', function () {
+            var names = [];
+            var length = $(this).get(0).files.length;
+            for (var i = 0; i < $(this).get(0).files.length; ++i) {
+                names.push($(this).get(0).files[i].name);
+            }
+            // $("input[name=file]").val(names);
+            if (length > 2) {
+                var fileName = names.join(', ');
+                $(this).closest('.form-group').find('.form-control').attr("value", length + " files selected");
+            }
+            else {
+                $(this).closest('.form-group').find('.form-control').attr("value", names);
+            }
+        });
 
-            $(document).ready(function () {
+        $(document).ready(function () {
 
-                var position = '@positionRuloMigrationId';
-                if (!isNaN(position) && position > 0) {
+            var position = '@positionRuloMigrationId';
+            if (!isNaN(position) && position > 0) {
                 var element = document.getElementById("row" + position);
                 element.scrollIntoView({ block: "end", behavior: "smooth" });
-                }
+            }
 
-            });
+        });
     </script>
 }
 
@@ -534,8 +589,7 @@
         var meter = parseFloat(prompt("Por favor introduzca los metros del Adelanto de Tela", "0"))
         if (isNaN(meter) || meter <= 0) return;
 
-        if (confirm('Estas seguro del total de metros introducidos: ' + meter))
-        {
+        if (confirm('Estas seguro del total de metros introducidos: ' + meter)) {
             $.ajax({
                 url: "/Migration/CreateFactoryAdvance",
                 type: "POST",
@@ -543,8 +597,8 @@
                     ruloMigrationID: ruloMigrationId,
                     meter: meter
                 },
-                success: function (data){
-                    if (data){
+                success: function (data) {
+                    if (data) {
                         if (data.errorMessage == "") {
                             document.getElementById("numLote").value = data.lote;
                             document.getElementById("numBeam").value = data.beam;
@@ -554,7 +608,7 @@
                             alert(data.errorMessage);
                     }
                 },
-                error: function(xhr, ajaxOptions, thrownError){
+                error: function (xhr, ajaxOptions, thrownError) {
                     alert("404 Not found!");
                 }
 
@@ -562,6 +616,44 @@
         }
 
 
+    }
+
+    function printRawLabel(areaId, ruloMigrationId) {
+        if (confirm('¿Estás seguro de querer imprimir esta etiqueta?')) {
+            $.ajax({
+                url: "/Migration/ShowPrintLabel",
+                type: "GET",
+                data:
+                {
+                    areaId: areaId,
+                    ruloMigrationId: ruloMigrationId,
+                },
+                success: function (data) {
+                    document.getElementById('objModal').innerHTML = data;
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+                    alert("Something went wrong!");
+                }
+            });
+        }
+    }
+
+    function transferFromWeavingToFinishing(ruloMigrationId) {
+        if (confirm("¿Estás seguro de transferir de Tejido a Acabado")) {
+            $.ajax({
+                url: "/Migration/TransferFromWeavingToFinishing",
+                type: "GET",
+                data: {
+                    ruloMigrationId: ruloMigrationId
+                },
+                success: function (data) {
+                    location.href = "/Migration";
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+                    alert("404 Not found!");
+                }
+            })
+        }
     }
 
 </script>

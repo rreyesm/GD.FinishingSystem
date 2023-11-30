@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
-    <TargetFramework>net5.0</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
     <CopyRefAssembliesToPublishDirectory>false</CopyRefAssembliesToPublishDirectory>
     <UserSecretsId>8eda60c3-f329-4a99-a0a0-90d7928cccd5</UserSecretsId>
   </PropertyGroup>
@@ -19,6 +19,7 @@
     <None Remove="Reports\RuloLabel.prn" />
     <None Remove="Reports\RuloLabel_old_2021-08-23.prn" />
     <None Remove="Reports\RulosPDFReport.frx" />
+    <None Remove="Reports\WeavingLabel_Letter.frx" />
   </ItemGroup>
 
   <ItemGroup>
@@ -35,17 +36,17 @@
 
   <ItemGroup>
     <PackageReference Include="ClosedXML" Version="0.95.4" />
-    <PackageReference Include="FastReport.OpenSource" Version="2020.4.6" />
+    <PackageReference Include="FastReport.OpenSource" Version="2023.3.12" />
     <PackageReference Include="FastReport.OpenSource.Data.MsSQL" Version="2020.4.6" />
-    <PackageReference Include="FastReport.OpenSource.Export.PdfSimple" Version="2020.4.6" />
+    <PackageReference Include="FastReport.OpenSource.Export.PdfSimple" Version="2023.3.12" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="5.0.5" />
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="3.8.0" />
     <PackageReference Include="Microsoft.CodeAnalysis.VisualBasic" Version="3.8.0" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="5.0.4">
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="6.0.25">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="5.0.4" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="6.0.25" />
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="5.0.2" />
   </ItemGroup>
 
@@ -56,6 +57,12 @@
 
   <ItemGroup>
     <Folder Include="Views\PDFReport\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="Reports\WeavingLabel.frx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>

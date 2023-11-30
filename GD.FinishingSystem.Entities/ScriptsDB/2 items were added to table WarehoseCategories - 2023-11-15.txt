@@ -1,0 +1,9 @@
+﻿USE [dbFinishingSystem]
+GO
+SET IDENTITY_INSERT [dbo].[tblWarehouseCategories] ON 
+GO
+INSERT [dbo].[tblWarehouseCategories] ([WarehouseCategoryID], [WarehouseCode], [Name], [Description], [CreatorID], [CreatedDate], [LastUpdaterID], [LastUpdateDate], [IsDeleted], [DeletedDate], [DeleterID]) VALUES (8, N'W1', N'W1', N'In Stock Weaving', 1, CAST(N'2023-11-15T12:10:00.0000000' AS DateTime2), 1, CAST(N'2023-11-15T12:10:00.0000000' AS DateTime2), 0, NULL, NULL)
+INSERT [dbo].[tblWarehouseCategories] ([WarehouseCategoryID], [WarehouseCode], [Name], [Description], [CreatorID], [CreatedDate], [LastUpdaterID], [LastUpdateDate], [IsDeleted], [DeletedDate], [DeleterID]) VALUES (9, N'W2', N'W2', N'In Transit Weaving-Finishing', 1, CAST(N'2023-11-15T12:10:00.0000000' AS DateTime2), 1, CAST(N'2023-11-15T12:10:00.0000000' AS DateTime2), 0, NULL, NULL)
+GO
+SET IDENTITY_INSERT [dbo].[tblWarehouseCategories] OFF
+GO

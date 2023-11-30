@@ -1,0 +1,9 @@
+﻿@{
+    int areaId = ViewBag.AreaId;
+    int RMId = ViewBag.RMId;
+}
+
+<div>
+    <embed src="@Url.Action($"ShowPDF", "Migration", new {areaId = areaId, ruloMigrationId = RMId})" width="765" height="450" type="application/pdf" />
+</div>
+

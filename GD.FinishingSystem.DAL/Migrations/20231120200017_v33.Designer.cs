@@ -4,14 +4,16 @@ using GD.FinishingSystem.DAL.Concrete.EntityFramework;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace GD.FinishingSystem.DAL.Migrations
 {
     [DbContext(typeof(FinishingSystemContext))]
-    partial class FinishingSystemContextModelSnapshot : ModelSnapshot
+    [Migration("20231120200017_v33")]
+    partial class v33
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -568,6 +570,9 @@ namespace GD.FinishingSystem.DAL.Migrations
                     b.Property<bool>("FabricAdvance")
                         .HasColumnType("bit");
 
+                    b.Property<decimal>("SizingMeters")
+                        .HasColumnType("decimal(18,2)");
+
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
@@ -621,9 +626,6 @@ namespace GD.FinishingSystem.DAL.Migrations
 
                     b.Property<int?>("RuloID")
                         .HasColumnType("int");
-
-                    b.Property<decimal>("SizingMeters")
-                        .HasColumnType("decimal(18,2)");
 
                     b.Property<string>("Style")
                         .HasColumnType("nvarchar(max)");
@@ -960,9 +962,6 @@ namespace GD.FinishingSystem.DAL.Migrations
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<int>("AreaID")
-                        .HasColumnType("int");
-
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("datetime2");
 
@@ -979,6 +978,9 @@ namespace GD.FinishingSystem.DAL.Migrations
                         .HasColumnType("bit");
 
                     b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("AreaID")
                         .HasColumnType("bit");
 
                     b.Property<string>("LastName")

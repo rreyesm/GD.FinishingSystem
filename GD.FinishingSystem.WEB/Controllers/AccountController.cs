@@ -115,7 +115,7 @@ namespace GD.FinishingSystem.WEB.Controllers
         async Task CheckAdminUser()
         {
             string UserName = "raulrm";
-            string Password = "123456";
+            string Password = "1234567";
             string Role = "Admin";
             var res = await factory.Users.CheckLoginUser(UserName, Password);
             if (res.resultType == -1)
@@ -265,7 +265,8 @@ namespace GD.FinishingSystem.WEB.Controllers
         public IActionResult ChangePaginationSize(int paginationSize)
         {
             //appSettings.PageSize = paginationSize;
-            _writableAppSettings.Update(x => {
+            _writableAppSettings.Update(x =>
+            {
                 x.PageSize = paginationSize;
             });
 

@@ -1,12 +1,17 @@
 ﻿using DocumentFormat.OpenXml.Drawing.Diagrams;
 using DocumentFormat.OpenXml.Office2010.Drawing;
+using FastReport;
+using FastReport.Export.PdfSimple;
+using FastReport.Export.PdfSimple.PdfCore;
 using GD.FinishingSystem.Bussines;
 using GD.FinishingSystem.DAL.EFdbPlanta;
 using GD.FinishingSystem.Entities;
 using GD.FinishingSystem.Entities.ViewModels;
 using GD.FinishingSystem.WEB.Classes;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.FileProviders;
@@ -29,10 +34,12 @@ namespace GD.FinishingSystem.WEB.Controllers
         FinishingSystemFactory factory;
         private readonly IFileProvider fileProvider;
         private AppSettings _appSettings;
+        private readonly IWebHostEnvironment webHostEnvironment;
 
         IndexModelMigration IndexModelMigration = null;
-        public MigrationController(IFileProvider fileProvider, IConfiguration configuration)
+        public MigrationController(IWebHostEnvironment webHostEnvironment, IFileProvider fileProvider, IConfiguration configuration)
         {
+            this.webHostEnvironment = webHostEnvironment;
             factory = new FinishingSystemFactory();
             this.fileProvider = fileProvider;
 
@@ -126,6 +133,9 @@ namespace GD.FinishingSystem.WEB.Controllers
             ViewBag.LocationList = locations.Select(x => x.Name);
 
             ViewBag.PositionRuloMigrationId = positionRuloMigrationId;
+
+            var user = await factory.Users.GetByUserID(int.Parse(User.Identity.Name));
+            ViewBag.AreaID = user.AreaID;
         }
 
         [HttpPost, ValidateAntiForgeryToken,
@@ -276,7 +286,8 @@ namespace GD.FinishingSystem.WEB.Controllers
                        join f in floors on l.Floor?.FloorID equals f.FloorID
                        into ljL
                        from subL in ljL.DefaultIfEmpty()
-                       select new Location{
+                       select new Location
+                       {
                            LocationID = l.LocationID,
                            Name = $"{l.Name} ({subL?.FloorName})"
                        };
@@ -287,6 +298,9 @@ namespace GD.FinishingSystem.WEB.Controllers
             ViewBag.DefinitionProcessList = definitionProcessList;
             ViewBag.OriginCategoryList = originCategoryList;
             ViewBag.LocationList = locationList;
+
+            var user = await factory.Users.GetByUserID(int.Parse(User.Identity.Name));
+            ViewBag.AreaID = user.AreaID;
         }
 
         // GET: RuloMigration/Edit/5
@@ -319,13 +333,20 @@ namespace GD.FinishingSystem.WEB.Controllers
                     //Validate if this rulo don't exists
                     if (await factory.RuloMigrations.Exists(ruloMigration))
                     {
-                        ViewBag.Error = false;
+                        ViewBag.Error = true;
                         ViewBag.ErrorMessage = $"Ya existe un registro en la base de datos con la informción lote: {ruloMigration.Lote}, julio: {ruloMigration.Beam}, telar: {ruloMigration.Loom}, pieza: {ruloMigration.PieceNo}, parada: {ruloMigration.BeamStop}.";
                         return View("CreateOrUpdate", ruloMigration);
                     }
 
                     ruloMigration.Date = DateTime.Now;
                     ruloMigration.WarehouseCategoryID = 1; //Default 1=RAW
+
+                    if (ViewBag.AreaID == (int)AreaType.Tejido)
+                    {
+                        ruloMigration.OriginID = 1; //Default: 1=PP00
+                        ruloMigration.WarehouseCategoryID = 8; //Deafult 8 = W1
+                        ruloMigration.MigrationCategoryID = ruloMigration.Meters < 1000 ? 3 : 4; //3=Crudo, 4=Crudo-G
+                    }
 
                     if (!SetStyleAndStyleName(ref ruloMigration))
                     {
@@ -341,46 +362,58 @@ namespace GD.FinishingSystem.WEB.Controllers
                     //Validate if this rulo don't exists
                     if (await factory.RuloMigrations.Exists(ruloMigration))
                     {
-                        ViewBag.Error = false;
+                        ViewBag.Error = true;
                         ViewBag.ErrorMessage = $"Ya existe un registro en la base de datos con la informción lote: {ruloMigration.Lote}, julio: {ruloMigration.Beam}, telar: {ruloMigration.Loom}, pieza: {ruloMigration.PieceNo}, parada: {ruloMigration.BeamStop}.";
                         return View("CreateOrUpdate", ruloMigration);
                     }
 
                     var foundRuloMigration = await factory.RuloMigrations.GetRuloMigrationFromRuloMigrationID(ruloMigration.RuloMigrationID);
 
-                    //foundRuloMigration.Date = ruloMigration.Date;
-                    if (!SetStyleAndStyleName(ref ruloMigration))
+                    if (ViewBag.AreaID == (int)AreaType.Acabado)
                     {
-                        return View("CreateOrUpdate", ruloMigration);
+                        foundRuloMigration.MigrationCategoryID = ruloMigration.MigrationCategoryID != 0 ? ruloMigration.MigrationCategoryID : 3; //Default 3-Crudo
+                        foundRuloMigration.WeavingShift = ruloMigration.WeavingShift;
+                        foundRuloMigration.OriginID = ruloMigration.OriginID;
+                        foundRuloMigration.LocationID = ruloMigration.LocationID;
                     }
+                    else
+                    {
+                        //foundRuloMigration.Date = ruloMigration.Date;
+                        if (!SetStyleAndStyleName(ref ruloMigration))
+                        {
+                            return View("CreateOrUpdate", ruloMigration);
+                        }
 
-                    foundRuloMigration.Style = ruloMigration.Style;
-                    foundRuloMigration.StyleName = ruloMigration.StyleName;
-                    foundRuloMigration.NextMachine = ruloMigration.NextMachine;
-                    foundRuloMigration.Lote = ruloMigration.Lote;
-                    foundRuloMigration.Beam = ruloMigration.Beam;
-                    foundRuloMigration.BeamStop = ruloMigration.BeamStop;
-                    foundRuloMigration.IsToyotaText = ruloMigration.IsToyotaText;
-                    foundRuloMigration.Loom = ruloMigration.Loom;
-                    foundRuloMigration.PieceNo = ruloMigration.PieceNo;
-                    foundRuloMigration.PieceBetilla = ruloMigration.PieceBetilla;
-                    foundRuloMigration.Meters = ruloMigration.Meters;
-                    foundRuloMigration.GummedMeters = ruloMigration.GummedMeters;
-                    foundRuloMigration.MigrationCategoryID = ruloMigration.MigrationCategoryID;
-                    foundRuloMigration.Observations = ruloMigration.Observations;
-                    foundRuloMigration.WeavingShift = ruloMigration.WeavingShift;
-                    foundRuloMigration.DefinitionProcessID = ruloMigration.DefinitionProcessID;
-                    foundRuloMigration.IsToyotaMigration = ruloMigration.IsToyotaMigration;
-                    foundRuloMigration.OriginID = ruloMigration.OriginID;
-                    foundRuloMigration.LocationID = ruloMigration.LocationID;
+                        foundRuloMigration.Style = ruloMigration.Style;
+                        foundRuloMigration.StyleName = ruloMigration.StyleName;
+                        foundRuloMigration.NextMachine = ruloMigration.NextMachine;
+                        foundRuloMigration.Lote = ruloMigration.Lote;
+                        foundRuloMigration.Beam = ruloMigration.Beam;
+                        foundRuloMigration.BeamStop = ruloMigration.BeamStop;
+                        foundRuloMigration.IsToyotaText = ruloMigration.IsToyotaText;
+                        foundRuloMigration.Loom = ruloMigration.Loom;
+                        foundRuloMigration.PieceNo = ruloMigration.PieceNo;
+                        foundRuloMigration.PieceBetilla = ruloMigration.PieceBetilla;
+                        foundRuloMigration.Meters = ruloMigration.Meters;
+                        foundRuloMigration.SizingMeters = ruloMigration.SizingMeters;
+                        foundRuloMigration.MigrationCategoryID = ruloMigration.MigrationCategoryID != 0 ? ruloMigration.MigrationCategoryID : 3; //Default 3-Crudo
+                        foundRuloMigration.Observations = ruloMigration.Observations;
+                        foundRuloMigration.WeavingShift = ruloMigration.WeavingShift;
+                        foundRuloMigration.DefinitionProcessID = ruloMigration.DefinitionProcessID;
+                        foundRuloMigration.IsToyotaMigration = ruloMigration.IsToyotaMigration;
+                        foundRuloMigration.OriginID = ruloMigration.OriginID;
+                        foundRuloMigration.LocationID = ruloMigration.LocationID;
+                    }
 
                     await factory.RuloMigrations.Update(foundRuloMigration, int.Parse(User.Identity.Name));
                 }
 
                 return RedirectToAction(nameof(Index));
             }
-            catch
+            catch (Exception ex)
             {
+                ViewBag.Error = true;
+                ViewBag.ErrorMessage = ex.Message;
                 return View("CreateOrUpdate", ruloMigration);
             }
         }
@@ -414,6 +447,9 @@ namespace GD.FinishingSystem.WEB.Controllers
         [Authorize(AuthenticationSchemes = SystemStatics.DefaultScheme, Roles = "RuloMigrationShow,RuloMigrationFull,AdminFull")]
         public async Task<IActionResult> Delete(int ruloMigrationId)
         {
+            var user = await factory.Users.GetByUserID(int.Parse(User.Identity.Name));
+            ViewBag.AreaID = user.AreaID;
+
             var foundRuloMigration = await factory.RuloMigrations.GetRuloMigrationFromRuloMigrationID(ruloMigrationId);
 
             if (foundRuloMigration == null) return NotFound();
@@ -639,6 +675,80 @@ namespace GD.FinishingSystem.WEB.Controllers
             }
 
             return new JsonResult(new { errorMessage = errorMessage, lote = lote, beam = beam });
+        }
+
+        [Authorize(AuthenticationSchemes = SystemStatics.DefaultScheme, Roles = "RuloMigrationShow,RuloMigrationFull,AdminFull")]
+        public IActionResult ShowPrintLabel(int areaId, int ruloMigrationId)
+        {
+            ViewBag.AreaId = areaId;
+            ViewBag.RMId = ruloMigrationId;
+
+            return PartialView("ShowPDF");
+        }
+
+        [Authorize(AuthenticationSchemes = SystemStatics.DefaultScheme, Roles = "RuloMigrationShow,RuloMigrationFull,AdminFull")]
+        public async Task<IActionResult> ShowPDF(int areaId, int ruloMigrationId) //areId era para manejar diferente etiqueta para el área de acabado, por el momento no se manejará
+        {
+            Report report = null;
+            PDFSimpleExport export = null;
+            MemoryStream memoryStream = null;
+            string contentType = "application/pdf";
+            byte[] bytes = null;
+            string pathReport = string.Empty;
+
+            try
+            {
+                pathReport = System.IO.Path.Combine(webHostEnvironment.WebRootPath, @"..\Reports\WeavingLabel.frx");
+                report = new Report();
+                report.Load(pathReport);
+
+                var ruloMigrations = await factory.RuloMigrations.GetRuloMigrationFromRuloMigrationID(ruloMigrationId);
+
+                report.SetParameterValue("@StyleName", ruloMigrations.StyleName);
+                report.SetParameterValue("@Style", ruloMigrations.Style);
+                report.SetParameterValue("@Lote", ruloMigrations.Lote);
+                report.SetParameterValue("@Beam", ruloMigrations.Beam);
+                report.SetParameterValue("@Loom", ruloMigrations.Loom);
+                report.SetParameterValue("@CreationDate", ruloMigrations.Date);
+                report.SetParameterValue("@BeamStop", ruloMigrations.BeamStop);
+                report.SetParameterValue("@Piece", ruloMigrations.PieceNo);
+                report.SetParameterValue("@IsToyota", ruloMigrations.IsToyotaText);
+                report.SetParameterValue("@SizingMeters", ruloMigrations.SizingMeters);
+                report.SetParameterValue("@Meters", ruloMigrations.Meters);
+                report.SetParameterValue("@RawID", ruloMigrations.RuloMigrationID);
+
+                report.Prepare(true);
+
+                memoryStream = new MemoryStream();
+                export = new PDFSimpleExport();
+                export.Export(report, memoryStream);
+                memoryStream.Seek(0, SeekOrigin.Begin);
+                bytes = memoryStream.ToArray();
+
+            }
+            catch (Exception ex)
+            {
+                BadRequest(ex);
+            }
+            finally
+            {
+                if (memoryStream != null)
+                    memoryStream.Flush();
+            }
+
+            return File(bytes, contentType);
+        }
+
+        public async Task<IActionResult> TransferFromWeavingToFinishing(int ruloMigrationId)
+        {
+            var ruloMigration = await factory.RuloMigrations.GetRuloMigrationFromRuloMigrationID(ruloMigrationId);
+            if (ruloMigration == null) return NotFound();
+
+            ruloMigration.WarehouseCategoryID = 1; //RAW1
+            await factory.RuloMigrations.Update(ruloMigration, int.Parse(User.Identity.Name));
+
+            return Ok();
+
         }
 
     }

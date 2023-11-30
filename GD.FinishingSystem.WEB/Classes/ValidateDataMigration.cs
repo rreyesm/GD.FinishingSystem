@@ -340,9 +340,9 @@ namespace GD.FinishingSystem.WEB.Classes
                     //Validate gummed meters
                     var gummedMeters = workSheet.Cell(row, ++colIni).Value;
                     if (gummedMeters == null || string.IsNullOrEmpty(gummedMeters.ToString()))
-                        ruloMigration.GummedMeters = 0;
+                        ruloMigration.SizingMeters = 0;
                     else if (gummedMeters.IsNumeric())
-                        ruloMigration.GummedMeters = Convert.ToDecimal(gummedMeters);
+                        ruloMigration.SizingMeters = Convert.ToDecimal(gummedMeters);
                     else errorByRowList.Add($"Gummed Meters no valid! Value \"{GetValue(meters)}\", Row {row}, Col {colIni}");
 
                     //Validate status

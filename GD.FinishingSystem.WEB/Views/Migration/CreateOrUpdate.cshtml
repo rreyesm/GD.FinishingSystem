@@ -1,7 +1,9 @@
-﻿@model GD.FinishingSystem.Entities.RuloMigration
+﻿@using GD.FinishingSystem.Entities.ViewModels;
+@model GD.FinishingSystem.Entities.RuloMigration
 
 @{
     var locationList = ViewBag.LocationList;
+    var areaID = ViewBag.AreaID;
 }
 
 <div class="alert alert-info">
@@ -30,124 +32,147 @@
         @Html.AntiForgeryToken()
         <div asp-validation-summary="ModelOnly" class="text-danger"></div>
         <div class="row">
-            <div class="col-lg-3 col-md-4 col-sm-12">
-                <div class="form-group">
-                    <label asp-for="IsTestStyle" class="control-label"></label>
-                    <input type="checkbox" asp-for="IsTestStyle" class="form-control input-xs" onclick="setStyleTest();" />
+            @if (areaID == 0 || areaID == (int)AreaType.Desarrollos)
+            {
+                <div class="col-lg-3 col-md-4 col-sm-12">
+                    <div class="form-group">
+                        <label asp-for="IsTestStyle" class="control-label"></label>
+                        <input type="checkbox" asp-for="IsTestStyle" class="form-control input-xs" onclick="setStyleTest();" />
+                    </div>
                 </div>
-            </div>
-            <div class="col-lg-3 col-md-4 col-sm-12">
-                <div class="form-group">
-                    <label asp-for="Lote" class="control-label"></label>
-                    <input asp-for="Lote" class="form-control" onfocusout="getStyleData()" />
-                    <span asp-validation-for="Lote" class="text-danger"></span>
-                </div>
-            </div>
+            }
 
-            <div class="col-lg-3 col-md-4 col-sm-12">
-                <div class="form-group">
-                    <label asp-for="Beam" class="control-label"></label>
-                    <input asp-for="Beam" class="form-control" />
-                    <span asp-validation-for="Beam" class="text-danger"></span>
+            @if (areaID == (int)AreaType.Tejido)
+            {
+                <div class="col-lg-3 col-md-4 col-sm-12">
+                    <div class="form-group">
+                        <label asp-for="Lote" class="control-label"></label>
+                        <input asp-for="Lote" class="form-control" onfocusout="getStyleData()" />
+                        <span asp-validation-for="Lote" class="text-danger"></span>
+                    </div>
                 </div>
-            </div>
-            <div class="col-lg-3 col-md-4 col-sm-12">
-                <div class="form-group">
-                    <label asp-for="BeamStop" class="control-label"></label>
-                    <input asp-for="BeamStop" class="form-control" />
-                    <span asp-validation-for="BeamStop" class="text-danger"></span>
+
+                <div class="col-lg-3 col-md-4 col-sm-12">
+                    <div class="form-group">
+                        <label asp-for="Beam" class="control-label"></label>
+                        <input asp-for="Beam" class="form-control" />
+                        <span asp-validation-for="Beam" class="text-danger"></span>
+                    </div>
                 </div>
-            </div>
-            <div class="col-lg-3 col-md-4 col-sm-12">
-                <div class="form-group">
-                    <label asp-for="Loom" class="control-label"></label>
-                    <input asp-for="Loom" class="form-control" />
-                    <span asp-validation-for="Loom" class="text-danger"></span>
+                <div class="col-lg-3 col-md-4 col-sm-12">
+                    <div class="form-group">
+                        <label asp-for="BeamStop" class="control-label"></label>
+                        <input asp-for="BeamStop" class="form-control" />
+                        <span asp-validation-for="BeamStop" class="text-danger"></span>
+                    </div>
                 </div>
-            </div>
-            <div class="col-lg-3 col-md-4 col-sm-12">
-                <div class="form-group">
-                    <label asp-for="IsToyotaMigration" class="control-label"></label>
-                    <input type="checkbox" asp-for="IsToyotaMigration" class="form-control input-xs" />
+                <div class="col-lg-3 col-md-4 col-sm-12">
+                    <div class="form-group">
+                        <label asp-for="Loom" class="control-label"></label>
+                        <input asp-for="Loom" class="form-control" />
+                        <span asp-validation-for="Loom" class="text-danger"></span>
+                    </div>
                 </div>
-            </div>
-            <div class="col-lg-3 col-md-4 col-sm-12">
-                <div class="form-group">
-                    <label asp-for="Style" class="control-label"></label>
-                    <input asp-for="Style" class="form-control" disabled />
-                    <span asp-validation-for="Style" class="text-danger"></span>
+                <div class="col-lg-3 col-md-4 col-sm-12">
+                    <div class="form-group">
+                        <label asp-for="IsToyotaMigration" class="control-label"></label>
+                        <input type="checkbox" asp-for="IsToyotaMigration" class="form-control input-xs" />
+                    </div>
                 </div>
-            </div>
-            <div class="col-lg-3 col-md-4 col-sm-12">
-                <div class="form-group">
-                    <label asp-for="StyleName" class="control-label"></label>
-                    <input asp-for="StyleName" class="form-control" disabled />
-                    <span asp-validation-for="StyleName" class="text-danger"></span>
+                <div class="col-lg-3 col-md-4 col-sm-12">
+                    <div class="form-group">
+                        <label asp-for="Style" class="control-label"></label>
+                        <input asp-for="Style" class="form-control" disabled />
+                        <span asp-validation-for="Style" class="text-danger"></span>
+                    </div>
                 </div>
-            </div>
-            <div class="col-lg-3 col-md-4 col-sm-12">
-                <div class="form-group">
-                    <label asp-for="DefinitionProcessID" class="control-label"></label>
-                    <select asp-for="DefinitionProcessID" asp-items="@ViewBag.DefinitionProcessList" class="form-control"></select>
-                    <span asp-validation-for="DefinitionProcessID" class="text-danger"></span>
+                <div class="col-lg-3 col-md-4 col-sm-12">
+                    <div class="form-group">
+                        <label asp-for="StyleName" class="control-label"></label>
+                        <input asp-for="StyleName" class="form-control" disabled />
+                        <span asp-validation-for="StyleName" class="text-danger"></span>
+                    </div>
                 </div>
-            </div>
-            <div class="col-lg-3 col-md-4 col-sm-12">
-                <div class="form-group">
-                    <label asp-for="PieceNo" class="control-label"></label>
-                    <input asp-for="PieceNo" class="form-control" />
-                    <span asp-validation-for="PieceNo" class="text-danger"></span>
+            }
+            @if (areaID == (int)AreaType.Desarrollos) //TODO: && areaID == (int)AreaType.Acabado POSTERIORMENTE DEJAR SÓLO ACABADO. Se deshabilitó para pasar el usuario de Fernando temporalmente del tipo Desarrollos para que acabado pueda capturar la información de RAW cuando se haga a activación de la pantalla de captura de datos de tejido
+            {
+                <div class="col-lg-3 col-md-4 col-sm-12">
+                    <div class="form-group">
+                        <label asp-for="DefinitionProcessID" class="control-label"></label>
+                        <select asp-for="DefinitionProcessID" asp-items="@ViewBag.DefinitionProcessList" class="form-control"></select>
+                        <span asp-validation-for="DefinitionProcessID" class="text-danger"></span>
+                    </div>
                 </div>
-            </div>
-            <div class="col-lg-3 col-md-4 col-sm-12">
-                <div class="form-group">
-                    <label asp-for="PieceBetilla" class="control-label"></label>
-                    <input asp-for="PieceBetilla" class="form-control" />
-                    <span asp-validation-for="PieceBetilla" class="text-danger"></span>
+            }
+
+            @if (areaID == (int)AreaType.Tejido)
+            {
+                <div class="col-lg-3 col-md-4 col-sm-12">
+                    <div class="form-group">
+                        <label asp-for="PieceNo" class="control-label"></label>
+                        <input asp-for="PieceNo" class="form-control" />
+                        <span asp-validation-for="PieceNo" class="text-danger"></span>
+                    </div>
                 </div>
-            </div>
-            <div class="col-lg-3 col-md-4 col-sm-12">
-                <div class="form-group">
-                    <label asp-for="Meters" class="control-label"></label>
-                    <input asp-for="Meters" class="form-control" />
-                    <span asp-validation-for="Meters" class="text-danger"></span>
+                <div class="col-lg-3 col-md-4 col-sm-12">
+                    <div class="form-group">
+                        <label asp-for="PieceBetilla" class="control-label"></label>
+                        <input asp-for="PieceBetilla" class="form-control" />
+                        <span asp-validation-for="PieceBetilla" class="text-danger"></span>
+                    </div>
                 </div>
-            </div>
-            <div class="col-lg-3 col-md-4 col-sm-12">
-                <div class="form-group">
-                    <label asp-for="GummedMeters" class="control-label"></label>
-                    <input asp-for="GummedMeters" class="form-control" />
-                    <span asp-validation-for="GummedMeters" class="text-danger"></span>
+                <div class="col-lg-3 col-md-4 col-sm-12">
+                    <div class="form-group">
+                        <label asp-for="Meters" class="control-label"></label>
+                        <input asp-for="Meters" class="form-control" />
+                        <span asp-validation-for="Meters" class="text-danger"></span>
+                    </div>
                 </div>
-            </div>
-            <div class="col-lg-3 col-md-4 col-sm-12">
-                <div class="form-group">
-                    <label asp-for="MigrationCategoryID" class="control-label"></label>
-                    <select asp-for="MigrationCategoryID" asp-items="@ViewBag.MigrationCategoryList" class="form-control"></select>
-                    <span asp-validation-for="MigrationCategoryID" class="text-danger"></span>
+                <div class="col-lg-3 col-md-4 col-sm-12">
+                    <div class="form-group">
+                        <label asp-for="SizingMeters" class="control-label"></label>
+                        <input asp-for="SizingMeters" class="form-control" />
+                        <span asp-validation-for="SizingMeters" class="text-danger"></span>
+                    </div>
                 </div>
-            </div>
-            <div class="col-lg-3 col-md-4 col-sm-12">
-                <div class="form-group">
-                    <label asp-for="WeavingShift" class="control-label"></label>
-                    <input asp-for="WeavingShift" class="form-control" />
-                    <span asp-validation-for="WeavingShift" class="text-danger"></span>
+            }
+
+            @if (areaID == (int)AreaType.Acabado || areaID == (int)AreaType.Desarrollos) // || areaID == (int)AreaType.Acabado
+            {
+                <div class="col-lg-3 col-md-4 col-sm-12">
+                    <div class="form-group">
+                        <label asp-for="MigrationCategoryID" class="control-label"></label>
+                        <select asp-for="MigrationCategoryID" asp-items="@ViewBag.MigrationCategoryList" class="form-control"></select>
+                        <span asp-validation-for="MigrationCategoryID" class="text-danger"></span>
+                    </div>
                 </div>
-            </div>
-            <div class="col-lg-3 col-md-4 col-sm-12">
-                <div class="form-group">
-                    <label asp-for="OriginID" class="control-label"></label>
-                    <select asp-for="OriginID" asp-items="@ViewBag.OriginCategoryList" class="form-control"></select>
-                    <span asp-validation-for="OriginID" class="text-danger"></span>
+                @if (areaID == (int)AreaType.Acabado) //TODO: Se deshabilitó para pasar el usuario de Fernando temporalmente del tipo Desarrollos para que acabado pueda capturar la información de RAW cuando se haga a activación de la pantalla de captura de datos de tejido
+                {
+                    <div class="col-lg-3 col-md-4 col-sm-12">
+                        <div class="form-group">
+                            <label asp-for="WeavingShift" class="control-label"></label>
+                            <input asp-for="WeavingShift" class="form-control" />
+                            <span asp-validation-for="WeavingShift" class="text-danger"></span>
+                        </div>
+                    </div>
+                }
+
+                <div class="col-lg-3 col-md-4 col-sm-12">
+                    <div class="form-group">
+                        <label asp-for="OriginID" class="control-label"></label>
+                        <select asp-for="OriginID" asp-items="@ViewBag.OriginCategoryList" class="form-control"></select>
+                        <span asp-validation-for="OriginID" class="text-danger"></span>
+                    </div>
                 </div>
-            </div>
-            <div class="col-lg-3 col-md-4 col-sm-12">
-                <div class="form-group">
-                    <label asp-for="Location">Location</label><br />
-                    <select asp-for="LocationID" asp-items="@ViewBag.LocationList" class="form-control"></select>
-                    <span asp-validation-for="LocationID" class="text-danger"></span>
+
+                <div class="col-lg-3 col-md-4 col-sm-12">
+                    <div class="form-group">
+                        <label asp-for="Location">Location</label><br />
+                        <select asp-for="LocationID" asp-items="@ViewBag.LocationList" class="form-control"></select>
+                        <span asp-validation-for="LocationID" class="text-danger"></span>
+                    </div>
                 </div>
-            </div>
+            }
             <div class="col-lg-3 col-md-4 col-sm-12">
                 <div class="form-group">
                     <label asp-for="Observations" class="control-label"></label>
@@ -166,13 +191,20 @@
                 }
 
                 <div class="form-group">
-                    @if (Model.RuloMigrationID == 0)
+                    @if (Model.RuloMigrationID == 0 && (areaID == (int)AreaType.Desarrollos || areaID == (int)AreaType.Tejido))
                     {
                         <button type="submit" class="btn btn-primary"><i class="lni lni-circle-plus"></i> Create</button>
                     }
                     else
                     {
-                        <button type="submit" class="btn btn-success"><i class="lni lni-save"></i> Save Changes</button>
+                        if ((areaID == (int)AreaType.Desarrollos || areaID == (int)AreaType.Acabado) && (Model.WarehouseCategoryID == 1)) // || areaID == (int)AreaType.Acabado
+                        {
+                            <button type="submit" class="btn btn-success"><i class="lni lni-save"></i> Save Changes</button>
+                        }
+                        else if (areaID == (int)AreaType.Tejido && Model.WarehouseCategoryID == 8)
+                        {
+                            <button type="submit" class="btn btn-success"><i class="lni lni-save"></i> Save Changes</button>
+                        }
                     }
 
                 </div>

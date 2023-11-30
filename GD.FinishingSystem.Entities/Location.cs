@@ -16,7 +16,7 @@ namespace GD.FinishingSystem.Entities
         [ForeignKey(name: "FloorID")]
         public Floor Floor { get; set; }
         public int FloorID { get; set; }
-        [MaxLength(10, ErrorMessage = "Máximo 10 carácteres")]
+        [MaxLength(50, ErrorMessage = "Máximo 50 carácteres")]
         [MinLength(1, ErrorMessage = "Mínimo 1 carácter")]
         public string Name { get; set; }
     }

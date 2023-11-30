@@ -44,8 +44,8 @@ namespace GD.FinishingSystem.Entities
         public string PieceBetilla { get; set; }
         [RegularExpression(@"^[0-9]*\.?[0-9]+$", ErrorMessage = "Meters no valid!")]
         public decimal Meters { get; set; }
-        [Display(Name = "Gummed Meters")]
-        public decimal GummedMeters { get; set; }
+        [Display(Name = "Sizing Meters")]
+        public decimal SizingMeters { get; set; } //Before Gummed Meters
         [Display(Name = "Status")]
         [RegularExpression(@"^[1-9][0-9]*$", ErrorMessage = "Please select an Status")]
         public int MigrationCategoryID { get; set; }

@@ -57,7 +57,7 @@ namespace GD.FinishingSystem.Entities
             }
         }
 
-
+        public int AreaID { get; set; }
 
     }
 }
