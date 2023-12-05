@@ -180,7 +180,8 @@ namespace GD.FinishingSystem.Bussines.Concrete
                                       Location = subL != null ? new Location() { LocationID = subL.LocationID, Name = $"{subL.Name} {subF.FloorName}", Floor = subL.Floor } : null,
                                       LocationID = rm?.LocationID,
                                       WarehouseCategoryID = rm?.WarehouseCategoryID,
-                                      WarehouseCatgory = subWH
+                                      WarehouseCatgory = subWH,
+                                      FabricAdvance = rm.FabricAdvance
                                   }
                          ).ToList();
 
@@ -254,7 +255,7 @@ namespace GD.FinishingSystem.Bussines.Concrete
                                       PieceNo = rm.PieceNo,
                                       PieceBetilla = rm.PieceBetilla,
                                       Meters = rm.Meters,
-                                      GummedMeters = rm.SizingMeters,
+                                      SizingMeters = rm.SizingMeters,
                                       MigrationCategoryID = mc.Name,
                                       Observations = rm.Observations,
                                       WeavingShift = rm.WeavingShift,
@@ -333,7 +334,7 @@ namespace GD.FinishingSystem.Bussines.Concrete
                                       PieceNo = rm.PieceNo,
                                       PieceBetilla = rm.PieceBetilla,
                                       Meters = rm.Meters,
-                                      GummedMeters = rm.SizingMeters,
+                                      SizingMeters = rm.SizingMeters,
                                       MigrationCategoryID = mc.Name,
                                       Observations = rm.Observations,
                                       WeavingShift = rm.WeavingShift,

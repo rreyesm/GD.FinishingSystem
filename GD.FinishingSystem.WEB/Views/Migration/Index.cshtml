@@ -180,6 +180,7 @@
             {
                 <th></th>
                 <th></th>
+                <th></th>
             }
             <th>
                 @Html.DisplayNameFor(model => model.RuloMigrationList[0].RuloID)
@@ -313,9 +314,27 @@
                             {
                                 if (item.RuloID == null || item.RuloID == 0)
                                 {
-                                    <a id="@("rulo"+@item.RuloMigrationID)" onclick="createFactoryAdvance(@item.RuloMigrationID)" class="btn input-xs btn-dark">
-                                        <i class="lni lni-circle-plus"></i> Adelanto
+                                    <a id="@("rulo"+@item.RuloMigrationID)" onclick="createFactoryAdvance(@item.RuloMigrationID)" class="btn btn-dark">
+                                        Crear Adelanto Parcial
                                     </a>
+                                }
+                            }
+                        </div>
+                    </td>
+                }
+                @if (areaID == (int)AreaType.Acabado)
+                {
+                    <td>
+                        <div style="text-align:center;display:block;width:100px">
+                            @if (User.IsInRole("Rulo", AuthType.Add))
+                            {
+                                if (item.RuloID == null || item.RuloID == 0)
+                                {
+                                    @if (item.RuloID == null || item.RuloID == 0) // || !item.FabricAdvance
+                                    {
+                                        <input type="checkbox" onclick="markForAdvanceFabric(@item.RuloMigrationID)" id='@Html.Raw("mark"+@item.RuloMigrationID)' @Html.Raw(@item.FabricAdvance ? "checked='checked'" : "") />
+                                        <label class="form-check-label" for='@Html.Raw("mark"+@item.RuloMigrationID)'>Marcar Adelanto Completo</label>
+                                    }
                                 }
                             }
                         </div>
@@ -653,6 +672,27 @@
                     alert("404 Not found!");
                 }
             })
+        }
+    }
+
+    function markForAdvanceFabric(ruloMigrationId) {
+        if (confirm("¿Estás seguro de querer marcar como adelanto el rollo completo?")) {
+            $.ajax({
+                url: "/Migration/MarkForAdvanceFabric",
+                type: "GET",
+                data: {
+                    ruloMigrationId: ruloMigrationId
+                },
+                success: function (data) {
+                    location.href = "/Migration";
+                },
+                error: function (xhr, ajaxOptions, throwError) {
+                    alert("404 Not fount!");
+                }
+            })
+        }
+        else {
+            document.getElementById("mark" + ruloMigrationId).checked = !document.getElementById("mark" + ruloMigrationId).checked;
         }
     }
 

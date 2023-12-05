@@ -751,5 +751,16 @@ namespace GD.FinishingSystem.WEB.Controllers
 
         }
 
+        public async Task<IActionResult> MarkForAdvanceFabric(int ruloMigrationId)
+        {
+            var ruloMigration = await factory.RuloMigrations.GetRuloMigrationFromRuloMigrationID(ruloMigrationId);
+            if (ruloMigration == null) return NotFound();
+
+            ruloMigration.FabricAdvance = !ruloMigration.FabricAdvance;
+            await factory.RuloMigrations.Update(ruloMigration, int.Parse(User.Identity.Name));
+
+            return Ok();
+        }
+
     }
 }

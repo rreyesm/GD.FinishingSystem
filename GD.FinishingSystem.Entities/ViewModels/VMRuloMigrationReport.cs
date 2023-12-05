@@ -27,8 +27,8 @@ namespace GD.FinishingSystem.Entities.ViewModels
         [Display(Name = "Betilla")]
         public string PieceBetilla { get; set; }
         public decimal Meters { get; set; }
-        [Display(Name = "Gummed Meters")]
-        public decimal GummedMeters { get; set; }
+        [Display(Name = "Sizing Meters")]
+        public decimal SizingMeters { get; set; }
         [Display(Name = "Status")]
         public string MigrationCategoryID { get; set; }
         public string Observations { get; set; }
