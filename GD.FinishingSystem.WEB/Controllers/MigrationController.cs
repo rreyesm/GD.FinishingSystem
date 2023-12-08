@@ -124,6 +124,7 @@ namespace GD.FinishingSystem.WEB.Controllers
             ViewBag.txtStyle = ruloFilters.txtStyle;
             ViewBag.numMigrationCategory = ruloFilters.numMigrationCategory;
             ViewBag.txtLocation = ruloFilters.txtLocation;
+            ViewBag.numRuloMigrationID = ruloFilters.numRuloMigrationID;
 
             //Style list
             var styleList = await factory.RuloMigrations.GetRuloMigrationStyleList();
@@ -199,7 +200,7 @@ namespace GD.FinishingSystem.WEB.Controllers
 
                 ValidateDataMigration validate = new ValidateDataMigration();
 
-                var result = await validate.ValidateDataAndExport(factory, filestream, formFile.FileName, int.Parse(User.Identity.Name));
+                var result = await validate.ValidateDataAndExport(factory, filestream, formFile.FileName, int.Parse(User.Identity.Name), true, true, true);
 
                 if (result.isOk)
                 {
@@ -524,7 +525,7 @@ namespace GD.FinishingSystem.WEB.Controllers
             if (!User.IsInRole("Rulo", AuthType.Add)) return Unauthorized();
 
             var foundRuloMigration = await factory.RuloMigrations.GetRuloMigrationFromRuloMigrationID(ruloMigrationId);
-            var totalMeters = await factory.RuloMigrations.GetTotalMetersByRuloMigration(foundRuloMigration.Lote, foundRuloMigration.Beam);
+            var totalMeters = !foundRuloMigration.FabricAdvance ? await factory.RuloMigrations.GetTotalMetersByRuloMigration(foundRuloMigration.Lote, foundRuloMigration.Beam) : foundRuloMigration.Meters;
 
             TempData["ruloMigrationId1"] = ruloMigrationId;
 

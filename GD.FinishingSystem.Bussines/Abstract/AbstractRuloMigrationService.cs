@@ -37,5 +37,6 @@ namespace GD.FinishingSystem.Bussines.Abstract
         public abstract Task<bool> Exists(RuloMigration ruloMigration);
         public abstract Task<bool> Exists(int ruloId);
         public abstract Task<IEnumerable<TblFinishRawFabricEntrance>> GetFinishedRawFabricEntrance(VMReportFilter reportFilter);
+        public abstract Task<IEnumerable<Location>> GetLocations();
     }
 }

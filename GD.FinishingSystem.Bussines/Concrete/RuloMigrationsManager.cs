@@ -6,6 +6,7 @@ using GD.FinishingSystem.Entities;
 using GD.FinishingSystem.Entities.ViewModels;
 using Microsoft.EntityFrameworkCore;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
@@ -14,6 +15,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Transactions;
+using System.Xml.Linq;
 
 namespace GD.FinishingSystem.Bussines.Concrete
 {
@@ -91,6 +93,11 @@ namespace GD.FinishingSystem.Bussines.Concrete
                 result.OriginCategory = origin;
 
                 var location = await repositoryLocation.GetByPrimaryKey(result.LocationID);
+                if (location != null)
+                {
+                    var floor = await repositoryFloor.GetByPrimaryKey(location.FloorID);
+                    location.Name = $"{location.Name} {floor.FloorName}";
+                }
                 result.Location = location;
 
                 result.IsToyotaText = (result.IsToyotaText != null ? result.IsToyotaText : (result.IsToyotaMigration ? "SI" : "NO"));
@@ -129,7 +136,64 @@ namespace GD.FinishingSystem.Bussines.Concrete
             var floors = await repositoryFloor.GetWhereWithNoTrack(x => !x.IsDeleted);
             var warehouses = await repositoryWarehouseCategory.GetWhereWithNoTrack(x => !x.IsDeleted);
 
-            var rulosMigration = (from rm in query.ToList()
+            List<RuloMigration> rulosMigration = null;
+            if (ruloFilters.numRuloMigrationID > 0)
+            {
+                rulosMigration = (from rm in query.ToList()
+                                  join mc in migrationCategories on rm.MigrationCategoryID equals mc.MigrationCategoryID
+                                  join dp in definitionProcessess on rm.DefinitionProcessID equals dp.DefinationProcessID
+                                  into ljDP
+                                  from subDP in ljDP.DefaultIfEmpty()
+                                  join l in locations on rm.LocationID equals l.LocationID
+                                  into ll
+                                  from subL in ll.DefaultIfEmpty()
+                                  join f in floors on subL?.FloorID equals f.FloorID
+                                  into lf
+                                  from subF in lf.DefaultIfEmpty()
+                                  join wh in warehouses on rm.WarehouseCategoryID equals wh.WarehouseCategoryID
+                                  into whlf
+                                  from subWH in whlf.DefaultIfEmpty()
+                                  where
+                                  (rm.RuloMigrationID == ruloFilters.numRuloMigrationID)
+                                  orderby rm.RuloMigrationID descending
+                                  select new RuloMigration
+                                  {
+                                      RuloMigrationID = rm.RuloMigrationID,
+                                      Date = rm.Date,
+                                      Style = rm.Style,
+                                      StyleName = rm.StyleName,
+                                      NextMachine = (subDP != null ? subDP.Name : rm.NextMachine),
+                                      Lote = rm.Lote,
+                                      BeamStop = rm.BeamStop,
+                                      Beam = rm.Beam,
+                                      IsToyotaText = (rm.IsToyotaText != null ? rm.IsToyotaText : (rm.IsToyotaMigration ? "SI" : "NO")),
+                                      Loom = rm.Loom,
+                                      PieceNo = rm.PieceNo,
+                                      PieceBetilla = rm.PieceBetilla,
+                                      Meters = rm.Meters,
+                                      SizingMeters = rm.SizingMeters,
+                                      MigrationCategoryID = rm.MigrationCategoryID,
+                                      MigrationCategory = mc,
+                                      Observations = rm.Observations,
+                                      WeavingShift = rm.WeavingShift,
+                                      RuloID = rm.RuloID,
+                                      IsTestStyle = rm.IsTestStyle,
+                                      DefinitionProcess = subDP,
+                                      DefinitionProcessID = rm.DefinitionProcessID,
+                                      IsToyotaMigration = rm.IsToyotaMigration,
+                                      OriginID = rm.OriginID,
+                                      Location = subL != null ? new Location() { LocationID = subL.LocationID, Name = $"{subL.Name} {subF.FloorName}", Floor = subL.Floor } : null,
+                                      LocationID = rm?.LocationID,
+                                      WarehouseCategoryID = rm?.WarehouseCategoryID,
+                                      WarehouseCatgory = subWH,
+                                      FabricAdvance = rm.FabricAdvance
+                                  }
+             ).ToList();
+            }
+            else
+            {
+
+                rulosMigration = (from rm in query.ToList()
                                   join mc in migrationCategories on rm.MigrationCategoryID equals mc.MigrationCategoryID
                                   join dp in definitionProcessess on rm.DefinitionProcessID equals dp.DefinationProcessID
                                   into ljDP
@@ -183,8 +247,8 @@ namespace GD.FinishingSystem.Bussines.Concrete
                                       WarehouseCatgory = subWH,
                                       FabricAdvance = rm.FabricAdvance
                                   }
-                         ).ToList();
-
+                             ).ToList();
+            }
             return rulosMigration;
         }
 
@@ -408,6 +472,11 @@ namespace GD.FinishingSystem.Bussines.Concrete
                     ruloMigration.RuloID = ruloID;
                     await repository.Update(ruloMigration, userID);
                 }
+                else if (result.RuloID != 7 && result.FabricAdvance)
+                {
+                    result.RuloID = ruloID;
+                    await repository.Update(result, userID);
+                }
                 else
                 {
                     //TODO: Revisar si es que está bien agregar el telar o no, porque funcionada bien hasta que solo varió por el telar y jaló unos registros de más
@@ -513,6 +582,13 @@ namespace GD.FinishingSystem.Bussines.Concrete
             var rawReportList = await repositoryFinishRawFabricEntrance.GetWithRawSql(query, parameters);
 
             return rawReportList;
+        }
+
+        public async override Task<IEnumerable<Location>> GetLocations()
+        {
+            var locations = await repositoryLocation.GetWhereWithNoTrack(x => !x.IsDeleted);
+
+            return locations;
         }
 
     }

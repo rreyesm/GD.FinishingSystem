@@ -7,7 +7,7 @@
     var areaID = ViewBag.AreaID;
 }
 
-<h1 class="mt-4">Rulos Raw</h1>
+<h1 class="mt-4">Tela Cruda</h1>
 
 @if (User.IsInRole("RuloMigration", AuthType.Add))
 {
@@ -15,7 +15,7 @@
     {
         <p>
             <a asp-action="Create" class="btn btn-sm btn-outline-light border-dark btn-dark">
-                <i class="lni lni-circle-plus"></i> Create New
+                <i class="lni lni-circle-plus"></i> Crear Registro de Tela Cruda
             </a>
         </p>
     }
@@ -27,13 +27,13 @@
     <div class="row">
         <div class="col-md-2">
             <div class="form-group">
-                <label for="dtBegin">Begin</label><br>
+                <label for="dtBegin">Inicio</label><br>
                 <input type="datetime-local" style="width:100% !important;" id="dtBegin" name="dtBegin">
             </div>
         </div>
         <div class="col-md-2">
             <div class="form-group">
-                <label for="dtEnd">End</label><br>
+                <label for="dtEnd">Fin</label><br>
                 <input type="datetime-local" style="width:100% !important;" id="dtEnd" name="dtEnd">
                 @*                <div style="width:100% !important;">
                 <label><input type="radio" id="RealDate" name="EndDateType" onclick="changeDate(1);" value="Real Date" checked /> Real Date</label>
@@ -50,20 +50,20 @@
         </div>
         <div class="col-md-2">
             <div class="form-group">
-                <label for="numBeam">Beam</label><br>
+                <label for="numBeam">Julio</label><br>
                 <input type="number" onfocusout="controlForSmallerThanZero('numBeam')" min="0" style="width:100% !important;" id="numBeam" name="numBeam">
             </div>
         </div>
         <div class="col-md-2">
             <div class="form-group">
-                <label for="numLoom">Loom</label><br>
+                <label for="numLoom">Telar</label><br>
                 <input type="number" onfocusout="controlForSmallerThanZero('numLoom')" min="0" style="width:100% !important;" id="numLoom" name="numLoom">
             </div>
         </div>
 
         <div class="col-md-2">
             <div class="form-group">
-                <label for="txtStyle">Style</label><br>
+                <label for="txtStyle">Estilo</label><br>
                 <input type="text" style="width:100% !important;" id="txtStyle" name="txtStyle" list="styleList">
                 <datalist id="styleList">
                     @foreach (var item in styleList)
@@ -86,7 +86,7 @@
 
         <div class="col-md-2">
             <div class="form-group">
-                <label for="txtLocation">Location</label><br />
+                <label for="txtLocation">Ubicación</label><br />
                 <input type="text" style="width:100% !important;" id="txtLocation" name="txtLocation" list="locationList" />
                 <datalist id="locationList">
                     @foreach (var item in locationList)
@@ -96,12 +96,19 @@
                 </datalist>
             </div>
         </div>
+        <div class="col-md-2">
+            <div class="form-group">
+                <label for="numRuloMigrationID">ID de Crudo</label>
+                <input type="number" onfocus="controlForSmallerThanZero('numRuloMigrationID')" min="0" style="width: 100% !important" id="numRuloMigrationID" name="numRuloMigrationID" />
+            </div>
+        </diV>
+
     </div>
 
     <div class="row">
         <div class="col-sm-12 col-md-12 col-lg-12" style="text-align:right">
-            <button onclick="setIndex();" type="submit" class="btn btn-sm btn-outline-info"><i class="lni lni-search"></i> Filter</button>
-            <a onclick="clearFilters();" class="btn btn-sm btn-outline-info"><i class="lni lni-brush"></i> Clear Filters</a>
+            <button onclick="setIndex();" type="submit" class="btn btn-sm btn-outline-info"><i class="lni lni-search"></i> Filtrar</button>
+            <a onclick="clearFilters();" class="btn btn-sm btn-outline-info"><i class="lni lni-brush"></i> Limpiar Filtros</a>
         </div>
     </div>
 
@@ -160,7 +167,7 @@
         <tr>
             <th colspan="19">
                 <div>
-                    Rulo Raw List
+                    Liat de Tela Cruda
                     @*<a onclick="exportToExcel();" class="btn btn-sm btn-success"><i class="far fa-file-excel"></i> Raw Fabric Stock</a>*@
 
                     @*                    @if (User.IsInRole("Authorize", AuthType.Full))
@@ -262,10 +269,10 @@
                         <div style="display:block;width:90px">
                             @if (User.IsInRole("Rulo", AuthType.Add))
                             {
-                                if (item.RuloID == null || item.RuloID == 0)
+                                if ((item.WarehouseCategoryID == 1 || item.WarehouseCategoryID == 2) && item.RuloID == null || item.RuloID == 0)
                                 {
                                     <a id="@("rulo"+@item.RuloMigrationID)" onclick="validateCreateRulo(@item.Lote, @item.RuloMigrationID)" class="btn input-xs btn-dark">
-                                        <i class="lni lni-circle-plus"></i> Create Rulo
+                                        <i class="lni lni-circle-plus"></i> Crear Rulo
                                     </a>
                                 }
                             }
@@ -535,6 +542,7 @@
     document.getElementById("txtStyle").value = '@ViewBag.txtStyle';
     document.getElementById("numMigrationCategory").value = '@ViewBag.numMigrationCategory';
     document.getElementById("txtLocation").value = '@ViewBag.txtLocation';
+    document.getElementById("numRuloMigrationID").value = '@ViewBag.numRuloMigrationID';
 
     function changeDate(option) {
         if (option == 1) {

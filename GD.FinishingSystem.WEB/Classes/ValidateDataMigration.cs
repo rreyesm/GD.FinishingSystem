@@ -1,5 +1,7 @@
 ﻿using ClosedXML.Excel;
 using DocumentFormat.OpenXml.InkML;
+using DocumentFormat.OpenXml.Office2010.Drawing.Charts;
+using DocumentFormat.OpenXml.Office2010.PowerPoint;
 using FastReport;
 using GD.FinishingSystem.Bussines;
 using GD.FinishingSystem.Entities;
@@ -15,7 +17,7 @@ namespace GD.FinishingSystem.WEB.Classes
 {
     public class ValidateDataMigration
     {
-        public async Task<(bool isOk, string message, List<List<string>> errorByRowList)> ValidateDataAndExport(FinishingSystemFactory factory, Stream stream, string pathFileName, int userId)
+        public async Task<(bool isOk, string message, List<List<string>> errorByRowList)> ValidateDataAndExport(FinishingSystemFactory factory, Stream stream, string pathFileName, int userId, bool loteStopSeparate, bool isToyotaSeparate, bool pieceBetillaSeparate)
         {
             XLWorkbook workbook = null;
             IXLWorksheet workSheet = null;
@@ -38,6 +40,8 @@ namespace GD.FinishingSystem.WEB.Classes
 
             RuloMigration ruloMigration = new RuloMigration();
             var migrationCategoryList = await factory.RuloMigrations.GetMigrationCategoryList();
+
+            var locationList = await factory.RuloMigrations.GetLocationList();
 
             MigrationControl migrationControl = new MigrationControl();
             migrationControl.ExcelFilePath = pathFileName;
@@ -83,7 +87,7 @@ namespace GD.FinishingSystem.WEB.Classes
                     var isTest = workSheet.Cell(row, ++colIni).Value;
                     if (!string.IsNullOrWhiteSpace(isTest.ToString()))
                         ruloMigration.IsTestStyle = isTest.ToString().Trim().ToUpper() == "YES" ? true : false;
-                    else 
+                    else
                         ruloMigration.IsTestStyle = false;
                     //**********************
 
@@ -158,12 +162,21 @@ namespace GD.FinishingSystem.WEB.Classes
                     //Validate lote
                     var lote = workSheet.Cell(row, ++colIni).Value;
                     if (lote.IsNumeric())
+                    {
                         ruloMigration.Lote = lote.ToString();
+
+                        if (loteStopSeparate)
+                        {
+                            var beamStop = workSheet.Cell(row, ++colIni).Value;
+                            if (!string.IsNullOrWhiteSpace(beamStop.ToString()))
+                                ruloMigration.BeamStop = beamStop.ToString();
+                        }
+                    }
                     else
                     {
                         string sLote = null;
-                        if (!string.IsNullOrWhiteSpace(lote.ToString())) 
-                            sLote = lote.ToString(); 
+                        if (!string.IsNullOrWhiteSpace(lote.ToString()))
+                            sLote = lote.ToString();
                         //else errorByRowList.Add($"Lote no valid! Value \"{GetValue(lote)}\", Row {row}, Col {colIni}");
 
                         if (!string.IsNullOrWhiteSpace(sLote))
@@ -227,12 +240,21 @@ namespace GD.FinishingSystem.WEB.Classes
                     if (beam.IsNumeric())
                     {
                         ruloMigration.Beam = Convert.ToInt32(beam);
+
+                        if (isToyotaSeparate)
+                        {
+                            var isToyota = workSheet.Cell(row, ++colIni).Value;
+                            if (!string.IsNullOrWhiteSpace(isToyota.ToString()))
+                            {
+                                ruloMigration.IsToyotaMigration = isToyota.ToString().ToUpper().Equals("T") ? true : false;
+                            }
+                        }
                     }
                     else
                     {
                         string sBeam = null;
-                        if (!string.IsNullOrWhiteSpace(beam.ToString())) 
-                            sBeam = beam.ToString(); 
+                        if (!string.IsNullOrWhiteSpace(beam.ToString()))
+                            sBeam = beam.ToString();
 
                         if (!string.IsNullOrWhiteSpace(sBeam))
                         {
@@ -287,11 +309,20 @@ namespace GD.FinishingSystem.WEB.Classes
                     //Vaidate piece no
                     var pieceNo = workSheet.Cell(row, ++colIni).Value;
                     if (pieceNo.IsNumeric())
+                    {
                         ruloMigration.PieceNo = Convert.ToInt32(pieceNo);
+
+                        if (pieceBetillaSeparate)
+                        {
+                            var betilla = workSheet.Cell(row, ++colIni).Value;
+                            if (!string.IsNullOrWhiteSpace(betilla.ToString()))
+                                ruloMigration.PieceBetilla = betilla.ToString().ToUpper().Equals("B") ? "B" : null;
+                        }
+                    }
                     else
                     {
                         string sPieceNo = null;
-                        if (!string.IsNullOrWhiteSpace(pieceNo.ToString())) 
+                        if (!string.IsNullOrWhiteSpace(pieceNo.ToString()))
                             sPieceNo = pieceNo.ToString();
 
                         if (!string.IsNullOrWhiteSpace(sPieceNo))
@@ -338,18 +369,18 @@ namespace GD.FinishingSystem.WEB.Classes
 
                     //TODO: DEFINIR SI SE CARGARAN LOS METROS DE ENGOMADO O NO
                     //Validate gummed meters
-                    var gummedMeters = workSheet.Cell(row, ++colIni).Value;
-                    if (gummedMeters == null || string.IsNullOrEmpty(gummedMeters.ToString()))
+                    var sizingMeters = workSheet.Cell(row, ++colIni).Value;
+                    if (sizingMeters == null || string.IsNullOrEmpty(sizingMeters.ToString()))
                         ruloMigration.SizingMeters = 0;
-                    else if (gummedMeters.IsNumeric())
-                        ruloMigration.SizingMeters = Convert.ToDecimal(gummedMeters);
-                    else errorByRowList.Add($"Gummed Meters no valid! Value \"{GetValue(meters)}\", Row {row}, Col {colIni}");
+                    else if (sizingMeters.IsNumeric())
+                        ruloMigration.SizingMeters = Convert.ToDecimal(sizingMeters);
+                    else errorByRowList.Add($"Sizing Meters no valid! Value \"{GetValue(meters)}\", Row {row}, Col {colIni}");
 
                     //Validate status
                     var status = workSheet.Cell(row, ++colIni).Value;
                     if (!string.IsNullOrWhiteSpace(status.ToString()))
                     {
-                        string sStatus = status.ToString();
+                        string sStatus = status.ToString().Trim();
 
                         var migrationCategory = migrationCategoryList.Where(x => x.Name.Equals(sStatus, StringComparison.InvariantCultureIgnoreCase)).FirstOrDefault();
 
@@ -388,7 +419,26 @@ namespace GD.FinishingSystem.WEB.Classes
 
                     }
 
-                    ruloMigration.OriginID = 1; //Default 1=PP0
+                    //Validate Location
+                    var location = workSheet.Cell(row, ++colIni).Value;
+                    if (!string.IsNullOrWhiteSpace(location.ToString()))
+                    {
+                        string slocation = location.ToString();
+
+                        var locationCategory = locationList.Where(x => x.Name.Equals(slocation, StringComparison.InvariantCultureIgnoreCase)).FirstOrDefault();
+
+                        if (locationCategory != null)
+                            ruloMigration.LocationID = locationCategory.LocationID;
+                        //else
+                        //    errorByRowList.Add($"Location no valid! Value \"{GetValue(location)}\", Row {row}, Col {colIni}");
+
+                    }
+                    else errorByRowList.Add($"Location no valid! Value \"{GetValue(location)}\", Row {row}, Col {colIni}");
+
+                    if (ruloMigration.IsTestStyle)
+                        ruloMigration.OriginID = 7;
+                    else
+                        ruloMigration.OriginID = 1; //Default 1=PP0
                     ruloMigration.WarehouseCategoryID = 1; //Default 1:RAW
 
                     ruloMigrationList.Add(ruloMigration);

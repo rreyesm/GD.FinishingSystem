@@ -25,8 +25,9 @@ namespace GD.FinishingSystem.Entities.ViewModels
         public int numMigrationCategory { get; set; }
         //-----------
         public bool withBatches { get; set; }
-        public int numRuloID { get; set;}
+        public int numRuloID { get; set; }
         public string txtLocation { get; set; }
+        public int numRuloMigrationID { get; set; }
     }
 
 }

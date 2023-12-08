@@ -11,12 +11,12 @@
         @if (Model.RuloMigrationID == 0)
         {
             @Html.Raw("Create")
-            ViewData["Title"] = "Create Rulo Raw Information";
+            ViewData["Title"] = "Crear Información de Tela Cruda";
         }
         else
         {
             @Html.Raw("Edit")
-            ViewData["Title"] = "Edit Rulo Raw Information";
+            ViewData["Title"] = "Editar Información de Tela Cruda";
         }
     </h1>
 
@@ -32,7 +32,7 @@
         @Html.AntiForgeryToken()
         <div asp-validation-summary="ModelOnly" class="text-danger"></div>
         <div class="row">
-            @if (areaID == 0 || areaID == (int)AreaType.Desarrollos)
+            @if (areaID == (int)AreaType.Desarrollos)
             {
                 <div class="col-lg-3 col-md-4 col-sm-12">
                     <div class="form-group">
@@ -42,7 +42,7 @@
                 </div>
             }
 
-            @if (areaID == (int)AreaType.Tejido)
+            @if (areaID == (int)AreaType.Desarrollos || areaID == (int)AreaType.Tejido)
             {
                 <div class="col-lg-3 col-md-4 col-sm-12">
                     <div class="form-group">
@@ -94,7 +94,7 @@
                     </div>
                 </div>
             }
-            @if (areaID == (int)AreaType.Desarrollos) //TODO: && areaID == (int)AreaType.Acabado POSTERIORMENTE DEJAR SÓLO ACABADO. Se deshabilitó para pasar el usuario de Fernando temporalmente del tipo Desarrollos para que acabado pueda capturar la información de RAW cuando se haga a activación de la pantalla de captura de datos de tejido
+            @if (areaID == (int)AreaType.Acabado) //TODO: && areaID == (int)AreaType.Acabado POSTERIORMENTE DEJAR SÓLO ACABADO. Se deshabilitó para pasar el usuario de Fernando temporalmente del tipo Desarrollos para que acabado pueda capturar la información de RAW cuando se haga a activación de la pantalla de captura de datos de tejido
             {
                 <div class="col-lg-3 col-md-4 col-sm-12">
                     <div class="form-group">
@@ -105,7 +105,7 @@
                 </div>
             }
 
-            @if (areaID == (int)AreaType.Tejido)
+            @if (areaID == (int)AreaType.Desarrollos || areaID == (int)AreaType.Tejido)
             {
                 <div class="col-lg-3 col-md-4 col-sm-12">
                     <div class="form-group">
@@ -167,7 +167,7 @@
 
                 <div class="col-lg-3 col-md-4 col-sm-12">
                     <div class="form-group">
-                        <label asp-for="Location">Location</label><br />
+                        <label asp-for="Location" class="control-label"></label><br />
                         <select asp-for="LocationID" asp-items="@ViewBag.LocationList" class="form-control"></select>
                         <span asp-validation-for="LocationID" class="text-danger"></span>
                     </div>
@@ -193,17 +193,17 @@
                 <div class="form-group">
                     @if (Model.RuloMigrationID == 0 && (areaID == (int)AreaType.Desarrollos || areaID == (int)AreaType.Tejido))
                     {
-                        <button type="submit" class="btn btn-primary"><i class="lni lni-circle-plus"></i> Create</button>
+                        <button type="submit" class="btn btn-primary"><i class="lni lni-circle-plus"></i> Crear</button>
                     }
                     else
                     {
                         if ((areaID == (int)AreaType.Desarrollos || areaID == (int)AreaType.Acabado) && (Model.WarehouseCategoryID == 1)) // || areaID == (int)AreaType.Acabado
                         {
-                            <button type="submit" class="btn btn-success"><i class="lni lni-save"></i> Save Changes</button>
+                            <button type="submit" class="btn btn-success"><i class="lni lni-save"></i> Guardar Cambios</button>
                         }
                         else if (areaID == (int)AreaType.Tejido && Model.WarehouseCategoryID == 8)
                         {
-                            <button type="submit" class="btn btn-success"><i class="lni lni-save"></i> Save Changes</button>
+                            <button type="submit" class="btn btn-success"><i class="lni lni-save"></i> Guardar Cambios</button>
                         }
                     }
 
@@ -217,7 +217,7 @@
 </div>
 
 <div>
-    <a asp-action="Index" class="btn btn-sm btn-secondary"><i class="lni lni-chevron-left-circle"></i> Back to List</a>
+    <a asp-action="Index" class="btn btn-sm btn-secondary"><i class="lni lni-chevron-left-circle"></i> Regresar a Lista</a>
 </div>
 
 @section Scripts {
