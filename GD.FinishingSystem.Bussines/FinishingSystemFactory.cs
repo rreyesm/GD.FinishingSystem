@@ -17,13 +17,18 @@ namespace GD.FinishingSystem.Bussines
         /// </summary>
         public FinishingSystemFactory()
         {
-//#if RELEASE
-//            throw new Exception("You can not use this constructor in Release Mode");
-//#endif
+            //#if RELEASE
+            //            throw new Exception("You can not use this constructor in Release Mode");
+            //#endif
             context = new FinishingSystemContext();
             InitObjects();
         }
 
+        public FinishingSystemFactory(string connectionString)
+        {
+            context = new FinishingSystemContext(FinishingSystemContext.DatabaseSystem.SqlServer, connectionString);
+            InitObjects();
+        }
 
 
         /// <summary>
@@ -51,7 +56,8 @@ namespace GD.FinishingSystem.Bussines
             Users = new UserManager(context);
             OriginCategories = new OriginCategoryManager(context);
             WarehouseCategories = new WarehouseCategoryManager(context);
-
+            PackingList = new PackingListManager(context);
+            Reprocesses = new ReprocessManager(context);
         }
 
         public AbstractDefinationProcessService DefinationProcesses { get; set; }
@@ -68,5 +74,7 @@ namespace GD.FinishingSystem.Bussines
         public AbstractUserService Users { get; set; }
         public AbstractOriginCategoryService OriginCategories { get; set; }
         public AbstractWarehouseCategoryService WarehouseCategories { get; set; }
+        public AbstractPackingListService PackingList { get; set; }
+        public AbstractReprocessService Reprocesses { get; set; }
     }
 }

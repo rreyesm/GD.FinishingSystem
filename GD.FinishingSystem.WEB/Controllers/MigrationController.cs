@@ -13,6 +13,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Options;
@@ -24,6 +25,7 @@ using System.IO;
 using System.Linq;
 using System.Security.Cryptography.Xml;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace GD.FinishingSystem.WEB.Controllers
@@ -125,6 +127,7 @@ namespace GD.FinishingSystem.WEB.Controllers
             ViewBag.numMigrationCategory = ruloFilters.numMigrationCategory;
             ViewBag.txtLocation = ruloFilters.txtLocation;
             ViewBag.numRuloMigrationID = ruloFilters.numRuloMigrationID;
+            ViewBag.numPackingListID = ruloFilters.numPackingListID;
 
             //Style list
             var styleList = await factory.RuloMigrations.GetRuloMigrationStyleList();
@@ -341,6 +344,7 @@ namespace GD.FinishingSystem.WEB.Controllers
 
                     ruloMigration.Date = DateTime.Now;
                     ruloMigration.WarehouseCategoryID = 1; //Default 1=RAW
+                    ruloMigration.WeavingShift = GetTurno(DateTime.Now); //Anteriormente este turno lo establecía Acabado, pero como no lo introducen se cambio para almacenar el turno de captura de Tejido
 
                     if (ViewBag.AreaID == (int)AreaType.Tejido)
                     {
@@ -399,10 +403,15 @@ namespace GD.FinishingSystem.WEB.Controllers
                         foundRuloMigration.SizingMeters = ruloMigration.SizingMeters;
                         foundRuloMigration.MigrationCategoryID = ruloMigration.MigrationCategoryID != 0 ? ruloMigration.MigrationCategoryID : 3; //Default 3-Crudo
                         foundRuloMigration.Observations = ruloMigration.Observations;
-                        foundRuloMigration.WeavingShift = ruloMigration.WeavingShift;
+                        //foundRuloMigration.WeavingShift = ruloMigration.WeavingShift;
                         foundRuloMigration.DefinitionProcessID = ruloMigration.DefinitionProcessID;
                         foundRuloMigration.IsToyotaMigration = ruloMigration.IsToyotaMigration;
-                        foundRuloMigration.OriginID = ruloMigration.OriginID;
+
+                        if (ViewBag.AreaID == (int)AreaType.Tejido)
+                            foundRuloMigration.OriginID = 1; //Default: 1=PP00
+                        else if (ViewBag.AreaID == (int)AreaType.Desarrollos)
+                            foundRuloMigration.OriginID = 7; //Default: 7=DES0
+
                         foundRuloMigration.LocationID = ruloMigration.LocationID;
                     }
 
@@ -761,6 +770,40 @@ namespace GD.FinishingSystem.WEB.Controllers
             await factory.RuloMigrations.Update(ruloMigration, int.Parse(User.Identity.Name));
 
             return Ok();
+        }
+
+        public async Task<IActionResult> ChangeRejection(int ruloMigrationId)
+        {
+            var ruloMigration = await factory.RuloMigrations.GetRuloMigrationFromRuloMigrationID(ruloMigrationId);
+            if (ruloMigration == null) return NotFound();
+
+            ruloMigration.WarehouseCategoryID = 8; //Change from 9 - Rejected to 8 - Tejido
+            ruloMigration.Observations = CleanRejection(ruloMigration.Observations);
+            await factory.RuloMigrations.Update(ruloMigration, int.Parse(User.Identity.Name));
+
+            return Ok();
+        }
+
+        private string CleanRejection(string observations)
+        {
+            string initial = observations;
+            string prefix = $"#RECHAZO:";
+            string subfix = ".#";
+            string substring = "";
+            if (!string.IsNullOrWhiteSpace(initial) && initial.Contains(prefix))
+            {
+                int initialText = initial.IndexOf(prefix); //Serian donde inicia: #RECHAZO:
+                int finalText = initial.LastIndexOf(subfix) + 2; //Serian los 2 carateres: .#
+                int delete = finalText - initialText;
+                if (delete > 0)
+                    substring = initial.Remove(initialText, delete);
+                else
+                    substring = initial;
+
+                substring = Regex.Replace(substring, @"\s+", " ").Trim(); //Se reemplazan con un solo espacios si quedaron más de 2 espacios en la cadena
+            }
+
+            return substring;
         }
 
     }

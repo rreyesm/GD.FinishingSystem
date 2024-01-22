@@ -4,6 +4,7 @@ using GD.FinishingSystem.DAL.Concrete.EntityFramework;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace GD.FinishingSystem.DAL.Migrations
 {
     [DbContext(typeof(FinishingSystemContext))]
-    partial class FinishingSystemContextModelSnapshot : ModelSnapshot
+    [Migration("20231227191402_v36")]
+    partial class v36
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -349,12 +351,6 @@ namespace GD.FinishingSystem.DAL.Migrations
                     b.Property<int>("LastUpdaterID")
                         .HasColumnType("int");
 
-                    b.Property<int>("PackingListNo")
-                        .HasColumnType("int");
-
-                    b.Property<int>("PackingListType")
-                        .HasColumnType("int");
-
                     b.HasKey("PackingListID");
 
                     b.ToTable("tblPackingList");
@@ -476,14 +472,14 @@ namespace GD.FinishingSystem.DAL.Migrations
                     b.Property<DateTime>("Date")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("DefinitionProcessID")
-                        .HasColumnType("int");
-
                     b.Property<DateTime?>("DeletedDate")
                         .HasColumnType("datetime2");
 
                     b.Property<int?>("DeleterID")
                         .HasColumnType("int");
+
+                    b.Property<string>("FinishingMachine")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("FloorID")
                         .HasColumnType("int");
@@ -524,9 +520,6 @@ namespace GD.FinishingSystem.DAL.Migrations
                     b.Property<int>("OriginPartiRef")
                         .HasColumnType("int");
 
-                    b.Property<int?>("PackingListNo")
-                        .HasColumnType("int");
-
                     b.Property<string>("Pallet")
                         .HasColumnType("nvarchar(max)");
 
@@ -541,9 +534,6 @@ namespace GD.FinishingSystem.DAL.Migrations
 
                     b.Property<string>("RollObs")
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<int?>("RuloID")
-                        .HasColumnType("int");
 
                     b.Property<decimal>("Splice")
                         .HasColumnType("decimal(18,2)");
@@ -564,8 +554,6 @@ namespace GD.FinishingSystem.DAL.Migrations
                         .HasColumnType("bit");
 
                     b.HasKey("ReprocessID");
-
-                    b.HasIndex("DefinitionProcessID");
 
                     b.HasIndex("FloorID");
 
@@ -1702,12 +1690,6 @@ namespace GD.FinishingSystem.DAL.Migrations
 
             modelBuilder.Entity("GD.FinishingSystem.Entities.Reprocess", b =>
                 {
-                    b.HasOne("GD.FinishingSystem.Entities.DefinationProcess", "DefinationProcess")
-                        .WithMany()
-                        .HasForeignKey("DefinitionProcessID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("GD.FinishingSystem.Entities.Floor", "Floor")
                         .WithMany()
                         .HasForeignKey("FloorID")
@@ -1731,8 +1713,6 @@ namespace GD.FinishingSystem.DAL.Migrations
                         .HasForeignKey("WarehouseKNCategoryID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("DefinationProcess");
 
                     b.Navigation("Floor");
 

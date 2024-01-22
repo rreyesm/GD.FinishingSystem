@@ -1,0 +1,6 @@
+@GD.Finishing.WebAPI_HostAddress = http://localhost:5057
+
+GET {{GD.Finishing.WebAPI_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

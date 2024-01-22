@@ -28,6 +28,10 @@ namespace GD.FinishingSystem.Entities.ViewModels
         public int numRuloID { get; set; }
         public string txtLocation { get; set; }
         public int numRuloMigrationID { get; set; }
+        public int numPackingListID { get; set; }
+
+        //For Reprocess
+        public int numReprocessID { get; set; }
     }
 
 }

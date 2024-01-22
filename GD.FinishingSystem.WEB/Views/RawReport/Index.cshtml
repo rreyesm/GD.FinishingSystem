@@ -33,11 +33,11 @@
             </div>
         </div>
 
-@*        <div class="col-md-2">
-            <div class="form-group">
-                <label for="numLote">Stop</label><br>
-                <input style="width:100% !important;" id="txtStop" name="txtStop">
-            </div>
+        @*        <div class="col-md-2">
+        <div class="form-group">
+        <label for="numLote">Stop</label><br>
+        <input style="width:100% !important;" id="txtStop" name="txtStop">
+        </div>
         </div>*@
         <div class="col-md-2">
             <div class="form-group">
@@ -82,6 +82,13 @@
 
         <div class="col-md-12">
             <div class="form-group">
+                <input type="radio" id="finishedRawFabricEntranceDetailed" name="typeReport" checked value="4" style="zoom: 1.5" />
+                <label for="finishedRawFabricEntranceDetailed" style="font-size: x-large">Finished Raw Fabric Entrance Detailed</label>
+            </div>
+        </div>
+
+        <div class="col-md-12">
+            <div class="form-group">
                 <input type="radio" id="rawFabricStock" name="typeReport" value="2" style="zoom: 1.5">
                 <label for="rawFabricStock" style="font-size: x-large">Raw Fabric Stock</label>
             </div>
@@ -93,13 +100,14 @@
                 <label for="finishedProcessRawFabric" style="font-size: x-large">Finished Process Raw Fabric</label>
             </div>
         </div>
-    </div>
 
-    <div class="row">
-        <div class="col-sm-12 col-md-12 col-lg-12" style="text-align:left">
-            <a onclick="exportToExcel();" class="btn btn-sm btn-success"><i class="far fa-file-excel"></i> Export to Excel</a>
-            <a onclick="clearFilters();" class="btn btn-sm btn-outline-info"><i class="lni lni-brush"></i> Clear Filters</a>
+        <div class="row">
+            <div class="col-sm-12 col-md-12 col-lg-12" style="text-align:left">
+                <a onclick="exportToExcel();" class="btn btn-sm btn-success"><i class="far fa-file-excel"></i> Export to Excel</a>
+                <a onclick="clearFilters();" class="btn btn-sm btn-outline-info"><i class="lni lni-brush"></i> Clear Filters</a>
+            </div>
         </div>
+
     </div>
 
 </form>

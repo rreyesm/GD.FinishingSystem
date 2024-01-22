@@ -40,5 +40,6 @@ namespace GD.FinishingSystem.Entities.ViewModels
         public string Origin { get; set; }
         public string WarehouseCategoryID { get; set; }
         public int? Partiality { get; set; }
+        public int? PackingListID { get; set; }
     }
 }

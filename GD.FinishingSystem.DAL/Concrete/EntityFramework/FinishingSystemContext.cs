@@ -106,6 +106,9 @@ namespace GD.FinishingSystem.DAL.Concrete.EntityFramework
         public DbSet<OriginCategory> OriginCategories { get; set; }
         public DbSet<WarehouseCategory> WarehouseCategories { get; set; }
         public DbSet<Location> Locations { get; set; }
+        public DbSet<PackingList> PackingList { get; set; }
+        public DbSet<WarehouseKNCategory> WarehouseKNCategories { get; set; }
+        public DbSet<Reprocess> Reprocesses { get; set; }
         #endregion
 
         #region Settings

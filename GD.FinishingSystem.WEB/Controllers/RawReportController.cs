@@ -118,6 +118,17 @@ namespace GD.FinishingSystem.WEB.Controllers
 
                     fileStreamResult = fileResult3.Item2;
                     break;
+                case 4:
+                    reportName = "Finished Raw Fabric Entrance Detailed From " + reportFilter.dtBegin.ToString("dd-MM-yyyy HH:mm") + " To " + reportFilter.dtEnd.ToString("dd-MM-yyyy HH:mm");
+                    fileName = $"Finished Raw Fabric Entrance Detailed_{DateTime.Today.Year}_{DateTime.Today.Month.ToString().PadLeft(2, '0')}_{DateTime.Today.Day.ToString().PadLeft(2, '0')}.xlsx";
+
+                    IEnumerable<VMRuloMigrationReport> result4 = await factory.RuloMigrations.GetFinishedRawFabricEntranceDetailed(reportFilter); //Este se usa en Rulos
+                    var fileResult4 = await export.ExportWithDisplayName<VMRuloMigrationReport>("Global Denim S.A. de C.V.", "Finishing", reportName, fileName, result4.ToList());
+
+                    if (!fileResult4.Item1) return NotFound();
+
+                    fileStreamResult = fileResult4.Item2;
+                    break;
                 default:
                     break;
             }

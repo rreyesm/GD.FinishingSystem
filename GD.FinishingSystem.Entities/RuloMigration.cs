@@ -22,7 +22,7 @@ namespace GD.FinishingSystem.Entities
         public DateTime Date { get; set; }
         [Display(Name = "Maquina")]
         public string NextMachine { get; set; }
-        [RegularExpression(@"^[0-9]*$", ErrorMessage = "Lote no valido")]
+        [RegularExpression(@"^[0-9]*$", ErrorMessage = "Lote no válido")]
         public string Lote { get; set; }
         [Display(Name = "Parada de Julio")]
         [RegularExpression(@"^(A|B)$", ErrorMessage = "Parada de Julio no válida. Introduce A o B")]
@@ -41,15 +41,16 @@ namespace GD.FinishingSystem.Entities
         [Display(Name = "Nombre del estilo")]
         public string StyleName { get; set; }
         [Display(Name = "Número de Pieza")]
-        [RegularExpression(@"^[1-9][0-9]*$", ErrorMessage = "Pieza no valida")]
+        [RegularExpression(@"^[1-9][0-9]*$", ErrorMessage = "Pieza no válida")]
         public int PieceNo { get; set; }
-        [RegularExpression(@"^(B)$", ErrorMessage = "Betilla no valida. Debes introducir el valor B")]
+        [RegularExpression(@"^(B)$", ErrorMessage = "Betilla no válida. Debes introducir el valor B")]
         [Display(Name = "Betilla")]
         public string PieceBetilla { get; set; }
         [Display(Name = "Metros")]
-        [RegularExpression(@"^[0-9]*\.?[0-9]+$", ErrorMessage = "Metros no validos")]
+        [RegularExpression(@"^[0-9]*\.?[0-9]+$", ErrorMessage = "Metros no válidos")]
         public decimal Meters { get; set; }
         [Display(Name = "Metros de Engomado")]
+        [RegularExpression(@"^[0-9]*\.?[0-9]$+", ErrorMessage = "Metros de engomado no válidos")]
         public decimal SizingMeters { get; set; } //Before Gummed Meters
         [Display(Name = "Estatus")]
         [RegularExpression(@"^[1-9][0-9]*$", ErrorMessage = "Por favor selecciona un estatus")]
@@ -80,6 +81,7 @@ namespace GD.FinishingSystem.Entities
         [Display(Name = "Almacén")]
         [ForeignKey(name: "WarehouseCategoryID")]
         public WarehouseCategory WarehouseCatgory { get; set; }
+        [Display(Name = "Almacén")]
         public int? WarehouseCategoryID { get; set; }
         [Display(Name = "Parcialidad")]
         public int? Partiality { get; set; }
@@ -90,6 +92,8 @@ namespace GD.FinishingSystem.Entities
         public Location Location { get; set; }
         [Display(Name = "Ubicación")]
         public int? LocationID { get; set; }
+        [Display(Name = "Packing List No")]
+        public int? PackingListID { get; set; }
 
     }
 }

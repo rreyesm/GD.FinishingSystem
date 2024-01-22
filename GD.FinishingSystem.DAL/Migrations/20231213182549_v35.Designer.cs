@@ -4,6 +4,7 @@ using GD.FinishingSystem.DAL.Concrete.EntityFramework;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace GD.FinishingSystem.DAL.Migrations
 {
     [DbContext(typeof(FinishingSystemContext))]
-    partial class FinishingSystemContextModelSnapshot : ModelSnapshot
+    [Migration("20231213182549_v35")]
+    partial class v35
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -349,12 +351,6 @@ namespace GD.FinishingSystem.DAL.Migrations
                     b.Property<int>("LastUpdaterID")
                         .HasColumnType("int");
 
-                    b.Property<int>("PackingListNo")
-                        .HasColumnType("int");
-
-                    b.Property<int>("PackingListType")
-                        .HasColumnType("int");
-
                     b.HasKey("PackingListID");
 
                     b.ToTable("tblPackingList");
@@ -454,128 +450,6 @@ namespace GD.FinishingSystem.DAL.Migrations
                     b.HasIndex("RuloID");
 
                     b.ToTable("tblPieces");
-                });
-
-            modelBuilder.Entity("GD.FinishingSystem.Entities.Reprocess", b =>
-                {
-                    b.Property<int>("ReprocessID")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ReprocessID"), 1L, 1);
-
-                    b.Property<int>("Beam")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("CreatorID")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("Date")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("DefinitionProcessID")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime?>("DeletedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int?>("DeleterID")
-                        .HasColumnType("int");
-
-                    b.Property<int>("FloorID")
-                        .HasColumnType("int");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
-
-                    b.Property<decimal>("Kg")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<DateTime>("LastUpdateDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("LastUpdaterID")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Loom")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Lote")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("MainOriginID")
-                        .HasColumnType("int");
-
-                    b.Property<decimal>("Meters")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<decimal>("OnzYd2")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<int>("OriginFinishingNumber")
-                        .HasColumnType("int");
-
-                    b.Property<int>("OriginID")
-                        .HasColumnType("int");
-
-                    b.Property<int>("OriginPartiRef")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("PackingListNo")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Pallet")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("PalletObs")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("PieceID")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<decimal>("PpHsy")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<string>("RollObs")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int?>("RuloID")
-                        .HasColumnType("int");
-
-                    b.Property<decimal>("Splice")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<string>("Style")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("StyleName")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("WarehouseKNCategoryID")
-                        .HasColumnType("int");
-
-                    b.Property<decimal>("Width")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<bool>("WithoutPzaID")
-                        .HasColumnType("bit");
-
-                    b.HasKey("ReprocessID");
-
-                    b.HasIndex("DefinitionProcessID");
-
-                    b.HasIndex("FloorID");
-
-                    b.HasIndex("MainOriginID");
-
-                    b.HasIndex("OriginID");
-
-                    b.HasIndex("WarehouseKNCategoryID");
-
-                    b.ToTable("tblReprocesses");
                 });
 
             modelBuilder.Entity("GD.FinishingSystem.Entities.Rulo", b =>
@@ -1613,51 +1487,6 @@ namespace GD.FinishingSystem.DAL.Migrations
                     b.ToTable("tblWarehouseCategories");
                 });
 
-            modelBuilder.Entity("GD.FinishingSystem.Entities.WarehouseKNCategory", b =>
-                {
-                    b.Property<int>("WarehouseKNCategoryID")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("WarehouseKNCategoryID"), 1L, 1);
-
-                    b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("CreatorID")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime?>("DeletedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int?>("DeleterID")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Description")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
-
-                    b.Property<DateTime>("LastUpdateDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("LastUpdaterID")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("WarehouseCode")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("WarehouseKNCategoryID");
-
-                    b.ToTable("tblWarehouseKNCategories");
-                });
-
             modelBuilder.Entity("GD.FinishingSystem.Entities.Location", b =>
                 {
                     b.HasOne("GD.FinishingSystem.Entities.Floor", "Floor")
@@ -1698,49 +1527,6 @@ namespace GD.FinishingSystem.DAL.Migrations
                         .IsRequired();
 
                     b.Navigation("Rulo");
-                });
-
-            modelBuilder.Entity("GD.FinishingSystem.Entities.Reprocess", b =>
-                {
-                    b.HasOne("GD.FinishingSystem.Entities.DefinationProcess", "DefinationProcess")
-                        .WithMany()
-                        .HasForeignKey("DefinitionProcessID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("GD.FinishingSystem.Entities.Floor", "Floor")
-                        .WithMany()
-                        .HasForeignKey("FloorID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("GD.FinishingSystem.Entities.OriginCategory", "MainOrigin")
-                        .WithMany()
-                        .HasForeignKey("MainOriginID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("GD.FinishingSystem.Entities.OriginCategory", "Origin")
-                        .WithMany()
-                        .HasForeignKey("OriginID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("GD.FinishingSystem.Entities.WarehouseKNCategory", "WarehouseKNCategory")
-                        .WithMany()
-                        .HasForeignKey("WarehouseKNCategoryID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("DefinationProcess");
-
-                    b.Navigation("Floor");
-
-                    b.Navigation("MainOrigin");
-
-                    b.Navigation("Origin");
-
-                    b.Navigation("WarehouseKNCategory");
                 });
 
             modelBuilder.Entity("GD.FinishingSystem.Entities.Rulo", b =>

@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.30709.132
+# Visual Studio Version 17
+VisualStudioVersion = 17.8.34316.72
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GD.FinishingSystem.Entities", "GD.FinishingSystem.Entities\GD.FinishingSystem.Entities.csproj", "{F15E7A3C-51AA-47E1-B107-A88AA038613A}"
 EndProject
@@ -10,6 +10,8 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GD.FinishingSystem.Bussines", "GD.FinishingSystem.Bussines\GD.FinishingSystem.Bussines.csproj", "{D4D0B5F6-0D5F-4E61-B104-92E72D23DE7C}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GD.FinishingSystem.WEB", "GD.FinishingSystem.WEB\GD.FinishingSystem.WEB.csproj", "{E71D1BED-E981-4FA1-8799-F620881A2091}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GD.Finishing.WebAPI", "GD.Finishing.WebAPI\GD.Finishing.WebAPI.csproj", "{CA8E4A95-D73C-4B2C-BE49-DA55A7033139}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,6 +35,10 @@ Global
 		{E71D1BED-E981-4FA1-8799-F620881A2091}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E71D1BED-E981-4FA1-8799-F620881A2091}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E71D1BED-E981-4FA1-8799-F620881A2091}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CA8E4A95-D73C-4B2C-BE49-DA55A7033139}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CA8E4A95-D73C-4B2C-BE49-DA55A7033139}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CA8E4A95-D73C-4B2C-BE49-DA55A7033139}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CA8E4A95-D73C-4B2C-BE49-DA55A7033139}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

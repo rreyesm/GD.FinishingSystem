@@ -102,6 +102,12 @@
                 <input type="number" onfocus="controlForSmallerThanZero('numRuloMigrationID')" min="0" style="width: 100% !important" id="numRuloMigrationID" name="numRuloMigrationID" />
             </div>
         </diV>
+        <div class="col-md-2">
+            <div class="form-group">
+                <label for="numPackingListID">Packing List</label>
+                <input type="number" onfocus="controlForSmallerThanZero('numPackingListID')" min="0" style="width: 100% !important" id="numPackingListID" name="numPackingListID" />
+            </div>
+        </diV>
 
     </div>
 
@@ -167,7 +173,7 @@
         <tr>
             <th colspan="19">
                 <div>
-                    Liat de Tela Cruda
+                    Lista de Tela Cruda
                     @*<a onclick="exportToExcel();" class="btn btn-sm btn-success"><i class="far fa-file-excel"></i> Raw Fabric Stock</a>*@
 
                     @*                    @if (User.IsInRole("Authorize", AuthType.Full))
@@ -238,6 +244,9 @@
                 @Html.DisplayNameFor(model => model.RuloMigrationList[0].WeavingShift)
             </th>
             <th>
+                @Html.DisplayNameFor(model => model.RuloMigrationList[0].PackingListID)
+            </th>
+            <th>
                 @Html.DisplayNameFor(model => model.RuloMigrationList[0].Location)
             </th>
             <th>
@@ -251,10 +260,10 @@
             var color = "bgcolor=transparent";
             if (item.RuloID != null && item.RuloID != 0)
                 color = "bgcolor=66ff66"; //Verde
-            else if (item.RuloID == null && item.WarehouseCategoryID != null && item.WarehouseCategoryID != 8) //Deafult 8 = W1
+            else if (item.RuloID == null && item.WarehouseCategoryID != null && item.WarehouseCategoryID != 8 && item.WarehouseCategoryID != 9) //Deafult 8 = W1
                 color = "bgcolor=ffc300"; //Amarillo
-            else
-                color = "bgcolor=transparent";
+            else if (item.WarehouseCategoryID == 9)
+                color = "bgcolor=ff6666"; //Rojo
 
             <tr @color id="@("row" + @item.RuloMigrationID)">
                 <td>
@@ -281,7 +290,14 @@
                 }
 
                 <td>
-                    <div style="display:block;width:105px;">
+                    <div style="display:block;width:135px;">
+                        @if (areaID == (int)AreaType.Tejido && item.WarehouseCategoryID == 9)
+                        {   
+                            <a href="#" onclick="changeRejection(@item.RuloMigrationID)" class="btn input-xs btn-danger">
+                                <i class="lni lni-checkmark-circle"></i>
+                            </a>
+                        }   
+
                         <a href="#" onclick="printRawLabel(@areaID, @item.RuloMigrationID)" data-toggle="modal" data-target="#modalDialog"><i class="lni lni-printer"></i></a>
                         @Html.Raw(" | ")
                         @if (User.IsInRole("RuloMigration", AuthType.Update))
@@ -422,6 +438,9 @@
                     @Html.DisplayFor(modelItem => item.WeavingShift)
                 </td>
                 <td>
+                    @Html.DisplayFor(modelItem => item.PackingListID)
+                </td>
+                <td>
                     <div style="display:block;width:70px;">
                         @Html.DisplayFor(modelItem => item.Location.Name)
                     </div>
@@ -543,6 +562,7 @@
     document.getElementById("numMigrationCategory").value = '@ViewBag.numMigrationCategory';
     document.getElementById("txtLocation").value = '@ViewBag.txtLocation';
     document.getElementById("numRuloMigrationID").value = '@ViewBag.numRuloMigrationID';
+    document.getElementById("numPackingListID").value = '@ViewBag.numPackingListID';
 
     function changeDate(option) {
         if (option == 1) {
@@ -701,6 +721,35 @@
         }
         else {
             document.getElementById("mark" + ruloMigrationId).checked = !document.getElementById("mark" + ruloMigrationId).checked;
+        }
+    }
+
+    function changeRejection(ruloMigrationId) {
+        if (confirm("¿Estas seguro de que el rechazo ya fue corregido?")) {
+            $.ajax({
+                url: "/Migration/ChangeRejection",
+                type: "GET",
+                data: {
+                    ruloMigrationId: ruloMigrationId
+                },
+                success: function (data){
+                    location.href = "/Migration";
+                },
+                error: function (xhr, ajaxOptions, throwError){
+                    alert("404 Not found");
+                }
+            })
+        }
+    }
+
+    function controlForSmallerThanZero(controlID) {
+        try {
+            var value = document.getElementById(controlID).value;
+            var a = parseInt(value);
+            if (!(a > 0)) document.getElementById(controlID).value = "0";
+        }
+        catch (err) {
+            document.getElementById(controlID).value = "0";
         }
     }
 

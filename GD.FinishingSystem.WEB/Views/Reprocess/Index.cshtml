@@ -1,0 +1,268 @@
+﻿@using GD.FinishingSystem.Entities.ViewModels
+@model GD.FinishingSystem.WEB.Classes.IndexModelReprocess
+
+@{
+    var styleList = ViewBag.StyleList;
+    var positionReprocessID = ViewBag.PositionReprocessID;
+}
+
+<h1 class="mt-4">Reprocesos</h1>
+<form asp-action="Index" method="post" id="formFilters">
+
+    <div class="row">
+        <div class="col-md-2">
+            <div class="form-group">
+                <label for="dtBegin">Inicio</label><br>
+                <input type="datetime-local" style="width:100% !important;" id="dtBegin" name="dtBegin">
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="form-group">
+                <label for="dtEnd">Fin</label><br>
+                <input type="datetime-local" style="width:100% !important;" id="dtEnd" name="dtEnd">
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="form-group">
+                <label for="numLote">Lote</label><br>
+                <input numLote type="number" onfocusout="controlForSmallerThanZero('numLote')" min="0" style="width:100% !important;" id="numLote" name="numLote">
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="form-group">
+                <label for="numBeam">Julio</label><br>
+                <input type="number" onfocusout="controlForSmallerThanZero('numBeam')" min="0" style="width:100% !important;" id="numBeam" name="numBeam">
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="form-group">
+                <label for="numLoom">Telar</label><br>
+                <input type="number" onfocusout="controlForSmallerThanZero('numLoom')" min="0" style="width:100% !important;" id="numLoom" name="numLoom">
+            </div>
+        </div>
+
+        <div class="col-md-2">
+            <div class="form-group">
+                <label for="txtStyle">Estilo</label><br>
+                <input type="text" style="width:100% !important;" id="txtStyle" name="txtStyle" list="styleList">
+                <datalist id="styleList">
+                    @foreach (var item in styleList)
+                    {
+                        <option value="@item"></option>
+                    }
+                </datalist>
+            </div>
+        </div>
+    </div>
+    
+    @* SECOND ROW *@
+    <div class="row">
+        <div class="col-md-2">
+            <div class="form-group">
+                <label for="numReprocessID">ID de Crudo</label>
+                <input type="number" onfocus="controlForSmallerThanZero('numReprocessID')" min="0" style="width: 100% !important" id="numReprocessID" name="numReprocessID" />
+            </div>
+        </diV>
+    </div>
+
+    <div class="row">
+        <div class="col-sm-12 col-md-12 col-lg-12" style="text-align:right">
+            <button onclick="setIndex();" type="submit" class="btn btn-sm btn-outline-info"><i class="lni lni-search"></i> Filtrar</button>
+            <a onclick="clearFilters();" class="btn btn-sm btn-outline-info"><i class="lni lni-brush"></i> Limpiar Filtros</a>
+        </div>
+    </div>
+
+</form>
+
+<table class="table table-sm table-hover table-responsive-lg">
+    <thead>
+        <tr>
+            <th colspan="15">
+                <div>Lista de Reprocesos</div>
+            </th>
+        </tr>
+
+        <tr>
+            <th>
+                <i class="lni lni-line-dashed"></i>
+            </th>
+            <th></th>
+            <th>
+                @Html.DisplayNameFor(x => x.ReprocessList[0].Date)
+            </th>
+            <th>
+                @Html.DisplayNameFor(x => x.ReprocessList[0].Lote)
+            </th>
+            <th>
+                @Html.DisplayNameFor(x => x.ReprocessList[0].Beam)
+            </th>
+            <th>
+                @Html.DisplayNameFor(x => x.ReprocessList[0].Loom)
+            </th>
+            <th>
+                @Html.DisplayNameFor(x => x.ReprocessList[0].Style)
+            </th>
+            <th>
+                @Html.DisplayNameFor(x => x.ReprocessList[0].StyleName)
+            </th>
+            <th>
+                @Html.DisplayNameFor(x => x.ReprocessList[0].Meters)
+            </th>
+            <th>
+                @Html.DisplayNameFor(x => x.ReprocessList[0].Splice)
+            </th>
+            <th>
+                @Html.DisplayNameFor(x => x.ReprocessList[0].Pallet)
+            </th>
+            <th>
+                @Html.DisplayNameFor(x => x.ReprocessList[0].MainOriginID)
+            </th>
+            <th>
+                @Html.DisplayNameFor(x => x.ReprocessList[0].OriginID)
+            </th>
+            <th>
+                @Html.DisplayNameFor(x => x.ReprocessList[0].DefinitionProcessID)
+            </th>
+            <th>
+                @Html.DisplayNameFor(x => x.ReprocessList[0].RollObs)
+            </th>
+            <th>
+                @Html.DisplayNameFor(x => x.ReprocessList[0].PalletObs)
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.ReprocessList)
+        {
+            var color = "bgcolor=transparent";
+            if (item.RuloID != null && item.RuloID != 0)
+                color = "bgcolor=66ff66"; //Verde
+            else if (item.RuloID == null)
+                color = "bgcolor=ffc300"; //Amarillo
+
+            <tr @color id="@("row" + @item.ReprocessID)">
+                <td>
+                    <div style="display:block;width:90px">
+                        @if (User.IsInRole("Reprocess", AuthType.Add))
+                        {
+                            if (item.RuloID == null || item.RuloID == 0)
+                            {
+                                <a id="@("rp" + @item.ReprocessID)" onclick="validateCreateRuloReprocess(@item.Lote, @item.ReprocessID)" class="btn input-xs btn-dark">
+                                    <i class="lni lni-circle-plus"></i> Crear Rulo Reprocess
+                                </a>
+                            }
+                        }
+                    </div>
+                </td>
+                <td>
+                    <div style="display:block;width:15px">
+                        @Html.Raw(item.Date.ToString("yyyy-MM-dd"))
+                    </div>
+                </td>
+                <td>
+                    @Html.DisplayFor(x => item.Lote)
+                </td>
+                <td>
+                    @Html.DisplayFor(x => item.Beam)
+                </td>
+                <td>
+                    @Html.DisplayFor(x => item.Loom)
+                </td>
+                <td>
+                    @Html.DisplayFor(x => item.Style)
+                </td>
+                <td>
+                    @Html.DisplayFor(x => item.StyleName)
+                </td>
+                <td>
+                    @Html.DisplayFor(x => item.Meters)
+                </td>
+                <td>
+                    @Html.DisplayFor(x => item.Splice)
+                </td>
+                <td>
+                    @Html.DisplayFor(x => item.Pallet)
+                </td>
+                <td>
+                    @Html.DisplayFor(x => item.MainOriginID)
+                </td>
+                <td>
+                    @Html.DisplayFor(x => item.OriginID)
+                </td>
+                <td>
+                    @Html.DisplayFor(x => item.DefinitionProcessID)
+                </td>
+                <td>
+                    @Html.DisplayFor(x => item.RollObs)
+                </td>
+                <td>
+                    @Html.DisplayFor(x => item.PalletObs)
+                </td>
+            </tr>
+        }
+    </tbody>
+
+</table>
+
+<script>
+    document.getelementbyid("dtBegin").value = '@ViewBag.dtBegin.ToString()';
+    document.getelementbyid("dtEnd").value = '@ViewBag.dtBegin.ToString()';
+    
+    document.getelementbyid("numlote").value = '@ViewBag.numLote';
+    document.getelementbyid("numbeam").value = '@ViewBag.numBeam';
+    document.getelementbyid("numloom").value = '@ViewBag.numLoom';
+    document.getElementById("txtStyle").value = '@ViewBag.txtStyle';
+    document.getElementById("numReprocessID").value = 0;
+
+    function setIndex() {
+        document.getElementById("formFilters").action = "/Reprocess/Index";
+        document.getElementById("formFilters").submit();
+    }
+
+    function clearFilters() {
+        document.getelementbyid("numlote").value = '';
+        document.getelementbyid("numbeam").value = '';
+        document.getelementbyid("numloom").value = '';
+        document.getElementById("txtStyle").value = '';
+        document.getElementById("numReprocessID").value = '';
+
+        document.getElementById("formFilters").action = "/Reprocess/Index";
+        document.getElementById("formFilters").submit();
+
+    }
+
+    function controlForSmallerThanZero(controlID) {
+        try {
+            var value = document.getElementById(controlID).value;
+            var a = parseInt(value);
+            if (!(a > 0)) document.getElementById(controlID).value = "";
+        }
+        catch (err) {
+            document.getElementById(controlID).value = "";
+        }
+    }
+
+    function validateCreateRuloReprocess(lote, reprocessID)
+    {
+        $.ajax({
+            url: "/Reprocess/ValidateCreateRuloReprocess",
+            type: "GET",
+            data: {
+                reprocessID: reprocessID,
+                lote: lote
+            },
+            success: function () {
+                if (data) {
+                    if (data.errorMessage == "") {
+                        location.href = "/Reprocess/CreateRulo?reprocessID=" + reprocessID;
+                    }
+                    else
+                        alert(data.errorMessage);
+                }
+            },
+            error: function (xhr, ajaxOptions, thrownError){
+                alert("Something went wrong!")
+            }
+        });
+    }
+ </script>

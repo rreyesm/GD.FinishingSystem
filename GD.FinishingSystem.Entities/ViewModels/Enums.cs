@@ -37,4 +37,11 @@ namespace GD.FinishingSystem.Entities.ViewModels
         Acabado = 6,
         Tejido = 18
     }
+
+    public enum PackingListType
+    {
+        Finishing = 1,
+        Inspection = 2
+    }
+
 }
