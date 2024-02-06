@@ -1,4 +1,5 @@
 ﻿using GD.FinishingSystem.Bussines.Abstract;
+using GD.FinishingSystem.Bussines.Classes;
 using GD.FinishingSystem.DAL.Abstract;
 using GD.FinishingSystem.DAL.Concrete;
 using GD.FinishingSystem.DAL.EFdbPerformanceStandards;
@@ -93,7 +94,7 @@ namespace GD.FinishingSystem.Bussines.Concrete
             //    sOriginType = originType.ToString(); //.SplitCamelCase();
 
             var origins = await originRepository.GetWhere(x => !x.IsDeleted);
-            var origin = origins.Where(x=> x.OriginCategoryID == rulo.OriginID).FirstOrDefault();
+            var origin = origins.Where(x => x.OriginCategoryID == rulo.OriginID).FirstOrDefault();
             var mainOrigin = origins.Where(x => x.OriginCategoryID == rulo.MainOriginID).FirstOrDefault();
 
             var warehouses = await warehouseRepository.GetWhere(x => !x.IsDeleted && x.WarehouseCategoryID == rulo.WarehouseCategoryID);
@@ -345,6 +346,12 @@ namespace GD.FinishingSystem.Bussines.Concrete
             result.DefinationProcess = definationResult;
 
             return result;
+        }
+
+        public override async Task<bool> ExistsRuloProcess(int ruloID, int definitionProcessID)
+        {
+            var result = await ruloProcessRepository.CountWhere(x => !x.IsDeleted && x.RuloID == ruloID && x.DefinationProcessID == definitionProcessID);
+            return result > 0;
         }
 
         public override async Task SetTestResult(int RuloID, int TestResultID, bool isWaitingForTestResult, int? authorizer, int setter)
@@ -638,6 +645,12 @@ namespace GD.FinishingSystem.Bussines.Concrete
         {
             IEnumerable<VMRulo> result = null;
 
+            DateTime dynamicDateBegin = ruloFilters.dtBegin;
+            DateTime dynamicDateEnd = ruloFilters.dtEnd;
+
+            dynamicDateBegin = dynamicDateBegin.GetRealDate(false);
+            dynamicDateEnd = dynamicDateEnd.GetRealDate(true);
+
             //Order in stored procedure
             string numLote = ruloFilters.numLote != 0 ? ruloFilters.numLote.ToString() : null;
             int? numBeam = ruloFilters.numBeam != 0 ? (int?)ruloFilters.numBeam : null;
@@ -654,7 +667,25 @@ namespace GD.FinishingSystem.Bussines.Concrete
             int? pag = 0; //Si se va a obtener todos los registros pasar estos valores como 0
             int? tammPag = 0;
 
-            object[] parameters = GetParameters(ruloFilters, numLote, numBeam, numLoom, numPiece, folioNumber, txtStyle, numDefinitionProcess, numTestCategory, withBatches, numRuloID, isAccountDate, isCount, pag, tammPag);
+            //object[] parameters = GetParameters(ruloFilters, numLote, numBeam, numLoom, numPiece, folioNumber, txtStyle, numDefinitionProcess, numTestCategory, withBatches, numRuloID, isAccountDate, isCount, pag, tammPag);
+            object[] parameters = new object[] {
+                dynamicDateBegin.ToString("yyyy-MM-dd HH:mm:ss"),
+                dynamicDateEnd.ToString("yyyy-MM-dd HH:mm:ss"),
+                numLote,
+                numBeam,
+                numLoom,
+                numPiece,
+                folioNumber,
+                txtStyle,
+                numDefinitionProcess,
+                numTestCategory,
+                withBatches,
+                numRuloID,
+                isAccountDate,
+                isCount,
+                pag,
+                tammPag
+                };
 
             int? time = Context.Database.GetCommandTimeout();
             Context.Database.SetCommandTimeout(0);
@@ -932,6 +963,12 @@ namespace GD.FinishingSystem.Bussines.Concrete
         {
             string query = string.Empty;
 
+            DateTime dynamicDateBegin = reportFilter.dtBegin;
+            DateTime dynamicDateEnd = reportFilter.dtEnd;
+
+            dynamicDateBegin = dynamicDateBegin.GetRealDate(false);
+            dynamicDateEnd = dynamicDateBegin.GetRealDate(true);
+
             //Order in stored procedure
             var txtStyle = string.IsNullOrWhiteSpace(reportFilter.txtStyle) ? reportFilter.txtStyle : null;
             var numLote = reportFilter.numLote != 0 ? (int?)reportFilter.numLote : null;
@@ -944,11 +981,13 @@ namespace GD.FinishingSystem.Bussines.Concrete
             {
                 case 1:
                     //Este es el reporte que indicó Alfredo que se modificara
-                    query = "spFinishedFabricReport @p0,@p1,@p2,@p3,@p4,@p5,@p6"; //Antrior: spGetProcessesCompletedReport
+                    query = "stpFinishedFabricReport @p0,@p1,@p2,@p3,@p4,@p5,@p6"; //Antrior: spGetProcessesCompletedReport
 
                     parameters = new object[] {
-                    reportFilter.dtBegin.ToString("yyyy-MM-dd HH:mm:ss"),
-                    reportFilter.dtEnd.ToString("yyyy-MM-dd HH:mm:ss"),
+                    //reportFilter.dtBegin.ToString("yyyy-MM-dd HH:mm:ss"),
+                    //reportFilter.dtEnd.ToString("yyyy-MM-dd HH:mm:ss"),
+                    dynamicDateBegin.ToString("yyyy-MM-dd HH:mm:ss"),
+                    dynamicDateEnd.ToString("yyyy-MM-dd HH:mm:ss"),
                     txtStyle,
                     numLote,
                     numBeam,

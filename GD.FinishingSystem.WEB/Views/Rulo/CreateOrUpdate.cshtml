@@ -25,7 +25,7 @@
 
 
 <div class="alert alert-success">
-    <form asp-action="Save" onsubmit="enableFields()">
+    <form id="formCreate" asp-action="Save">
         @Html.HiddenFor(o => o.RuloID)
         @Html.AntiForgeryToken()
         <div asp-validation-summary="ModelOnly" class="text-danger"></div>
@@ -51,7 +51,7 @@
             <div class="col-lg-3 col-md-4 col-sm-12">
                 <div class="form-group">
                     <label asp-for="Beam" class="control-label"></label>
-                    <input asp-for="Beam" class="form-control" type="number" />
+                    <input asp-for="Beam" class="form-control" /> @* type="number" *@
                     <span asp-validation-for="Beam" class="text-danger"></span>
                 </div>
             </div>
@@ -65,7 +65,7 @@
             <div class="col-lg-3 col-md-4 col-sm-12">
                 <div class="form-group">
                     <label asp-for="Loom" class="control-label"></label>
-                    <input asp-for="Loom" class="form-control" type="number" />
+                    <input asp-for="Loom" class="form-control" /> @* type="number" *@
                     <span asp-validation-for="Loom" class="text-danger"></span>
                 </div>
             </div>
@@ -100,23 +100,23 @@
             {
                 <div class="col-lg-3 col-md-4 col-sm-12">
                     <div class="form-group">
-                    <label asp-for="WeavingLength" class="control-label"></label>
-                    <input asp-for="WeavingLength" class="form-control" type="number" />
-                    <span asp-validation-for="WeavingLength" class="text-danger"></span>
+                        <label asp-for="WeavingLength" class="control-label"></label>
+                        <input asp-for="WeavingLength" class="form-control" disabled /> @* type="number" *@
+                        <span asp-validation-for="WeavingLength" class="text-danger"></span>
+                    </div>
                 </div>
-            </div>
             }
             <div class="col-lg-3 col-md-4 col-sm-12">
                 <div class="form-group">
                     <label asp-for="EntranceLength" class="control-label"></label>
-                    <input asp-for="EntranceLength" class="form-control" type="number" />
+                    <input asp-for="EntranceLength" class="form-control" /> @* type="number" *@
                     <span asp-validation-for="EntranceLength" class="text-danger"></span>
                 </div>
             </div>
             <div class="col-lg-3 col-md-4 col-sm-12">
                 <div class="form-group">
                     <label asp-for="Shift" class="control-label"></label>
-                    <input asp-for="Shift" class="form-control" type="number" />
+                    <input asp-for="Shift" class="form-control" /> @* type="number" *@
                     <span asp-validation-for="Shift" class="text-danger"></span>
                 </div>
             </div>
@@ -159,7 +159,7 @@
             <div class="col-lg-3 col-md-4 col-sm-12">
                 <div class="form-group">
                     <label asp-for="FolioNumber" class="control-label"></label>
-                    <input asp-for="FolioNumber" class="form-control" type="number" />
+                    <input asp-for="FolioNumber" class="form-control" /> @* type="number" *@
                     <span asp-validation-for="FolioNumber" class="text-danger"></span>
                 </div>
             </div>
@@ -178,13 +178,15 @@
                 <div class="form-group">
                     @if (Model.RuloID == 0)
                     {
-                        <button type="submit" class="btn btn-primary"><i class="lni lni-circle-plus"></i> Create</button>
+                        @* <button type="submit" id="btnSave" onclick="disableButton()" class="btn btn-primary"><i class="lni lni-circle-plus"></i> Create</button> *@
+                        <a id="btnSave" onclick="ValidateCreateFromRuloMigration()" class="btn btn-primary"><i class="lni lni-circle-plus"></i> Create</a>
                     }
                     else
                     {
                         if (Model.TestResultID == null) //If test result is null show button processes
                         {
-                            <button type="submit" class="btn btn-success"><i class="lni lni-save"></i> Save Changes</button>
+                            @* <button type="submit" id="btnSave" onclick="disableButton()" class="btn btn-success"><i class="lni lni-save"></i> Save Changes</button> *@
+                            <a id="btnSave" onclick="ValidateCreateFromRuloMigration()" class="btn btn-success"><i class="lni lni-save"></i> Save Changes</a>
                         }
                     }
                 </div>
@@ -202,7 +204,9 @@
 </div>
 
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
 }
 
 <script>
@@ -263,9 +267,57 @@
         }
     }
 
-    function enableFields(){
-        document.getElementById("MainOriginID").disabled = false;
-        document.getElementById("OriginID").disabled = false;
+    function disableFields(valStatus) {
+        document.getElementById("MainOriginID").disabled = valStatus;
+        document.getElementById("OriginID").disabled = valStatus;
+        document.getElementById("Style").disabled = valStatus;
+        document.getElementById("StyleName").disabled = valStatus;
+        if (document.getElementById("WeavingLength")) {
+            document.getElementById("WeavingLength").disabled = valStatus;
+        }
+
+    }
+
+    function executeSubmit() {
+        document.getElementById("btnSave").disabled = true;
+        disableFields(false);
+        document.getElementById("formCreate").submit();
+    }
+
+    function ValidateCreateFromRuloMigration() {
+        var formContainer = $('#formCreate');
+
+        disableFields(false);
+
+        $.ajax({
+            url: "/Rulo/ValidateCreateFromRuloMigration",
+            type: "POST",
+            cache: false,
+            data: formContainer.serialize(),
+            success: function (result) {
+                if (result) {
+                    if (result.errorMessage == "") {
+                        disableFields(false);
+                        document.getElementById("formCreate").submit(); //Usando la función executeSubmit ViewBag lo envía como nulo y marca una exception
+                        disableFields(true);
+                    }
+                    else {
+                        disableFields(true);
+                        alert(result.errorMessage);
+                    }
+
+                }
+                else {
+                    $('.model-status').text('Enviado con error. Compruebe que ha rellenado todos los campos');
+                }
+
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                $('.model-status').text('Estado: Error inesperado');
+                alert("404 Not found!");
+            }
+        })
+
     }
 
 </script>

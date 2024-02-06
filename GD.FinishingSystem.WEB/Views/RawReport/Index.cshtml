@@ -11,13 +11,15 @@
         <div class="col-md-2">
             <div class="form-group">
                 <label for="dtBegin">Begin</label><br>
-                <input type="datetime-local" style="width:100% !important;" id="dtBegin" name="dtBegin">
+                @* <input type="datetime-local" style="width:100% !important;" id="dtBegin" name="dtBegin"> *@
+                <input type="date" style="width:100% !important;" id="dtBegin" name="dtBegin">
             </div>
         </div>
         <div class="col-md-2">
             <div class="form-group">
                 <label for="dtEnd">End</label><br>
-                <input type="datetime-local" style="width:100% !important;" id="dtEnd" name="dtEnd">
+                @* <input type="datetime-local" style="width:100% !important;" id="dtEnd" name="dtEnd"> *@
+                <input type="date" style="width:100% !important;" id="dtEnd" name="dtEnd">
             </div>
         </div>
         <div class="col-md-2">
@@ -73,17 +75,18 @@
     </div>
 
     <div class="row">
-        <div class="col-md-12">
-            <div class="form-group">
-                <input type="radio" id="finishedRawFabricEntrance" name="typeReport" checked value="1" style="zoom: 1.5" />
-                <label for="finishedRawFabricEntrance" style="font-size: x-large">Finished Raw Fabric Entrance</label>
-            </div>
+        @*         <div class="col-md-12">
+        <div class="form-group">
+        <input type="radio" id="finishedRawFabricEntrance" name="typeReport" checked value="1" style="zoom: 1.5" />
+        <label for="finishedRawFabricEntrance" style="font-size: x-large">Finished Raw Fabric Entrance</label>
         </div>
+        </div> *@
 
         <div class="col-md-12">
             <div class="form-group">
                 <input type="radio" id="finishedRawFabricEntranceDetailed" name="typeReport" checked value="4" style="zoom: 1.5" />
                 <label for="finishedRawFabricEntranceDetailed" style="font-size: x-large">Finished Raw Fabric Entrance Detailed</label>
+                <ul><Label><input id="finishingDetailed" type="radio" name="rawFabricEntranceDetailed" onclick="chageRawFabricEntranceDetailed();" checked /> Acabado</Label> <Label><input id="weavingDetailed" type="radio" name="rawFabricEntranceDetailed" onclick="chageRawFabricEntranceDetailed();" /> Tejido</Label></ul>
             </div>
         </div>
 
@@ -101,6 +104,13 @@
             </div>
         </div>
 
+        <div class="col-md-12">
+            <div class="form-group">
+                <input type="radio" id="monthlyFinishingStockReport" name="typeReport" value="5" style="zoom: 1.5">
+                <label for="monthlyFinishingStockReport" style="font-size: x-large">Monthly Finishing Stock Report</label>
+            </div>
+        </div>
+
         <div class="row">
             <div class="col-sm-12 col-md-12 col-lg-12" style="text-align:left">
                 <a onclick="exportToExcel();" class="btn btn-sm btn-success"><i class="far fa-file-excel"></i> Export to Excel</a>
@@ -110,6 +120,7 @@
 
     </div>
 
+    <input type="hidden" id="isFinishingDetailed" name="isFinishingDetailed" />
 </form>
 
 <script>
@@ -123,6 +134,7 @@
     document.getElementById("numLoom").value = '@ViewBag.numLoom';
     document.getElementById("txtStyle").value = '@ViewBag.txtStyle';
     document.getElementById("numShift").value = '@ViewBag.numShift';
+    document.getElementById("isFinishingDetailed").value = '@ViewBag.isFinishingDetailed';
 
     function setIndex() {
         document.getElementById("formFilters").action = "/RawRulo/Index";
@@ -146,5 +158,10 @@
     function exportToPDF() {
         document.getElementById("formFilters").action = "/RawReport/ExportToPDF";
         document.getElementById("formFilters").submit();
+    }
+
+    function chageRawFabricEntranceDetailed() {
+        var selectedValue = document.getElementById("finishingDetailed");
+        document.getElementById("isFinishingDetailed").value = selectedValue.checked == true ? true : false;
     }
 </script>

@@ -5,6 +5,8 @@ using GD.FinishingSystem.DAL.EFdbPlanta;
 using GD.FinishingSystem.Entities;
 using GD.FinishingSystem.Entities.ViewModels;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions;
+using Microsoft.EntityFrameworkCore.ValueGeneration.Internal;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -20,6 +22,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Transactions;
 using System.Xml.Linq;
+using GD.FinishingSystem.Bussines.Classes;
 
 namespace GD.FinishingSystem.Bussines.Concrete
 {
@@ -54,6 +57,7 @@ namespace GD.FinishingSystem.Bussines.Concrete
         {
             try
             {
+                ruloMigration.AccountingDate = ruloMigration.AccountingDate.GetCurrentAccountingDate();
                 await repository.Add(ruloMigration, adderRef);
             }
             catch (Exception ex)
@@ -311,6 +315,7 @@ namespace GD.FinishingSystem.Bussines.Concrete
                                   }
                              ).ToList();
             }
+
             return rulosMigration;
         }
 
@@ -321,6 +326,13 @@ namespace GD.FinishingSystem.Bussines.Concrete
 
         public override async Task Update(RuloMigration ruloMigration, int updaterRef)
         {
+            if (ruloMigration.RuloMigrationID != 0)
+            {
+                var temp = await repository.GetByPrimaryKey(ruloMigration.RuloMigrationID);
+                if (temp != null && (temp.WarehouseCategoryID == 8 || temp.WarehouseCategoryID == 9) && ruloMigration.WarehouseCategoryID == 1) //Cambiar Fecha cuando cambia de 8=W1 y 9=w2 - Tejido a 1=W1 - Acabado
+                    ruloMigration.AccountingDate = ruloMigration.AccountingDate.GetCurrentAccountingDate();
+            }
+
             await repository.Update(ruloMigration, updaterRef);
         }
 
@@ -339,7 +351,14 @@ namespace GD.FinishingSystem.Bussines.Concrete
 
         public override async Task<IEnumerable<VMRuloMigrationReport>> GetRawFabricStocktFromFilters(VMRuloFilters ruloFilters)
         {
-            var query = repository.GetQueryable(x => !x.IsDeleted && ((x.Date <= ruloFilters.dtEnd && x.Date >= ruloFilters.dtBegin) || (x.Date <= ruloFilters.dtBegin && x.Date >= ruloFilters.dtEnd)));
+            //var query = repository.GetQueryable(x => !x.IsDeleted && ((x.Date <= ruloFilters.dtEnd && x.Date >= ruloFilters.dtBegin) || (x.Date <= ruloFilters.dtBegin && x.Date >= ruloFilters.dtEnd)));
+            //DateTime acountingDateBegin = GetAccountingDate(ruloFilters.dtBegin);
+            //DateTime acountingDateEnd = GetAccountingDate(ruloFilters.dtEnd);
+            //var query = repository.GetQueryable(x => !x.IsDeleted && ((x.AccountingDate <= ruloFilters.dtBegin.Date && x.AccountingDate >= ruloFilters.dtBegin.Date) || (x.AccountingDate <= ruloFilters.dtBegin.Date && x.AccountingDate >= ruloFilters.dtBegin.Date)));
+
+            DateTime realDateBegin = ruloFilters.dtBegin.GetRealDate(false);
+            DateTime realDateEnd = ruloFilters.dtEnd.GetRealDate(true);
+            var query = repository.GetQueryable(x => !x.IsDeleted && ((x.CreatedDate <= realDateEnd && x.CreatedDate >= realDateBegin) || (x.CreatedDate <= realDateBegin && x.CreatedDate >= realDateEnd)));
 
             var migrationCategories = await repositoryMigrationCategory.GetWhere(x => !x.IsDeleted);
             var definitionProcessess = await repositoryProcess.GetWhere(x => !x.IsDeleted);
@@ -369,6 +388,7 @@ namespace GD.FinishingSystem.Bussines.Concrete
                                   {
                                       RuloMigrationID = rm.RuloMigrationID,
                                       Date = rm.Date,
+                                      CreationDate = rm.CreatedDate,
                                       Style = rm.Style,
                                       StyleName = rm.StyleName,
                                       NextMachine = (subDP != null ? subDP.Name : rm.NextMachine), //rm.NextMachine,
@@ -398,6 +418,12 @@ namespace GD.FinishingSystem.Bussines.Concrete
 
         public override async Task<IEnumerable<VMRuloMigrationReport>> GetFinishedProcessRawFabric(VMReportFilter reportFilter)
         {
+            DateTime dynamicDateBegin = reportFilter.dtBegin;
+            DateTime dynamicDateEnd = reportFilter.dtEnd;
+
+            dynamicDateBegin = dynamicDateBegin.GetRealDate(false);
+            dynamicDateEnd = dynamicDateEnd.GetRealDate(true);
+
             string query = string.Empty;
 
             //Order in stored procedure
@@ -408,8 +434,8 @@ namespace GD.FinishingSystem.Bussines.Concrete
             var shift = reportFilter.shift != 0 ? (int?)reportFilter.shift : null;
 
             object[] parameters = new object[] {
-                    reportFilter.dtBegin.ToString("yyyy-MM-dd HH:mm:ss"),
-                    reportFilter.dtEnd.ToString("yyyy-MM-dd HH:mm:ss"),
+                    dynamicDateBegin.ToString("yyyy-MM-dd HH:mm:ss"),
+                    dynamicDateEnd.ToString("yyyy-MM-dd HH:mm:ss"),
                     txtStyle,
                     numLote,
                     numBeam,
@@ -417,9 +443,7 @@ namespace GD.FinishingSystem.Bussines.Concrete
                     shift
                     };
 
-            //var rawReportList = await repository.GetWithRawSql(query, parameters);
-
-            var rawReportList = await context.Set<VMRuloMigrationReport>().FromSqlRaw("exec spFinishedProcessRawFabric @p0,@p1,@p2,@p3,@p4,@p5,@p6", parameters).ToListAsync();
+            var rawReportList = await context.Set<VMRuloMigrationReport>().FromSqlRaw("exec stpFinishedProcessRawFabric @p0,@p1,@p2,@p3,@p4,@p5,@p6", parameters).ToListAsync();
 
             return rawReportList;
         }
@@ -449,6 +473,7 @@ namespace GD.FinishingSystem.Bussines.Concrete
                                   {
                                       RuloMigrationID = rm.RuloMigrationID,
                                       Date = rm.Date,
+                                      CreationDate = rm.CreatedDate,
                                       Style = rm.Style,
                                       StyleName = rm.StyleName,
                                       NextMachine = (subDP != null ? subDP.Name : rm.NextMachine), //rm.NextMachine,
@@ -511,10 +536,10 @@ namespace GD.FinishingSystem.Bussines.Concrete
             return ruloMigration > 0;
         }
 
-        public override async Task<decimal> GetTotalMetersByRuloMigration(string lote, int beam)
+        public override async Task<decimal> GetTotalMetersByRuloMigration(string lote, int beam, int loom)
         {
             //We verify RuloID because if there is one that has an ID, it may be that it already has an advance. 
-            var ruloMigrations = await repository.GetWhereWithNoTrack(x => x.Lote == lote && x.Beam == beam && x.RuloID == null && x.FabricAdvance != true);
+            var ruloMigrations = await repository.GetWhereWithNoTrack(x => x.Lote == lote && x.Beam == beam && x.Loom == loom && x.RuloID == null && x.FabricAdvance != true);
             var total = ruloMigrations.Sum(x => x.Meters);
             return total;
         }
@@ -621,7 +646,7 @@ namespace GD.FinishingSystem.Bussines.Concrete
             switch (reportFilter.typeReport)
             {
                 case 1:
-                    query = "spFinishedRawFabricEntrance @p0,@p1,@p2,@p3,@p4,@p5,@p6"; //Anterior: spGetProcessesCompletedReport
+                    query = "stpFinishedRawFabricEntrance @p0,@p1,@p2,@p3,@p4,@p5,@p6"; //Anterior: spGetProcessesCompletedReport
 
                     parameters = new object[] {
                     reportFilter.dtBegin.ToString("yyyy-MM-dd HH:mm:ss"),
@@ -647,7 +672,7 @@ namespace GD.FinishingSystem.Bussines.Concrete
 
         public async override Task<IEnumerable<VMRuloMigrationReport>> GetFinishedRawFabricEntranceDetailed(VMReportFilter reportFilter)
         {
-            string query = "stpFinishedRawFabricEntranceDetailed @p0,@p1,@p2,@p3,@p4,@p5,@p6";
+            string query = "stpFinishedRawFabricEntranceDetailed @p0,@p1,@p2,@p3,@p4,@p5,@p6,@p7";
 
             object[] parameters = GetParameters(reportFilter);
 
@@ -666,14 +691,15 @@ namespace GD.FinishingSystem.Bussines.Concrete
             var shift = reportFilter.shift != 0 ? (int?)reportFilter.shift : null;
 
             return new object[] {
-                    reportFilter.dtBegin.ToString("yyyy-MM-dd HH:mm:ss"),
-                    reportFilter.dtEnd.ToString("yyyy-MM-dd HH:mm:ss"),
+                    reportFilter.dtBegin.ToString("yyyy-MM-dd"),
+                    reportFilter.dtEnd.ToString("yyyy-MM-dd"),
                     txtStyle,
                     numLote,
                     numBeam,
                     numLoom,
-                    shift
-                };
+                    shift,
+                    reportFilter.isFinishingDetailed
+            };
         }
 
         public async override Task<IEnumerable<Location>> GetLocations()
@@ -701,6 +727,26 @@ namespace GD.FinishingSystem.Bussines.Concrete
             var ruloMigration = await repository.FirstOrDefault(x => !x.IsDeleted && x.RuloMigrationID == ruloMigrationID);
 
             return ruloMigration;
+        }
+
+        public async override Task<IEnumerable<WarehouseStock>> GetMonthlyFinishingStockReport(VMReportFilter reportFilter)
+        {
+            DateTime dynamicDateBegin = reportFilter.dtBegin;
+            DateTime dynamicDateEnd = reportFilter.dtEnd;
+
+            dynamicDateBegin = dynamicDateBegin.GetRealDate(false);
+            dynamicDateEnd = dynamicDateEnd.GetRealDate(true);
+
+            string query = "stpMonthlyFinishingStockReport @p0,@p1";
+
+            object[] parameters = new object[] {
+                    dynamicDateBegin.ToString("yyyy-MM-dd HH:mm:ss"),
+                    dynamicDateEnd.ToString("yyyy-MM-dd HH:mm:ss"),
+            };
+
+            var warehouseStock = await context.Set<WarehouseStock>().FromSqlRaw(query, parameters).ToListAsync();
+
+            return warehouseStock;
         }
 
     }

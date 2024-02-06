@@ -283,7 +283,7 @@ namespace GD.FinishingSystem.WEB.Classes
                             case TypeCode.Int64:
                             case TypeCode.UInt64:
                                 workSheet.Cell(rowIni, colIni).Style.NumberFormat.Format = "###0";
-                                if (totaleList != null && totaleList.Any(x=> x.Contains(propInfo.Name, StringComparison.InvariantCultureIgnoreCase)) && !totals.Any(x => x.Name == propInfo.Name))
+                                if (totaleList != null && totaleList.Any(x => x.Contains(propInfo.Name, StringComparison.InvariantCultureIgnoreCase)) && !totals.Any(x => x.Name == propInfo.Name))
                                     totals.Add(new Total() { Name = propInfo.Name, Value = value != DBNull.Value ? (decimal)value : 0, Column = colIni });
                                 else if (totaleList != null && totaleList.Any(x => x.Contains(propInfo.Name, StringComparison.InvariantCultureIgnoreCase)))
                                 {

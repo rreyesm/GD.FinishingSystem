@@ -10,6 +10,8 @@ namespace GD.FinishingSystem.Entities.ViewModels
         [Display(Name = "Rulo Migration ID")]
         public int RuloMigrationID { get; set; }
         public DateTime Date { get; set; }
+        [Display(Name = "Creation Date")]
+        public DateTime CreationDate { get; set; }
         public string Style { get; set; }
         [Display(Name = "Style Name")]
         public string StyleName { get; set; }

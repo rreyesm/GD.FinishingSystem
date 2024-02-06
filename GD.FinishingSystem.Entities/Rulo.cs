@@ -18,6 +18,7 @@ namespace GD.FinishingSystem.Entities
         public int RuloID { get; set; }
         public string Lote { get; set; }
         [Display(Name = "Julio")]
+        [RegularExpression(@"^[1-9][0-9]*$", ErrorMessage = "Julio no válido")]
         public int Beam { get; set; }
         [Display(Name = "Para de Julio")]
         [RegularExpression(@"^(A|B)$", ErrorMessage = "Parada de Julio no valida. Introduzca A o B")]
@@ -36,11 +37,13 @@ namespace GD.FinishingSystem.Entities
         [Display(Name = "Longitud de tejido")]
         public decimal WeavingLength { get; set; }
         [Display(Name = "Longitud de Entrada")]
+        [RegularExpression(@"^0*[1-9][0-9]*(\.[0-9]+)?|0+\.[0-9]*[1-9][0-9]*$", ErrorMessage = "Metros no válidos")]
         public decimal EntranceLength { get; set; }
         [Display(Name = "Longitud de Salida")]
         public decimal ExitLength { get; set; }
         [Display(Name = "Contracción")]
         public decimal Shrinkage { get; set; }
+        [RegularExpression(@"^[1-9][0-9]*$", ErrorMessage = "Turno no válido")]
         [Display(Name = "Turno")]
         public int Shift { get; set; }
         [Display(Name = "Esperando Respuesta De Pruebas")]

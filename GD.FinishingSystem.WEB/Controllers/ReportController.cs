@@ -34,8 +34,10 @@ namespace GD.FinishingSystem.WEB.Controllers
         public async Task<IActionResult> Index()
         {
             VMReportFilter reportFilter = new VMReportFilter();
+            //reportFilter.dtBegin = DateTime.Now.AddDays(-1).AccountStartDate();
+            //reportFilter.dtEnd = DateTime.Now.AccountEndDate();
             reportFilter.dtBegin = DateTime.Now.AddDays(-1).AccountStartDate();
-            reportFilter.dtEnd = DateTime.Now.AccountEndDate();
+            reportFilter.dtEnd = DateTime.Now.AddDays(-1).AccountEndDate();
 
             await SetViewBagsForDates(reportFilter);
 
@@ -54,8 +56,10 @@ namespace GD.FinishingSystem.WEB.Controllers
 
         private async Task SetViewBagsForDates(VMReportFilter reportFilter)
         {
-            ViewBag.dtBegin = reportFilter.dtBegin.ToString("yyyy-MM-ddTHH:mm:ss");
-            ViewBag.dtEnd = reportFilter.dtEnd.ToString("yyyy-MM-ddTHH:mm:ss");
+            //ViewBag.dtBegin = reportFilter.dtBegin.ToString("yyyy-MM-ddTHH:mm:ss");
+            //ViewBag.dtEnd = reportFilter.dtEnd.ToString("yyyy-MM-ddTHH:mm:ss");
+            ViewBag.dtBegin = reportFilter.dtBegin.ToString("yyyy-MM-dd");
+            ViewBag.dtEnd = reportFilter.dtEnd.ToString("yyyy-MM-dd");
 
             ViewBag.numLote = reportFilter.numLote;
             ViewBag.numBeam = reportFilter.numBeam;
@@ -87,9 +91,9 @@ namespace GD.FinishingSystem.WEB.Controllers
 
                 switch (reportFilter.typeReport)
                 {
-                    case 1:
+                    case 1: //Fecha dinámica
                         fileName = $"Finished Fabric Report_{DateTime.Today.Year}_{DateTime.Today.Month.ToString().PadLeft(2, '0')}_{DateTime.Today.Day.ToString().PadLeft(2, '0')}.xlsx";
-                        reportName = "Finished Fabric Report From " + reportFilter.dtBegin.ToString("dd-MM-yyyy HH:mm") + " To " + reportFilter.dtEnd.ToString("dd-MM-yyyy HH:mm");
+                        reportName = "Finished Fabric Report From " + reportFilter.dtBegin.ToString("dd-MM-yyyy") + " To " + reportFilter.dtEnd.ToString("dd-MM-yyyy");
 
                         IEnumerable<TblCustomReport> customReports = await factory.Rulos.GetFinishedFabricReport(reportFilter);
 
@@ -102,9 +106,9 @@ namespace GD.FinishingSystem.WEB.Controllers
                         fileStreamResult = fileResult1.Item2;
 
                         break;
-                    case 2:
+                    case 2: //Fecha dinámica
                         fileName = $"Finishing Fabric Detailed Report_{DateTime.Today.Year}_{DateTime.Today.Month.ToString().PadLeft(2, '0')}_{DateTime.Today.Day.ToString().PadLeft(2, '0')}.xlsx";
-                        reportName = "Finishing Fabric Detailed Report From " + reportFilter.dtBegin.ToString("dd-MM-yyyy HH:mm") + " To " + reportFilter.dtEnd.ToString("dd-MM-yyyy HH:mm");
+                        reportName = "Finishing Fabric Detailed Report From " + reportFilter.dtBegin.ToString("dd-MM-yyyy") + " To " + reportFilter.dtEnd.ToString("dd-MM-yyyy");
 
                         IEnumerable<VMRulo> vmRulos = await factory.Rulos.GetRuloReportListFromFilters(reportFilter as VMRuloFilters);
 

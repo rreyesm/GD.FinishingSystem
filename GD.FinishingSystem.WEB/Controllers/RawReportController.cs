@@ -32,8 +32,10 @@ namespace GD.FinishingSystem.WEB.Controllers
         public async Task<ActionResult> Index()
         {
             VMRuloFilters reportFilter = new VMRuloFilters();
+            //reportFilter.dtBegin = DateTime.Now.AddDays(-1).AccountStartDate();
+            //reportFilter.dtEnd = DateTime.Now.AccountEndDate();
             reportFilter.dtBegin = DateTime.Now.AddDays(-1).AccountStartDate();
-            reportFilter.dtEnd = DateTime.Now.AccountEndDate();
+            reportFilter.dtEnd = DateTime.Now.AddDays(-1).AccountEndDate();
 
             await SetViewBagsForDates(reportFilter);
 
@@ -51,8 +53,10 @@ namespace GD.FinishingSystem.WEB.Controllers
 
         private async Task SetViewBagsForDates(VMRuloFilters reportFilter)
         {
-            ViewBag.dtBegin = reportFilter.dtBegin.ToString("yyyy-MM-ddTHH:mm");
-            ViewBag.dtEnd = reportFilter.dtEnd.ToString("yyyy-MM-ddTHH:mm");
+            //ViewBag.dtBegin = reportFilter.dtBegin.ToString("yyyy-MM-ddTHH:mm");
+            //ViewBag.dtEnd = reportFilter.dtEnd.ToString("yyyy-MM-ddTHH:mm");
+            ViewBag.dtBegin = reportFilter.dtBegin.ToString("yyyy-MM-dd");
+            ViewBag.dtEnd = reportFilter.dtEnd.ToString("yyyy-MM-dd");
 
             ViewBag.numLote = reportFilter.numLote;
             ViewBag.numBeam = reportFilter.numBeam;
@@ -64,6 +68,8 @@ namespace GD.FinishingSystem.WEB.Controllers
             //Style list
             var styleDataList = await factory.Rulos.GetRuloStyleStringForProductionLoteList();
             ViewBag.StyleList = styleDataList.ToList();
+
+            ViewBag.isFinishingDetailed = reportFilter.isFinishingDetailed = true;
 
         }
 
@@ -80,8 +86,8 @@ namespace GD.FinishingSystem.WEB.Controllers
 
             switch (reportFilter.typeReport)
             {
-                case 1:
-                    reportName = "Finished Raw Fabric Entrance From " + reportFilter.dtBegin.ToString("dd-MM-yyyy HH:mm") + " To " + reportFilter.dtEnd.ToString("dd-MM-yyyy HH:mm");
+                case 1: //Eliminado por indicación de Alfredo 26-01-2024
+                    reportName = "Finished Raw Fabric Entrance From " + reportFilter.dtBegin.ToString("dd-MM-yyyy") + " To " + reportFilter.dtEnd.ToString("dd-MM-yyyy");
                     fileName = $"Finished Raw Fabric Entrance_{DateTime.Today.Year}_{DateTime.Today.Month.ToString().PadLeft(2, '0')}_{DateTime.Today.Day.ToString().PadLeft(2, '0')}.xlsx";
 
                     IEnumerable<TblFinishRawFabricEntrance> result = await factory.RuloMigrations.GetFinishedRawFabricEntrance(reportFilter); //Este se usa en Rulos
@@ -92,8 +98,8 @@ namespace GD.FinishingSystem.WEB.Controllers
 
                     fileStreamResult = fileResult.Item2;
                     break;
-                case 2:
-                    reportName = "Raw Fabric Stock From " + reportFilter.dtBegin.ToString("dd-MM-yyyy HH:mm") + " To " + reportFilter.dtEnd.ToString("dd-MM-yyyy HH:mm");
+                case 2: //Fecha contable
+                    reportName = "Raw Fabric Stock From " + reportFilter.dtBegin.ToString("dd-MM-yyyy") + " To " + reportFilter.dtEnd.ToString("dd-MM-yyyy");
                     fileName = $"Raw Fabric Stock_{DateTime.Today.Year}_{DateTime.Today.Month.ToString().PadLeft(2, '0')}_{DateTime.Today.Day.ToString().PadLeft(2, '0')}.xlsx";
 
                     var ruloMigrations = await factory.RuloMigrations.GetRawFabricStocktFromFilters(reportFilter);
@@ -104,11 +110,10 @@ namespace GD.FinishingSystem.WEB.Controllers
 
                     fileStreamResult = fileResult2.Item2;
                     break;
-                case 3:
-                    reportFilter.dtEnd = reportFilter.dtEnd.AddDays(1).AddMilliseconds(-1);
+                case 3: //Fecha dinámica
                     var result3 = await factory.RuloMigrations.GetFinishedProcessRawFabric(reportFilter);
 
-                    reportName = "Finished Process Raw Fabric From " + reportFilter.dtBegin.ToString("dd-MM-yyyy HH:mm") + " To " + reportFilter.dtEnd.ToString("dd-MM-yyyy HH:mm");
+                    reportName = "Finished Process Raw Fabric From " + reportFilter.dtBegin.ToString("dd-MM-yyyy") + " To " + reportFilter.dtEnd.ToString("dd-MM-yyyy");
                     fileName = $"Finished Process Raw Fabric_{DateTime.Today.Year}_{DateTime.Today.Month.ToString().PadLeft(2, '0')}_{DateTime.Today.Day.ToString().PadLeft(2, '0')}.xlsx";
 
                     exclude = new List<string>() { "IsToyota", "WarehouseCategoryID", "Partiality" };
@@ -118,8 +123,8 @@ namespace GD.FinishingSystem.WEB.Controllers
 
                     fileStreamResult = fileResult3.Item2;
                     break;
-                case 4:
-                    reportName = "Finished Raw Fabric Entrance Detailed From " + reportFilter.dtBegin.ToString("dd-MM-yyyy HH:mm") + " To " + reportFilter.dtEnd.ToString("dd-MM-yyyy HH:mm");
+                case 4: //Fecha contable
+                    reportName = "Finished Raw Fabric Entrance Detailed From " + reportFilter.dtBegin.ToString("dd-MM-yyyy") + " To " + reportFilter.dtEnd.ToString("dd-MM-yyyy");
                     fileName = $"Finished Raw Fabric Entrance Detailed_{DateTime.Today.Year}_{DateTime.Today.Month.ToString().PadLeft(2, '0')}_{DateTime.Today.Day.ToString().PadLeft(2, '0')}.xlsx";
 
                     IEnumerable<VMRuloMigrationReport> result4 = await factory.RuloMigrations.GetFinishedRawFabricEntranceDetailed(reportFilter); //Este se usa en Rulos
@@ -128,6 +133,17 @@ namespace GD.FinishingSystem.WEB.Controllers
                     if (!fileResult4.Item1) return NotFound();
 
                     fileStreamResult = fileResult4.Item2;
+                    break;
+                case 5: //Fecha dinámica TODO: CONTINUAR
+                    reportName = "Monthly Stock Report From " + reportFilter.dtBegin.ToString("dd-MM-yyyy") + " To " + reportFilter.dtEnd.ToString("dd-MM-yyyy");
+                    fileName = $"Monthly Stock Report From_{DateTime.Today.Year}_{DateTime.Today.Month.ToString().PadLeft(2, '0')}_{DateTime.Today.Day.ToString().PadLeft(2, '0')}.xlsx";
+
+                    IEnumerable<WarehouseStock> result5 = await factory.RuloMigrations.GetMonthlyFinishingStockReport(reportFilter);
+                    var fileResult5 = await export.ExportWithDisplayName<WarehouseStock>("Global Denim S.A. de C.V.", "Finishing", reportName, fileName, result5.ToList());
+
+                    if (!fileResult5.Item1) return NotFound();
+
+                    fileStreamResult = fileResult5.Item2;
                     break;
                 default:
                     break;

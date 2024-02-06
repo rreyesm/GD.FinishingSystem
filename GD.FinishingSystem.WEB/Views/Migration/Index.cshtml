@@ -335,7 +335,7 @@
                         <div style="display:block;width:90px">
                             @if (User.IsInRole("Rulo", AuthType.Add))
                             {
-                                if (item.RuloID == null || item.RuloID == 0)
+                                if ((item.WarehouseCategoryID == 1 || item.WarehouseCategoryID == 2) && item.RuloID == null || item.RuloID == 0)  //Se agregó validación porque los de acabado podían hacer un adelanto aún cuando no estaba en su area
                                 {
                                     <a id="@("rulo"+@item.RuloMigrationID)" onclick="createFactoryAdvance(@item.RuloMigrationID)" class="btn btn-dark">
                                         Crear Adelanto Parcial
@@ -351,7 +351,7 @@
                         <div style="text-align:center;display:block;width:100px">
                             @if (User.IsInRole("Rulo", AuthType.Add))
                             {
-                                if (item.RuloID == null || item.RuloID == 0)
+                                if ((item.WarehouseCategoryID == 1 || item.WarehouseCategoryID == 2) && item.RuloID == null || item.RuloID == 0) //Se agregó validación porque los de acabado podían hacer un adelanto aún cuando no estaba en su area
                                 {
                                     @if (item.RuloID == null || item.RuloID == 0) // || !item.FabricAdvance
                                     {

@@ -29,6 +29,7 @@ namespace GD.FinishingSystem.Entities.ViewModels
         public string txtLocation { get; set; }
         public int numRuloMigrationID { get; set; }
         public int numPackingListID { get; set; }
+        public bool isFinishingDetailed { get; set; }
 
         //For Reprocess
         public int numReprocessID { get; set; }

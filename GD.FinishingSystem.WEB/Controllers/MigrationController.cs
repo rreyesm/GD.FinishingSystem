@@ -329,6 +329,25 @@ namespace GD.FinishingSystem.WEB.Controllers
 
             try
             {
+                if (ruloMigration.MigrationCategoryID == 0)
+                    ModelState.Remove("MigrationCategoryID");
+
+                if (!ModelState.IsValid)
+                {
+                    string errorMessage = string.Empty;
+                    foreach (var modelStateKey in ModelState.Keys)
+                    {
+                        var modelStateVal = ModelState[modelStateKey];
+                        foreach (var error in modelStateVal.Errors)
+                        {
+                            var key = modelStateKey;
+                            errorMessage += error.ErrorMessage + "<br>";
+                        }
+                    }
+
+                    ViewBag.ErrorMessage = errorMessage;
+                    return View("CreateOrUpdate", ruloMigration);
+                }
 
                 if (ruloMigration.RuloMigrationID == 0)
                 {
@@ -534,7 +553,8 @@ namespace GD.FinishingSystem.WEB.Controllers
             if (!User.IsInRole("Rulo", AuthType.Add)) return Unauthorized();
 
             var foundRuloMigration = await factory.RuloMigrations.GetRuloMigrationFromRuloMigrationID(ruloMigrationId);
-            var totalMeters = !foundRuloMigration.FabricAdvance ? await factory.RuloMigrations.GetTotalMetersByRuloMigration(foundRuloMigration.Lote, foundRuloMigration.Beam) : foundRuloMigration.Meters;
+            //It was added loom 2024-01-29. It checks if is necessary add BeamStop when exists one case that lote, beam, loom is equal but it is diferente only in BeamStop
+            var totalMeters = !foundRuloMigration.FabricAdvance ? await factory.RuloMigrations.GetTotalMetersByRuloMigration(foundRuloMigration.Lote, foundRuloMigration.Beam, foundRuloMigration.Loom) : foundRuloMigration.Meters;
 
             TempData["ruloMigrationId1"] = ruloMigrationId;
 

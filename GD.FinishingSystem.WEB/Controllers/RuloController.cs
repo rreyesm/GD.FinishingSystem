@@ -189,6 +189,30 @@ namespace GD.FinishingSystem.WEB.Controllers
             return View("CreateOrUpdate", newRulo);
         }
 
+        [HttpPost]
+        public async Task<IActionResult> ValidateCreateFromRuloMigration(Rulo rulo)
+        {
+            if (!User.IsInRole("Rulo", AuthType.Add)) return Unauthorized();
+
+            string errorMessage = string.Empty;
+
+            if (!ModelState.IsValid)
+            {
+                foreach (var modelStateKey in ModelState.Keys)
+                {
+                    var modelStateVal = ModelState[modelStateKey];
+                    foreach (var error in modelStateVal.Errors)
+                    {
+                        var key = modelStateKey;
+                        errorMessage += error.ErrorMessage + "\r\n";
+                    }
+                }
+
+            }
+
+            return new JsonResult(new { errorMessage = errorMessage });
+        }
+
         private async Task SetViewBagsForCreateOrEdit(bool isFromRuloMigration)
         {
             //var list = WebUtilities.Create<OriginType>();
@@ -270,6 +294,23 @@ namespace GD.FinishingSystem.WEB.Controllers
         {
             ViewBag.Error = true;
             await SetViewBagsForCreateOrEdit(false);
+
+            if (!ModelState.IsValid)
+            {
+                string errorMessage = string.Empty;
+                foreach (var modelStateKey in ModelState.Keys)
+                {
+                    var modelStateVal = ModelState[modelStateKey];
+                    foreach (var error in modelStateVal.Errors)
+                    {
+                        var key = modelStateKey;
+                        errorMessage += error.ErrorMessage + "<br>";
+                    }
+                }
+
+                ViewBag.ErrorMessage = errorMessage;
+                return View("CreateOrUpdate", rulo);
+            }
 
             //Update the style and the name of the style since they are locked in the form, the value is not passed.
             VMStyleData styleData = null;
@@ -419,7 +460,7 @@ namespace GD.FinishingSystem.WEB.Controllers
             {
                 return RedirectToAction("Error", "Home");
             }
-             
+
             return View(foundVMRulo);
         }
 
@@ -726,7 +767,7 @@ namespace GD.FinishingSystem.WEB.Controllers
                     else if (x.CanContinue == "Yes")
                         colorList.Add(new Tuple<int, string>(x.RuloID, "66ff66"));
                     else if (x.TestCategoryCode.Contains(" X", StringComparison.InvariantCultureIgnoreCase)) //Ok X or Fail X
-                    colorList.Add(new Tuple<int, string>(x.RuloID, "ff6666"));
+                        colorList.Add(new Tuple<int, string>(x.RuloID, "ff6666"));
 
                 });
 

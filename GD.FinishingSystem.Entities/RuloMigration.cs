@@ -20,6 +20,8 @@ namespace GD.FinishingSystem.Entities
         //[DisplayFormat(ApplyFormatInEditMode = true, DataFormatString = "{0:yyyy-MM-ddThh:mm}")]
         [Display(Name = "Fecha")]
         public DateTime Date { get; set; }
+        [Display(Name = "Acounting Date")]
+        public DateTime? AccountingDate { get; set; } //Agregado para no mover las horas en los reportes
         [Display(Name = "Maquina")]
         public string NextMachine { get; set; }
         [RegularExpression(@"^[0-9]*$", ErrorMessage = "Lote no válido")]
@@ -47,10 +49,10 @@ namespace GD.FinishingSystem.Entities
         [Display(Name = "Betilla")]
         public string PieceBetilla { get; set; }
         [Display(Name = "Metros")]
-        [RegularExpression(@"^[0-9]*\.?[0-9]+$", ErrorMessage = "Metros no válidos")]
+        [RegularExpression(@"^0*[1-9][0-9]*(\.[0-9]+)?|0+\.[0-9]*[1-9][0-9]*$", ErrorMessage = "Metros no válidos")]
         public decimal Meters { get; set; }
         [Display(Name = "Metros de Engomado")]
-        [RegularExpression(@"^[0-9]*\.?[0-9]$+", ErrorMessage = "Metros de engomado no válidos")]
+        [RegularExpression(@"^0*[1-9][0-9]*(\.[0-9]+)?|0+\.[0-9]*[1-9][0-9]*$+", ErrorMessage = "Metros de engomado no válidos")]
         public decimal SizingMeters { get; set; } //Before Gummed Meters
         [Display(Name = "Estatus")]
         [RegularExpression(@"^[1-9][0-9]*$", ErrorMessage = "Por favor selecciona un estatus")]
@@ -60,7 +62,7 @@ namespace GD.FinishingSystem.Entities
         [Display(Name = "Observaciones")]
         public string Observations { get; set; }
         [Display(Name = "Turno de Tejido")]
-        [RegularExpression(@"^[1-9][0-9]*$", ErrorMessage = "Turno no válido")]
+        //[RegularExpression(@"^[1-9][0-9]*$", ErrorMessage = "Turno no válido")]
         public int WeavingShift { get; set; }
         public int? RuloID { get; set; }
         [ForeignKey(name: "RuloID")]

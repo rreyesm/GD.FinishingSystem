@@ -1,0 +1,63 @@
+﻿USE [dbFinishingSystem]
+GO
+/****** Object:  Trigger [dbo].[trgUpdateWarehouse]    Script Date: 06/02/2024 10:54:01 a. m. ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+-- =============================================
+-- Author:		Raúl Reyes Muñoz
+-- Create date: 2023-08-15
+-- Description:	This trigger is used to update all warehouses when the user move some value in records from dbFinishingSystem o dbInspeqtorNew
+-- =============================================
+ALTER TRIGGER [dbo].[trgUpdateWarehouse]
+   ON  [dbo].[tblRulos] 
+   AFTER UPDATE
+AS 
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+
+	--CASE 1 WHEN RULO IS CREATED IN tblMigrationControl: 1=RAW1. Migration Category: 3=Crudo or 4=Crugo-G. CREATE TRIGGER WHEN RECORD IS INSERTED IN tblMigrationControl
+	--CASE 2 WHEN RULO IS CREATED IN tblMigrationControl: 2=RAW2. Migration Category: 3!=Crudo and 4!=Crugo-G Pre-Process. CREATE TRIGGER WHEN RECORD IS INSERTED IN tblMigrationControl
+	--CASE 3 WHEN RULO IS CREATED OR TEST RESULT IS NULL: 3=A1. WHEN USER CREATED A RECORD TEST RESULT IS NULL, THIS STATUS IS BY DEFAULT
+	--**CASE 4: WHEN TEST RESULT: 9=WAITING, WAREHOUSE 3=A1.  ANTERIOR: CASE 4 WHEN TEST RESULT: 6=FAIL X OR 9=WAITING: 4=A2
+	--**CASE 5: WHEN TEST RESULT: 6=FAIL, WAREHOUSE 4=A2. ANTERIOR: CASE 5 WHEN TEST RESULT: 3,4,5 :5=A3
+	--**CASE 5.1: WHEN TEST RESULT: 3=OK PALOMITA, 4=OK X; WAREHOUSE 5=A3 AND VALILDATE THAT THIS RULO IS NOT EXISTS IN GUVEN SYSTEM
+
+	--CASE 6 WHEN RULO IS CREATED IN GUVEN SYSTEM OR INSPECTION CUTTING LENGHT = 0: 6=QC1.THIS TRIGGER MIGHT BE CREATED IN dbInspeqtorNew
+	--CASE 7 WHEN RULO IN dbInpeqtorNew HAS INSPECTION CUTTING LENGHT >= 0: 7=QC2. THIS TRIGGER MIGHT BE CREATED IN dbInspeqtorNew
+
+	
+	DECLARE @testCategory int
+	
+	SET @testCategory = (SELECT TOP 1 TC.TestCategoryID FROM inserted R
+						INNER JOIN tblTestResults TR ON R.TestResultID = TR.TestResultID
+						INNER JOIN tblTestCategories TC ON TR.TestCategoryID = TC.TestCategoryID
+						)
+
+		--CASE 4 AND CASE 5
+	IF (@testCategory = 9)
+		BEGIN
+			UPDATE tblRulos	SET WarehouseCategoryID = 3 WHERE RuloID = (SELECT TOP 1 R.RuloID FROM inserted R
+								INNER JOIN tblTestResults TR ON R.TestResultID = TR.TestResultID
+								INNER JOIN tblTestCategories TC ON TR.TestCategoryID = TC.TestCategoryID
+								WHERE R.IsDeleted <> 1 AND TC.TestCategoryID IN (@testCategory) AND (select COUNT(*) from dbInspeqtorNew..tblParti where Durum=1 and Ek26P = R.RuloID) = 0)
+		END
+	ELSE IF (@testCategory = 6)
+		BEGIN
+			UPDATE tblRulos	SET WarehouseCategoryID = 4 WHERE RuloID = (SELECT TOP 1 R.RuloID FROM inserted R
+								INNER JOIN tblTestResults TR ON R.TestResultID = TR.TestResultID
+								INNER JOIN tblTestCategories TC ON TR.TestCategoryID = TC.TestCategoryID
+								WHERE R.IsDeleted <> 1 AND TC.TestCategoryID IN (@testCategory) AND (select COUNT(*) from dbInspeqtorNew..tblParti where Durum=1 and Ek26P = R.RuloID) = 0)
+		END
+	ELSE IF (@testCategory = 3 OR @testCategory = 4)
+		BEGIN
+			UPDATE tblRulos	SET WarehouseCategoryID = 5 WHERE RuloID = (SELECT TOP 1 R.RuloID FROM inserted R
+								INNER JOIN tblTestResults TR ON R.TestResultID = TR.TestResultID
+								INNER JOIN tblTestCategories TC ON TR.TestCategoryID = TC.TestCategoryID
+								WHERE R.IsDeleted <> 1 AND TC.TestCategoryID IN (3,4) AND (select COUNT(*) from dbInspeqtorNew..tblParti where Durum=1 and Ek26P = R.RuloID) = 0)
+		END
+
+END

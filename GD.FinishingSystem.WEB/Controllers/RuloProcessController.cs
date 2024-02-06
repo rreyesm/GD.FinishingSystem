@@ -81,6 +81,17 @@ namespace GD.FinishingSystem.WEB.Controllers
             string errorMessage = string.Empty;
             await SetViewBagForDefinationProcess();
 
+            if (ruloProcess.DefinationProcessID != 0)
+            {
+                bool exists = await factory.Rulos.ExistsRuloProcess(ruloProcess.RuloID, ruloProcess.DefinationProcessID);
+                if (exists)
+                {
+                    var processDefinition = await factory.DefinationProcesses.GetDefinationProcessFromDefinationProcessID(ruloProcess.DefinationProcessID);
+                    ViewBag.ErrorMessage = $"El proceso {processDefinition.Name} ya existe y no puede ser repetido.";
+                    return View("CreateOrUpdate", ruloProcess);
+                }
+            }
+
             if (!ModelState.IsValid)
             {
                 foreach (var modelStateKey in ModelState.Keys)
@@ -215,7 +226,7 @@ namespace GD.FinishingSystem.WEB.Controllers
 
                 await factory.Samples.Add(sample, int.Parse(User.Identity.Name));
 
-         
+
                 await factory.Rulos.UpdateRuloProcess(foundRuloProcess, int.Parse(User.Identity.Name));
             }
             else

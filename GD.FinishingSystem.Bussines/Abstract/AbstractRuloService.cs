@@ -24,6 +24,7 @@ namespace GD.FinishingSystem.Bussines.Abstract
         public abstract Task<IEnumerable<VMRuloProcess>> GetVMRuloProcessesFromRuloID(int RuloID);
         public abstract Task<IEnumerable<RuloProcess>> GetRuloProcessListFromBetweenDate(DateTime begin, DateTime end);
         public abstract Task<RuloProcess> GetRuloProcessFromRuloProcessID(int RuloProcessID);
+        public abstract Task<bool> ExistsRuloProcess(int ruloID, int definitionProcessID);
         public abstract Task SetTestResult(int RuloID, int TestResultID, bool isWaitingForTestResult, int? authorizer, int setter);
 
         public abstract Task<IEnumerable<string>> GetRuloStyleStringForProductionLoteList();

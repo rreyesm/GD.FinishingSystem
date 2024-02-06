@@ -21,6 +21,8 @@ namespace GD.FinishingSystem.Entities
         public int WarehouseKNCategoryID { get; set; }
         [Display(Name = "Fecha")]
         public DateTime Date { get; set; }
+        [Display(Name = "Acounting Date")]
+        public DateTime? AccountingDate { get; set; } //Agregado para no mover las horas en los reportes
         [Display(Name = "Pza_ID")]
         public string PieceID { get; set; }
         [Display(Name = "Sin Pieza")]
