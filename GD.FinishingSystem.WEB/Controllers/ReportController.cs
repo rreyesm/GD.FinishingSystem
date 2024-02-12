@@ -106,9 +106,10 @@ namespace GD.FinishingSystem.WEB.Controllers
                         fileStreamResult = fileResult1.Item2;
 
                         break;
-                    case 2: //Fecha dinámica
+                    case 2: //Fecha dinámica y real, pero para este reporte debe pasarse el valor de fecha contable para que use la fecha de rulo processes y no la de rulo
                         fileName = $"Finishing Fabric Detailed Report_{DateTime.Today.Year}_{DateTime.Today.Month.ToString().PadLeft(2, '0')}_{DateTime.Today.Day.ToString().PadLeft(2, '0')}.xlsx";
                         reportName = "Finishing Fabric Detailed Report From " + reportFilter.dtBegin.ToString("dd-MM-yyyy") + " To " + reportFilter.dtEnd.ToString("dd-MM-yyyy");
+                        reportFilter.IsAccountingDate = true;
 
                         IEnumerable<VMRulo> vmRulos = await factory.Rulos.GetRuloReportListFromFilters(reportFilter as VMRuloFilters);
 

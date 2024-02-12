@@ -507,17 +507,112 @@ namespace GD.FinishingSystem.WEB.Controllers
             }
         }
 
-        [HttpGet]
-        public async Task<IActionResult> ValidateCreateRulo(int ruloMigrationID, string lote)
+        //[HttpGet]
+        //public async Task<IActionResult> ValidateCreateRulo(int ruloMigrationID, string lote)
+        //{
+        //    if (!User.IsInRole("Rulo", AuthType.Add)) return Unauthorized();
+
+        //    string errorMessage = string.Empty;
+        //    var ruloMigration = await factory.RuloMigrations.GetRuloMigrationFromRuloMigrationID(ruloMigrationID);
+        //    if (ruloMigration == null)
+        //        errorMessage = "Raw is not exists.";
+        //    else if (ruloMigration != null && ruloMigration.RuloID != null)
+        //        errorMessage = "This Raw already has a Rulo number assigned.";
+
+        //    var styleData = await factory.Rulos.GetRuloStyle(lote);
+
+        //    var systemPrinter = await WebUtilities.GetSystemPrinter(factory, this.HttpContext);
+
+        //    //Validate if period exists
+        //    var currentPeriod = await factory.Periods.GetCurrentPeriod(systemPrinter.SystemPrinterID);
+        //    if (currentPeriod == null)
+        //    {
+        //        errorMessage = "Cannot create a new roll. You must open a period.";
+        //    }
+
+        //    //Comparation period-rulo style
+        //    if (currentPeriod != null)
+        //    {
+        //        if (currentPeriod.Style != styleData.Style)
+        //        {
+        //            errorMessage = "The style entered does not correspond to the style of the period. First create the period for the style.";
+        //        }
+        //    }
+        //    else
+        //    {
+        //        errorMessage = "Period style not found!";
+        //    }
+
+        //    return new JsonResult(new { errorMessage = errorMessage });
+        //}
+
+        [HttpPost]
+        public async Task<IActionResult> ValidateCreateRulo(List<int> rawList, string lote)
         {
             if (!User.IsInRole("Rulo", AuthType.Add)) return Unauthorized();
 
             string errorMessage = string.Empty;
-            var ruloMigration = await factory.RuloMigrations.GetRuloMigrationFromRuloMigrationID(ruloMigrationID);
+            if (rawList == null || rawList.Count == 0)
+            {
+                errorMessage = "No se ha seleccionado ningún rollo de crudo para procesar.";
+                return new JsonResult(new { errorMessage = errorMessage, rawIDs = "" });
+            }
+
+            IEnumerable<RuloMigration> raws = await factory.RuloMigrations.GetRuloMigrationFromIDs(rawList);
+
+            if (raws != null)
+            {
+                List<RuloMigration> raws2 = raws.ToList();
+
+                List<string> lotes = raws2.Select(x => x.Lote).Distinct().ToList();
+                List<int> beams = raws2.Select(x => x.Beam).Distinct().ToList();
+                List<int> looms = raws2.Select(x => x.Loom).Distinct().ToList();
+                List<string> styles = raws2.Select(x => x.Style).Distinct().ToList();
+                List<int> procesed = raws2.Where(x => x.RuloID != null).Select(x => x.RuloMigrationID).ToList();
+                List<int?> origins = raws2.Select(x => x.OriginID).Distinct().ToList();
+                List<int> fabricAdvances = raws2.Where(x => x.FabricAdvance).Select(x => x.RuloMigrationID).ToList();
+                //List<string> beamStops = raws2.Select(x => x.BeamStop).Distinct().ToList();
+
+                string errorLotes = lotes.Count > 1 ? $"No se puede crear un Rulo de lotes diferentes: {string.Join(", ", lotes)}. " : string.Empty;
+                string errorBeams = beams.Count > 1 ? $"No se puede crear un Rulo de Julios diferetes: {string.Join(", ", beams)}. " : string.Empty;
+                string errorLooms = looms.Count > 1 ? $"No se puede crear un Rulo de telares diferentes: {string.Join(", ", looms)}. " : string.Empty;
+                string errorStyle = styles.Count > 1 ? $"No se puede crear un Rulo de estilos diferentes: {string.Join(", ", styles)}. " : string.Empty;
+                string errorProcessed = procesed.Count > 1 ? $"Se encontraron rollos procesados en la selección: {string.Join(", ", procesed)}. " : string.Empty;
+                string errorOrigins = origins.Count > 1 ? $"El origen de los rollos a procesar debe ser el mismo: {string.Join(", ", origins)}. " : string.Empty;
+                int checkIfValidateFabricAdvance = raws2.Count > 1 ? 0 : 1; //If raws2 is bigger than 1 the list may contains raws that they are not fabric advance, therefore, the list should not contains fabric advance "0". If raws2 equal to 1 is Fabroc Advance
+                string errorFabricAdvances = fabricAdvances.Count > checkIfValidateFabricAdvance ? $"Se encontraron rollos marcados como Avance de Tela en la selección: {string.Join(", ", fabricAdvances)}. " : string.Empty;
+                //string errorBeamStops = beamStops.Count > 1 ? $"Los rollos seleccionados tienen diferentes paradas. " : string.Empty;
+
+                if (!string.IsNullOrWhiteSpace(errorLotes))
+                    errorMessage += errorLotes;
+                if (!string.IsNullOrWhiteSpace(errorBeams))
+                    errorMessage += errorBeams;
+                if (!string.IsNullOrWhiteSpace(errorLooms))
+                    errorMessage += errorLooms;
+                if (!string.IsNullOrWhiteSpace(errorStyle))
+                    errorMessage += errorStyle;
+                if (!string.IsNullOrWhiteSpace(errorProcessed))
+                    errorMessage += errorProcessed;
+                if (!string.IsNullOrWhiteSpace(errorOrigins))
+                    errorMessage += errorOrigins;
+                if (!string.IsNullOrWhiteSpace(errorFabricAdvances))
+                    errorMessage += errorFabricAdvances;
+                //if (!string.IsNullOrWhiteSpace(errorBeamStops))
+                //    errorMessage += errorBeamStops;
+
+                errorMessage = errorMessage.Trim();
+            }
+
+            if (!string.IsNullOrWhiteSpace(errorMessage))
+                return new JsonResult(new { errorMessage = errorMessage, rawIDs = "" });
+
+            //string errorMessage = string.Empty;
+            //var ruloMigration = await factory.RuloMigrations.GetRuloMigrationFromRuloMigrationID(ruloMigrationID);
+            var ruloMigration = await factory.RuloMigrations.GetRuloMigrationFromRuloMigrationID(raws.FirstOrDefault().RuloMigrationID);
             if (ruloMigration == null)
-                errorMessage = "Raw is not exists.";
+                errorMessage += "Raw is not exists.";
             else if (ruloMigration != null && ruloMigration.RuloID != null)
-                errorMessage = "This Raw already has a Rulo number assigned.";
+                errorMessage += "This Raw already has a Rulo number assigned.";
 
             var styleData = await factory.Rulos.GetRuloStyle(lote);
 
@@ -527,7 +622,7 @@ namespace GD.FinishingSystem.WEB.Controllers
             var currentPeriod = await factory.Periods.GetCurrentPeriod(systemPrinter.SystemPrinterID);
             if (currentPeriod == null)
             {
-                errorMessage = "Cannot create a new roll. You must open a period.";
+                errorMessage += "Cannot create a new roll. You must open a period.";
             }
 
             //Comparation period-rulo style
@@ -535,29 +630,72 @@ namespace GD.FinishingSystem.WEB.Controllers
             {
                 if (currentPeriod.Style != styleData.Style)
                 {
-                    errorMessage = "The style entered does not correspond to the style of the period. First create the period for the style.";
+                    errorMessage += "The style entered does not correspond to the style of the period. First create the period for the style.";
                 }
             }
             else
             {
-                errorMessage = "Period style not found!";
+                errorMessage += "Period style not found!";
             }
+            string rawsIDs = string.Join(",", rawList);
 
-            return new JsonResult(new { errorMessage = errorMessage });
+            return new JsonResult(new { errorMessage = errorMessage, rawsIDs = rawsIDs });
         }
+
+        //[HttpPost]
+        //public async Task<IActionResult> ValidateCreateRuloFromCheckBox(List<int> rawList)
+        //{
+        //    string errorMessage = string.Empty;
+        //    IEnumerable<RuloMigration> raws = await factory.RuloMigrations.GetRuloMigrationFromIDs(rawList);
+
+        //    if (raws != null)
+        //    {
+        //        List<RuloMigration> raws2 = raws.ToList();
+
+        //        List<string> lotes = raws2.Select(x => x.Lote).Distinct().ToList();
+        //        List<int> beams = raws2.Select(x => x.Beam).Distinct().ToList();
+        //        List<int> looms = raws2.Select(x => x.Loom).Distinct().ToList();
+        //        List<string> styles = raws2.Select(x => x.Style).Distinct().ToList();
+
+        //        if (lotes.Count > 1 || beams.Count > 1 || looms.Count > 1)
+        //        {
+        //            string errorLotes = lotes.Count > 1 ? $"No se puede crear un Rulo de lotes diferentes: {string.Join(", ", lotes)}. " : string.Empty;
+        //            string errorBeams = beams.Count > 1 ? $"No se puede crear un Rulo de Julios diferetes: {string.Join(", ", beams)}. " : string.Empty;
+        //            string errorLooms = looms.Count > 1 ? $"No se puede crear un Rulo de telares diferentes: {string.Join(", ", looms)}. " : string.Empty;
+        //            string errorStyle = looms.Count > 1 ? $"No se puede crear un Rulo de estilos diferentes: {string.Join(", ", styles)}. " : string.Empty;
+
+        //            if (!string.IsNullOrWhiteSpace(errorLotes))
+        //                errorMessage += errorLotes;
+        //            if (!string.IsNullOrWhiteSpace(errorBeams))
+        //                errorMessage += errorBeams;
+        //            if (!string.IsNullOrWhiteSpace(errorLooms))
+        //                errorMessage += errorLooms;
+        //            if (!string.IsNullOrWhiteSpace(errorStyle))
+        //                errorMessage += errorStyle;
+
+        //            errorMessage = errorMessage.Trim();
+        //        }
+        //    }
+
+        //    return new JsonResult(new { errorMessage = errorMessage });
+        //}
 
         [HttpGet]
         [Authorize(AuthenticationSchemes = SystemStatics.DefaultScheme, Roles = "RuloAdd,RuloFull,AdminFull")]
-        public async Task<IActionResult> CreateRulo(int ruloMigrationId)
+        public async Task<IActionResult> CreateRulo(string rawsIDs)
         {
             if (!User.IsInRole("Rulo", AuthType.Add)) return Unauthorized();
 
-            var foundRuloMigration = await factory.RuloMigrations.GetRuloMigrationFromRuloMigrationID(ruloMigrationId);
+            //var foundRuloMigration = await factory.RuloMigrations.GetRuloMigrationFromRuloMigrationID(ruloMigrationId);
+            List<int> rawsIDsInt = rawsIDs.Split(',').ToList().Select(int.Parse).ToList();
+            var foundRuloMigrations = await factory.RuloMigrations.GetRuloMigrationFromIDs(rawsIDsInt);
             //It was added loom 2024-01-29. It checks if is necessary add BeamStop when exists one case that lote, beam, loom is equal but it is diferente only in BeamStop
-            var totalMeters = !foundRuloMigration.FabricAdvance ? await factory.RuloMigrations.GetTotalMetersByRuloMigration(foundRuloMigration.Lote, foundRuloMigration.Beam, foundRuloMigration.Loom) : foundRuloMigration.Meters;
+            //var totalMeters = !foundRuloMigration.FabricAdvance ? await factory.RuloMigrations.GetTotalMetersByRuloMigration(foundRuloMigration.Lote, foundRuloMigration.Beam, foundRuloMigration.Loom, foundRuloMigration.Style) : foundRuloMigration.Meters;
+            var totalMeters = foundRuloMigrations.Sum(x => x.Meters);
 
-            TempData["ruloMigrationId1"] = ruloMigrationId;
+            TempData["rawsIDs1"] = rawsIDs;
 
+            var foundRuloMigration = foundRuloMigrations.FirstOrDefault(); //Get first record
             Rulo newRulo = new Rulo();
             newRulo.Lote = foundRuloMigration.Lote.ToString();
             newRulo.Beam = foundRuloMigration.Beam;
@@ -566,6 +704,7 @@ namespace GD.FinishingSystem.WEB.Controllers
             newRulo.IsToyota = foundRuloMigration.IsToyotaMigration; //foundRuloMigration.IsToyotaText != null && foundRuloMigration.IsToyotaText.Equals("T", StringComparison.InvariantCultureIgnoreCase) ? true : false;
             newRulo.Style = foundRuloMigration.Style;
             newRulo.StyleName = foundRuloMigration.StyleName;
+            newRulo.IsTestStyle = foundRuloMigration.IsTestStyle;
 
             var systemPrinter = await WebUtilities.GetSystemPrinter(factory, this.HttpContext);
             var currentPeriod = await factory.Periods.GetCurrentPeriod(systemPrinter.SystemPrinterID);
@@ -693,6 +832,12 @@ namespace GD.FinishingSystem.WEB.Controllers
                 ruloMigrationDestination.FabricAdvance = true;
 
                 //Update meters
+                if (ruloMigrationOrigin.Meters - meter <= 0)
+                {
+                    errorMessage = $"No es posible hacer un adelanto más grande o igual al tamaño del rollo.";
+                    return new JsonResult(new { errorMessage = errorMessage, lote = lote, beam = beam });
+                }
+
                 ruloMigrationOrigin.Meters = ruloMigrationOrigin.Meters - meter;
 
                 await factory.RuloMigrations.Add(ruloMigrationDestination, int.Parse(User.Identity.Name));
@@ -781,16 +926,16 @@ namespace GD.FinishingSystem.WEB.Controllers
 
         }
 
-        public async Task<IActionResult> MarkForAdvanceFabric(int ruloMigrationId)
-        {
-            var ruloMigration = await factory.RuloMigrations.GetRuloMigrationFromRuloMigrationID(ruloMigrationId);
-            if (ruloMigration == null) return NotFound();
+        //public async Task<IActionResult> MarkForAdvanceFabric(int ruloMigrationId)
+        //{
+        //    var ruloMigration = await factory.RuloMigrations.GetRuloMigrationFromRuloMigrationID(ruloMigrationId);
+        //    if (ruloMigration == null) return NotFound();
 
-            ruloMigration.FabricAdvance = !ruloMigration.FabricAdvance;
-            await factory.RuloMigrations.Update(ruloMigration, int.Parse(User.Identity.Name));
+        //    ruloMigration.FabricAdvance = !ruloMigration.FabricAdvance;
+        //    await factory.RuloMigrations.Update(ruloMigration, int.Parse(User.Identity.Name));
 
-            return Ok();
-        }
+        //    return Ok(); //Aquí no querían que se actualizara
+        //}
 
         public async Task<IActionResult> ChangeRejection(int ruloMigrationId)
         {

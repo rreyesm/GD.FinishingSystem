@@ -193,7 +193,7 @@
             {
                 <th></th>
                 <th></th>
-                <th></th>
+                @* <th></th> *@
             }
             <th>
                 @Html.DisplayNameFor(model => model.RuloMigrationList[0].RuloID)
@@ -201,6 +201,10 @@
             <th>
                 @Html.DisplayNameFor(model => model.RuloMigrationList[0].Date)
             </th>
+            @if (areaID == (int)AreaType.Acabado)
+            {
+                <th>Selec. para Rulo</th>
+            }
             <th>
                 @Html.DisplayNameFor(model => model.RuloMigrationList[0].Lote)
             </th>
@@ -223,19 +227,19 @@
                 @Html.DisplayNameFor(model => model.RuloMigrationList[0].StyleName)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.RuloMigrationList[0].NextMachine)
-            </th>
-            <th>
                 @Html.DisplayNameFor(model => model.RuloMigrationList[0].PieceNo)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.RuloMigrationList[0].PieceBetilla)
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.RuloMigrationList[0].Meters)
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.RuloMigrationList[0].SizingMeters)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.RuloMigrationList[0].NextMachine)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.RuloMigrationList[0].PieceBetilla)
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.RuloMigrationList[0].MigrationCategoryID)
@@ -261,7 +265,12 @@
             if (item.RuloID != null && item.RuloID != 0)
                 color = "bgcolor=66ff66"; //Verde
             else if (item.RuloID == null && item.WarehouseCategoryID != null && item.WarehouseCategoryID != 8 && item.WarehouseCategoryID != 9) //Deafult 8 = W1
-                color = "bgcolor=ffc300"; //Amarillo
+            {
+                if (item.FabricAdvance)
+                    color = "bgcolor=f7dc6f";
+                else
+                    color = "bgcolor=ffc300"; //Amarillo
+            }
             else if (item.WarehouseCategoryID == 9)
                 color = "bgcolor=ff6666"; //Rojo
 
@@ -345,7 +354,7 @@
                         </div>
                     </td>
                 }
-                @if (areaID == (int)AreaType.Acabado)
+@*                 @if (areaID == (int)AreaType.Acabado)
                 {
                     <td>
                         <div style="text-align:center;display:block;width:100px">
@@ -353,16 +362,13 @@
                             {
                                 if ((item.WarehouseCategoryID == 1 || item.WarehouseCategoryID == 2) && item.RuloID == null || item.RuloID == 0) //Se agregó validación porque los de acabado podían hacer un adelanto aún cuando no estaba en su area
                                 {
-                                    @if (item.RuloID == null || item.RuloID == 0) // || !item.FabricAdvance
-                                    {
-                                        <input type="checkbox" onclick="markForAdvanceFabric(@item.RuloMigrationID)" id='@Html.Raw("mark"+@item.RuloMigrationID)' @Html.Raw(@item.FabricAdvance ? "checked='checked'" : "") />
-                                        <label class="form-check-label" for='@Html.Raw("mark"+@item.RuloMigrationID)'>Marcar Adelanto Completo</label>
-                                    }
+                                    <input type="checkbox" onclick="markForAdvanceFabric(@item.RuloMigrationID)" id='@Html.Raw("mark"+@item.RuloMigrationID)' @Html.Raw(@item.FabricAdvance ? "checked='checked'" : "") />
+                                    <label class="form-check-label" for='@Html.Raw("mark"+@item.RuloMigrationID)'>Marcar Adelanto Completo</label>
                                 }
                             }
                         </div>
                     </td>
-                }
+                } *@
                 <td>
                     <div style="display:block;width:15px">
                         @if (areaID == (int)AreaType.Acabado && item.WarehouseCategoryID == 8)
@@ -381,6 +387,17 @@
                         @Html.Raw(item.Date.ToString("yyyy-MM-dd"))
                     </div>
                 </td>
+                @if (areaID == (int)AreaType.Acabado)
+                {
+                    <td>
+                        <div style="display:block;width:15px">
+                            @if ((item.WarehouseCategoryID == 1 || item.WarehouseCategoryID == 2) && item.RuloID == null || item.RuloID == 0)
+                            {
+                                <input class="form-check" type="checkbox" id='@Html.Raw("forRulo"+@item.RuloMigrationID)' />
+                            }
+                        </div>
+                    </td>
+                }
                 <td>
                     @Html.DisplayFor(modelItem => item.Lote)
                 </td>
@@ -409,17 +426,9 @@
                     </div>
                 </td>
                 <td>
-                    <div style="display:block;width:100;">
-                        @Html.DisplayFor(modelItem => item.NextMachine)
-                    </div>
-                </td>
-                <td>
                     <div style="display:block;width:75px;">
                         @Html.DisplayFor(modelItem => item.PieceNo)
                     </div>
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.PieceBetilla)
                 </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.Meters)
@@ -428,6 +437,14 @@
                     <div style="display:block;width:135px;">
                         @Html.DisplayFor(modelItem => item.SizingMeters)
                     </div>
+                </td>
+                <td>
+                    <div style="display:block;width:100;">
+                        @Html.DisplayFor(modelItem => item.NextMachine)
+                    </div>
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.PieceBetilla)
                 </td>
                 <td>
                     <div style="display:block;width:90px;">
@@ -607,7 +624,41 @@
     }
 
     function validateCreateRulo(lote, ruloMigrationId) {
+        elements = document.getElementsByClassName("form-check");
+        var raws = new Array(elements.length)
+        for (var i = 0; i < elements.length; i++) { 
+            if (elements[i].checked){
+                raws[i] = elements[i].id.replace('forRulo', '')
+            }
+        }
+
         $.ajax({
+            url: "/Migration/ValidateCreateRulo",
+            type: "POST",
+            data: {
+                'rawList': raws,
+                lote: lote
+            },
+            success: function (data) {
+                if (data) {
+                    if (data.errorMessage == "") {
+                        location.href = "/Migration/CreateRulo?rawsIDs=" + data.rawsIDs;
+                    }
+                    else
+                        alert(data.errorMessage);
+                }
+                else
+                    alert("Something went wrong!");
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                alert("404 Not found!");
+            }
+        });
+    }
+
+    function validateCreateRuloAnterior(lote, ruloMigrationId) {
+
+         $.ajax({
             url: "/Migration/ValidateCreateRulo",
             type: "GET",
             data: {
@@ -629,6 +680,56 @@
                 alert("404 Not found!");
             }
         });
+
+    }
+
+    function validateCreateRulo2(lote, ruloMigrationId) {
+                elements = document.getElementsByClassName("form-check");
+        var raws = new Array(elements.length)
+        for (var i = 0; i < elements.length; i++) { 
+            if (elements[i].checked){
+                raws[i] = elements[i].id.replace('forRulo', '')
+            }
+        }
+
+        $.ajax({
+            type: "POST",
+            url: "/Migration/ValidateCreateRuloFromCheckBox",
+            data: { 'rawList': raws },
+            success: function (data){
+                if (data.errorMessage != "") {
+                    alert(data.errorMessage);
+                }
+                else{
+                        $.ajax({
+                        url: "/Migration/ValidateCreateRulo",
+                        type: "GET",
+                        data: {
+                            ruloMigrationID: ruloMigrationId,
+                            lote: lote
+                        },
+                        success: function (data) {
+                            if (data) {
+                                if (data.errorMessage == "") {
+                                    location.href = "/Migration/CreateRulo?ruloMigrationId=" + ruloMigrationId;
+                                }
+                                else
+                                    alert(data.errorMessage);
+                            }
+                            else
+                                alert("Something went wrong!");
+                        },
+                        error: function (xhr, ajaxOptions, thrownError) {
+                            alert("404 Not found!");
+                        }
+                    });
+                }
+            },
+            error: function (xhr, ajaxOptions, throwError){
+                alert("404 Not found");
+            }
+        })
+
     }
 
     function createFactoryAdvance(ruloMigrationId) {
@@ -703,7 +804,7 @@
         }
     }
 
-    function markForAdvanceFabric(ruloMigrationId) {
+@*     function markForAdvanceFabric(ruloMigrationId) {
         if (confirm("¿Estás seguro de querer marcar como adelanto el rollo completo?")) {
             $.ajax({
                 url: "/Migration/MarkForAdvanceFabric",
@@ -722,7 +823,7 @@
         else {
             document.getElementById("mark" + ruloMigrationId).checked = !document.getElementById("mark" + ruloMigrationId).checked;
         }
-    }
+    } *@
 
     function changeRejection(ruloMigrationId) {
         if (confirm("¿Estas seguro de que el rechazo ya fue corregido?")) {
@@ -752,5 +853,31 @@
             document.getElementById(controlID).value = "0";
         }
     }
+
+@*     function validateCreateRuloFromCheckBox() { 
+        elements = document.getElementsByClassName("form-check");
+        const raws = new Array(elements.length)
+        for (var i = 0; i < elements.length; i++) { 
+            if (elements[i].checked){
+                raws[i] = elements[i].id.replace('forRulo', '')
+            }
+        }
+
+        $.ajax({
+            type: "POST"
+            url: "/Migration/ValidateCreateRuloFromCheckBox",
+            data: {
+                rawList: raws 
+            },
+            success: function (data){
+                if (data.errorMessage != "") {
+                    alert(errorMessage);
+                }
+            },
+            error: function (xhr, ajaxOptions, throwError){
+                alert("404 Not found");
+            }
+        })
+    } *@
 
 </script>

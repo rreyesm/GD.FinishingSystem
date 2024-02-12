@@ -31,8 +31,8 @@ namespace GD.FinishingSystem.Bussines.Abstract
         public abstract Task<IEnumerable<OriginCategory>> GetOriginCategoryList();
         public abstract Task<IEnumerable<VMStyleData>> GetStylesFromProductionLoteList();
         public abstract Task<bool> ExistRuloInRuloMigration(int ruloID);
-        public abstract Task<decimal> GetTotalMetersByRuloMigration(string lote, int beam, int loom);
-        public abstract Task<bool> UpdateRuloMigrationsFromRuloMigrationID(int ruloMigrationID, int ruloID, int userID);
+        //public abstract Task<decimal> GetTotalMetersByRuloMigration(string lote, int beam, int loom, string style);
+        public abstract Task<bool> UpdateRuloMigrationsFromRuloMigrationIDs(List<int> rawsIDs, int ruloID, int userID);
         public abstract Task<IEnumerable<Location>> GetLocationList();
         public abstract Task<bool> Exists(RuloMigration ruloMigration);
         public abstract Task<bool> Exists(int ruloId);
@@ -43,5 +43,6 @@ namespace GD.FinishingSystem.Bussines.Abstract
         public abstract Task<RuloMigration> GetRuloMigration(int ruloMigrationID);
         public abstract Task<IEnumerable<VMRuloMigrationReport>> GetFinishedRawFabricEntranceDetailed(VMReportFilter reportFilter);
         public abstract Task<IEnumerable<WarehouseStock>> GetMonthlyFinishingStockReport(VMReportFilter reportFilter);
+        public abstract Task<IEnumerable<RuloMigration>> GetRuloMigrationFromIDs(List<int> ruloMigrationList);
     }
 }

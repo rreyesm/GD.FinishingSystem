@@ -536,41 +536,45 @@ namespace GD.FinishingSystem.Bussines.Concrete
             return ruloMigration > 0;
         }
 
-        public override async Task<decimal> GetTotalMetersByRuloMigration(string lote, int beam, int loom)
-        {
-            //We verify RuloID because if there is one that has an ID, it may be that it already has an advance. 
-            var ruloMigrations = await repository.GetWhereWithNoTrack(x => x.Lote == lote && x.Beam == beam && x.Loom == loom && x.RuloID == null && x.FabricAdvance != true);
-            var total = ruloMigrations.Sum(x => x.Meters);
-            return total;
-        }
+        //public override async Task<decimal> GetTotalMetersByRuloMigration(string lote, int beam, int loom, string style)
+        //{
+        //    //We verify RuloID because if there is one that has an ID, it may be that it already has an advance. 
+        //    var ruloMigrations = await repository.GetWhereWithNoTrack(x => !x.IsDeleted && x.Lote == lote && x.Beam == beam && x.Loom == loom && x.Style == style && x.RuloID == null && x.FabricAdvance != true);
+        //    var total = ruloMigrations.Sum(x => x.Meters);
+        //    return total;
+        //}
 
-        public override async Task<bool> UpdateRuloMigrationsFromRuloMigrationID(int ruloMigrationID, int ruloID, int userID)
+        public override async Task<bool> UpdateRuloMigrationsFromRuloMigrationIDs(List<int> rawsIDs, int ruloID, int userID)
         {
             bool isOk = false;
             try
             {
-                var result = await repository.GetByPrimaryKey(ruloMigrationID);
+                var result = await repository.GetByPrimaryKey(rawsIDs.FirstOrDefault());
 
                 //Validate if Raw is fabric test we take relationship 1-RAW:1-Rulo
                 if (result.OriginID == 7) //DES0
                 {
-                    var ruloMigrations = await repository.GetWhere(x => x.RuloMigrationID == ruloMigrationID && x.RuloID == null && x.FabricAdvance != true);
+                    //var ruloMigrations = await repository.GetWhere(x => x.RuloMigrationID == ruloMigrationID && x.RuloID == null && x.FabricAdvance != true);
+                    var ruloMigrations = await repository.GetWhere(x => rawsIDs.Contains(x.RuloMigrationID) && x.RuloID == null && x.FabricAdvance != true);
 
-                    var ruloMigration = ruloMigrations.FirstOrDefault();
-                    ruloMigration.RuloID = ruloID;
-                    await repository.Update(ruloMigration, userID);
+                    foreach (var item in ruloMigrations)
+                    {
+                        item.RuloID = ruloID;
+                        await repository.Update(item, userID);
+                    }
                 }
-                else if (result.RuloID != 7 && result.FabricAdvance)
+                else if (result.OriginID != 7 && result.FabricAdvance)
                 {
                     result.RuloID = ruloID;
                     await repository.Update(result, userID);
                 }
                 else
                 {
-                    //TODO: Revisar si es que está bien agregar el telar o no, porque funcionada bien hasta que solo varió por el telar y jaló unos registros de más
-                    var results = await repository.GetWhere(x => x.Lote == result.Lote && x.Beam == result.Beam && x.Loom == result.Loom && x.RuloID == null && x.FabricAdvance != true);
+                    //TODO: Revisar si es que está bien agregar el telar o no, porque funcionaba bien hasta que solo varió por el telar y jaló unos registros de más
+                    //var ruloMigrations = await repository.GetWhere(x => x.Lote == result.Lote && x.Beam == result.Beam && x.Loom == result.Loom && x.Style == result.Style && x.RuloID == null && x.FabricAdvance != true);
+                    var ruloMigrations = await repository.GetWhere(x => rawsIDs.Contains(x.RuloMigrationID) && x.RuloID == null && x.FabricAdvance != true);
 
-                    foreach (var item in results)
+                    foreach (var item in ruloMigrations)
                     {
                         item.RuloID = ruloID;
                         await repository.Update(item, userID);
@@ -747,6 +751,13 @@ namespace GD.FinishingSystem.Bussines.Concrete
             var warehouseStock = await context.Set<WarehouseStock>().FromSqlRaw(query, parameters).ToListAsync();
 
             return warehouseStock;
+        }
+
+        public async override Task<IEnumerable<RuloMigration>> GetRuloMigrationFromIDs(List<int> ruloMigrationList)
+        {
+            IEnumerable<RuloMigration> ruloMigrations = await repository.GetWhereWithNoTrack(x => ruloMigrationList.Contains(x.RuloMigrationID));
+
+            return ruloMigrations;
         }
 
     }

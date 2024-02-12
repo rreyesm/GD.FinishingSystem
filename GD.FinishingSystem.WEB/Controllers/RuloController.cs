@@ -173,8 +173,8 @@ namespace GD.FinishingSystem.WEB.Controllers
             //Aquí no se valida porque RuloID es igual a 0 y por lo tanto siempre da falso
             await SetViewBagsForCreateOrEdit(true);
 
-            int ruloMigrationId1 = Convert.ToInt32(TempData["ruloMigrationId1"]);
-            TempData["ruloMigrationId2"] = ruloMigrationId1;
+            string rawIDs1 = TempData["rawsIDs1"].ToString();
+            TempData["rawsIDs2"] = rawIDs1;
 
             var systemPrinter = await WebUtilities.GetSystemPrinter(factory, this.HttpContext);
             var currentPeriod = await factory.Periods.GetCurrentPeriod(systemPrinter.SystemPrinterID);
@@ -379,16 +379,16 @@ namespace GD.FinishingSystem.WEB.Controllers
                 rulo.PeriodID = currentPeriod.PeriodID;
                 await factory.Rulos.Add(rulo, int.Parse(User.Identity.Name));
 
-                if (TempData["ruloMigrationId2"] != null)
+                if (TempData["rawsIDs2"] != null)
                 {
-                    int ruloMigrationId2 = Convert.ToInt32(TempData["ruloMigrationId2"]);
-
-                    var result = await factory.RuloMigrations.UpdateRuloMigrationsFromRuloMigrationID(ruloMigrationId2, rulo.RuloID, int.Parse(User.Identity.Name));
+                    string rawsIDs = TempData["rawsIDs2"].ToString();
+                    List<int> rawsIDsInt = rawsIDs.Split(',').ToList().Select(int.Parse).ToList();
+                    var result = await factory.RuloMigrations.UpdateRuloMigrationsFromRuloMigrationIDs(rawsIDsInt, rulo.RuloID, int.Parse(User.Identity.Name));
 
                     if (!result)
                     {
                         ViewBag.Error = true;
-                        ViewBag.ErrorMessage = $"An error occurred while trying to update the system. You must inform to system departament and show rulo: {rulo.RuloID}, and ruloMigrations: {ruloMigrationId2}";
+                        ViewBag.ErrorMessage = $"An error occurred while trying to update the system. You must inform to system departament and show rulo: {rulo.RuloID}, and ruloMigrations: {rawsIDs}";
 
                         return View("CreateOrUpdate", rulo);
                     }
