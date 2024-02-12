@@ -41,11 +41,8 @@ namespace GD.FinishingSystem.Bussines.Abstract
         public abstract Task<PackingList> GetPackingList(int packingListNo);
         public abstract Task<IEnumerable<RuloMigration>> GetRuloMigrationList(int packingListNo);
         public abstract Task<RuloMigration> GetRuloMigration(int ruloMigrationID);
-<<<<<<< Updated upstream
         public abstract Task<IEnumerable<VMRuloMigrationReport>> GetFinishedRawFabricEntranceDetailed(VMReportFilter reportFilter);
         public abstract Task<IEnumerable<WarehouseStock>> GetMonthlyFinishingStockReport(VMReportFilter reportFilter);
         public abstract Task<IEnumerable<RuloMigration>> GetRuloMigrationFromIDs(List<int> ruloMigrationList);
-=======
->>>>>>> Stashed changes
     }
 }

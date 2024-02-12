@@ -94,10 +94,7 @@ namespace GD.FinishingSystem.Entities
         public Location Location { get; set; }
         [Display(Name = "Ubicación")]
         public int? LocationID { get; set; }
-<<<<<<< Updated upstream
         [Display(Name = "Packing List No")]
-=======
->>>>>>> Stashed changes
         public int? PackingListID { get; set; }
 
     }

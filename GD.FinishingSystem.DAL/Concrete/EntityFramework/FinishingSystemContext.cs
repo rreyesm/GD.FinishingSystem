@@ -107,11 +107,8 @@ namespace GD.FinishingSystem.DAL.Concrete.EntityFramework
         public DbSet<WarehouseCategory> WarehouseCategories { get; set; }
         public DbSet<Location> Locations { get; set; }
         public DbSet<PackingList> PackingList { get; set; }
-<<<<<<< Updated upstream
         public DbSet<WarehouseKNCategory> WarehouseKNCategories { get; set; }
         public DbSet<Reprocess> Reprocesses { get; set; }
-=======
->>>>>>> Stashed changes
         #endregion
 
         #region Settings
