@@ -733,6 +733,7 @@ namespace GD.FinishingSystem.Bussines.Concrete
             return ruloMigration;
         }
 
+<<<<<<< Updated upstream
         public async override Task<IEnumerable<WarehouseStock>> GetMonthlyFinishingStockReport(VMReportFilter reportFilter)
         {
             DateTime dynamicDateBegin = reportFilter.dtBegin;
@@ -760,5 +761,7 @@ namespace GD.FinishingSystem.Bussines.Concrete
             return ruloMigrations;
         }
 
+=======
+>>>>>>> Stashed changes
     }
 }

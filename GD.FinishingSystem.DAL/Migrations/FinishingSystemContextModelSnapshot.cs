@@ -349,12 +349,15 @@ namespace GD.FinishingSystem.DAL.Migrations
                     b.Property<int>("LastUpdaterID")
                         .HasColumnType("int");
 
+<<<<<<< Updated upstream
                     b.Property<int>("PackingListNo")
                         .HasColumnType("int");
 
                     b.Property<int>("PackingListType")
                         .HasColumnType("int");
 
+=======
+>>>>>>> Stashed changes
                     b.HasKey("PackingListID");
 
                     b.ToTable("tblPackingList");
@@ -713,9 +716,12 @@ namespace GD.FinishingSystem.DAL.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("RuloMigrationID"), 1L, 1);
+<<<<<<< Updated upstream
 
                     b.Property<DateTime?>("AccountingDate")
                         .HasColumnType("datetime2");
+=======
+>>>>>>> Stashed changes
 
                     b.Property<int>("Beam")
                         .HasColumnType("int");
@@ -1526,9 +1532,12 @@ namespace GD.FinishingSystem.DAL.Migrations
                     b.Property<string>("Origin")
                         .HasColumnType("nvarchar(max)");
 
+<<<<<<< Updated upstream
                     b.Property<int?>("PackingListID")
                         .HasColumnType("int");
 
+=======
+>>>>>>> Stashed changes
                     b.Property<int?>("Partiality")
                         .HasColumnType("int");
 
