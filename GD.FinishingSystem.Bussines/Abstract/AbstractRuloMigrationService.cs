@@ -25,7 +25,7 @@ namespace GD.FinishingSystem.Bussines.Abstract
         public abstract Task<int> CountByFileName(string fileName);
         public abstract Task<IEnumerable<String>> GetRuloMigrationStyleList();
         public abstract Task<IEnumerable<VMRuloMigrationReport>> GetRawFabricStocktFromFilters(VMRuloFilters ruloFilters);
-        public abstract Task<IEnumerable<VMRuloMigrationReport>> GetFinishedProcessRawFabric(VMReportFilter vMReportFilter);
+        public abstract Task<IEnumerable<VMFinishedRawFabric>> GetFinishedProcessRawFabric(VMReportFilter vMReportFilter);
         public abstract Task<IEnumerable<VMRuloMigrationReport>> GetAllTheInformationFromRawFabric(DateTime dtEnd);
         public abstract Task<IEnumerable<DefinationProcess>> GetDefinitionProcessList();
         public abstract Task<IEnumerable<OriginCategory>> GetOriginCategoryList();

@@ -116,8 +116,11 @@ namespace GD.FinishingSystem.WEB.Controllers
                     reportName = "Finished Process Raw Fabric From " + reportFilter.dtBegin.ToString("dd-MM-yyyy") + " To " + reportFilter.dtEnd.ToString("dd-MM-yyyy");
                     fileName = $"Finished Process Raw Fabric_{DateTime.Today.Year}_{DateTime.Today.Month.ToString().PadLeft(2, '0')}_{DateTime.Today.Day.ToString().PadLeft(2, '0')}.xlsx";
 
-                    exclude = new List<string>() { "IsToyota", "WarehouseCategoryID", "Partiality" };
-                    var fileResult3 = await export.ExportWithDisplayName<VMRuloMigrationReport>("Global Denim S.A. de C.V.", "Finishing", reportName, fileName, result3.ToList(), excludeFieldList: exclude);
+                    if (!reportFilter.withBatches)
+                        exclude = new List<string>() { "IsToyota", "WarehouseCategoryID", "Partiality", "BatchNumbers" };
+                    else
+                        exclude = new List<string>() { "IsToyota", "WarehouseCategoryID", "Partiality" };
+                    var fileResult3 = await export.ExportWithDisplayName<VMFinishedRawFabric>("Global Denim S.A. de C.V.", "Finishing", reportName, fileName, result3.ToList(), excludeFieldList: exclude);
 
                     if (!fileResult3.Item1) return NotFound();
 

@@ -20,11 +20,11 @@ namespace GD.FinishingSystem.DAL.Concrete.EntityFramework
         static string DatabaseName = "dbFinishingSystem";
         public string ConnectionStringProp { private get; set; }
 
-//#if DEBUG
-//        string LocalSqlServer = $"Server=.;Database={DatabaseName};User Id=SA;Password=0545696sS*;Connection Timeout=0";
-//#else
-                  string LocalSqlServer = $"Server=192.168.182.5;Database={DatabaseName};User Id=EMY;Password=0545696s;Connection Timeout=0";
-//#endif
+        //#if DEBUG
+        //        string LocalSqlServer = $"Server=.;Database={DatabaseName};User Id=SA;Password=0545696sS*;Connection Timeout=0";
+        //#else
+        string LocalSqlServer = $"Server=192.168.182.5;Database={DatabaseName};User Id=EMY;Password=0545696s;Connection Timeout=0";
+        //#endif
 
         string LocalSqlite = $"Data Source=C://Users//Sistemas//{DatabaseName}.db";
         int TimeOutAuthorizeSec = 600;
@@ -162,6 +162,8 @@ namespace GD.FinishingSystem.DAL.Concrete.EntityFramework
             modelBuilder.Entity<TblFinishRawFabricEntrance>().HasNoKey();
 
             modelBuilder.Entity<VMRuloMigrationReport>().HasNoKey();
+
+            modelBuilder.Entity<VMFinishedRawFabric>().HasNoKey();
         }
 
 

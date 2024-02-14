@@ -101,6 +101,7 @@
             <div class="form-group">
                 <input type="radio" id="finishedProcessRawFabric" name="typeReport" value="3" style="zoom: 1.5">
                 <label for="finishedProcessRawFabric" style="font-size: x-large">Finished Process Raw Fabric</label>
+                <ul><Label><input id="chkWithBatchesTmp" type="checkbox" name="chkWithBatchesTmp" onclick="chageWithBatches();" /> Report with Batches</Label></ul>
             </div>
         </div>
 
@@ -121,6 +122,7 @@
     </div>
 
     <input type="hidden" id="isFinishingDetailed" name="isFinishingDetailed" />
+    <input type="hidden" id="withBatches" name="withBatches" />
 </form>
 
 <script>
@@ -163,5 +165,10 @@
     function chageRawFabricEntranceDetailed() {
         var selectedValue = document.getElementById("finishingDetailed");
         document.getElementById("isFinishingDetailed").value = selectedValue.checked == true ? true : false;
+    }
+
+    function chageWithBatches() {
+        var selectedValue = document.getElementById("chkWithBatchesTmp");
+        document.getElementById("withBatches").value = selectedValue.checked == true ? true : false;
     }
 </script>

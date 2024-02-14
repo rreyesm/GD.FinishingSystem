@@ -416,7 +416,7 @@ namespace GD.FinishingSystem.Bussines.Concrete
             return rulosMigration;
         }
 
-        public override async Task<IEnumerable<VMRuloMigrationReport>> GetFinishedProcessRawFabric(VMReportFilter reportFilter)
+        public override async Task<IEnumerable<VMFinishedRawFabric>> GetFinishedProcessRawFabric(VMReportFilter reportFilter)
         {
             DateTime dynamicDateBegin = reportFilter.dtBegin;
             DateTime dynamicDateEnd = reportFilter.dtEnd;
@@ -432,6 +432,7 @@ namespace GD.FinishingSystem.Bussines.Concrete
             var numBeam = reportFilter.numBeam != 0 ? (int?)reportFilter.numBeam : null;
             var numLoom = reportFilter.numLoom != 0 ? (int?)reportFilter.numLoom : null;
             var shift = reportFilter.shift != 0 ? (int?)reportFilter.shift : null;
+            bool withBatches = reportFilter.withBatches;
 
             object[] parameters = new object[] {
                     dynamicDateBegin.ToString("yyyy-MM-dd HH:mm:ss"),
@@ -440,10 +441,11 @@ namespace GD.FinishingSystem.Bussines.Concrete
                     numLote,
                     numBeam,
                     numLoom,
-                    shift
+                    shift,
+                    withBatches
                     };
 
-            var rawReportList = await context.Set<VMRuloMigrationReport>().FromSqlRaw("exec stpFinishedProcessRawFabric @p0,@p1,@p2,@p3,@p4,@p5,@p6", parameters).ToListAsync();
+            var rawReportList = await context.Set<VMFinishedRawFabric>().FromSqlRaw("exec stpFinishedProcessRawFabric @p0,@p1,@p2,@p3,@p4,@p5,@p6,@p7", parameters).ToListAsync();
 
             return rawReportList;
         }
