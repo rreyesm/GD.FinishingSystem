@@ -338,11 +338,11 @@
                         }
                     </div>
                 </td>
-                @if (areaID == (int)AreaType.Acabado)
+                @if (areaID == (int)AreaType.Desarrollos || areaID == (int)AreaType.Acabado)
                 {
                     <td>
                         <div style="display:block;width:90px">
-                            @if (User.IsInRole("Rulo", AuthType.Add))
+                            @if (User.IsInRole("RuloMigration", AuthType.Add))
                             {
                                 if ((item.WarehouseCategoryID == 1 || item.WarehouseCategoryID == 2) && item.RuloID == null || item.RuloID == 0)  //Se agregó validación porque los de acabado podían hacer un adelanto aún cuando no estaba en su area
                                 {

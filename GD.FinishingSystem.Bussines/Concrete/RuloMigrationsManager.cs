@@ -57,7 +57,8 @@ namespace GD.FinishingSystem.Bussines.Concrete
         {
             try
             {
-                ruloMigration.AccountingDate = ruloMigration.AccountingDate.GetCurrentAccountingDate();
+                if (!ruloMigration.FabricAdvance)
+                    ruloMigration.AccountingDate = ruloMigration.AccountingDate.GetCurrentAccountingDate();
                 await repository.Add(ruloMigration, adderRef);
             }
             catch (Exception ex)
@@ -106,7 +107,8 @@ namespace GD.FinishingSystem.Bussines.Concrete
                 if (location != null)
                 {
                     var floor = await repositoryFloor.GetByPrimaryKey(location.FloorID);
-                    location.Name = $"{location.Name} {floor.FloorName}";
+                    if (!location.Name.Contains(floor.FloorName))
+                        location.Name = $"{location.Name} {floor.FloorName}";
                 }
                 result.Location = location;
 
