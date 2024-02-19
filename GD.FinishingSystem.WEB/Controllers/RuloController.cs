@@ -1,4 +1,5 @@
-﻿using GD.FinishingSystem.Bussines;
+﻿using DocumentFormat.OpenXml.Wordprocessing;
+using GD.FinishingSystem.Bussines;
 using GD.FinishingSystem.DAL.EFdbPerformanceStandards;
 using GD.FinishingSystem.Entities;
 using GD.FinishingSystem.Entities.ViewModels;
@@ -183,6 +184,7 @@ namespace GD.FinishingSystem.WEB.Controllers
             {
                 ViewBag.Error = true;
                 ViewBag.ErrorMessage = "Cannot create a new roll. You must open a period.";
+                if (newRulo.RuloID == 0) newRulo.RuloID = -1;
                 View("CreateOrUpdate", newRulo);
             }
 
@@ -309,6 +311,7 @@ namespace GD.FinishingSystem.WEB.Controllers
                 }
 
                 ViewBag.ErrorMessage = errorMessage;
+                if (rulo.RuloID == 0) rulo.RuloID = -1; //This is a trick since when happen an error the view is load like Reprocess and this avoid that behavior
                 return View("CreateOrUpdate", rulo);
             }
 
@@ -323,6 +326,7 @@ namespace GD.FinishingSystem.WEB.Controllers
                     ViewBag.Error = true;
                     ViewBag.ErrorMessage = "The lote number is not registered in the Programming!";
 
+                    if (rulo.RuloID == 0) rulo.RuloID = -1;
                     return View("CreateOrUpdate", rulo);
                 }
 
@@ -337,10 +341,11 @@ namespace GD.FinishingSystem.WEB.Controllers
                 ViewBag.Error = true;
                 ViewBag.ErrorMessage = "This PC is not assigned to any finishing machine. Use an assigned machine to update data.";
 
+                if (rulo.RuloID == 0) rulo.RuloID = -1;
                 return View("CreateOrUpdate", rulo);
             }
 
-            //Comparation period-rulo style
+            //Comparation perido-rulo style
             Period period = await factory.Periods.GetCurrentPeriod(systemPrinter.SystemPrinterID);
             if (period != null)
             {
@@ -351,6 +356,7 @@ namespace GD.FinishingSystem.WEB.Controllers
                         ViewBag.Error = true;
                         ViewBag.ErrorMessage = "The style entered does not correspond to the style of the period. First create the period for the style.";
 
+                        if (rulo.RuloID == 0) rulo.RuloID = -1;
                         return View("CreateOrUpdate", rulo);
                     }
                 }
@@ -360,10 +366,11 @@ namespace GD.FinishingSystem.WEB.Controllers
                 ViewBag.Error = true;
                 ViewBag.ErrorMessage = "Period style not found!";
 
+                if (rulo.RuloID == 0) rulo.RuloID = -1;
                 return View("CreateOrUpdate", rulo);
             }
 
-            if (rulo.RuloID == 0)
+            if (rulo.RuloID == 0 || rulo.RuloID == -1)
             {
                 if (!(User.IsInRole("RuloAdd") || User.IsInRole("AdminFull") || User.IsInRole("RuloFull")))
                     return Unauthorized();
@@ -377,6 +384,15 @@ namespace GD.FinishingSystem.WEB.Controllers
 
                 if (rulo.SentAuthorizerID == 0) rulo.SentAuthorizerID = null;
                 rulo.PeriodID = currentPeriod.PeriodID;
+                if (TempData["rawsIDs2"] != null && (rulo.RuloID == 0 || rulo.RuloID == -1)) //Si hubo algún error se pierde los metros de tejido al actualizar los datos, aquí se actulizan para asegurar que el dato se guarde correctamente.
+                {
+                    string rawsIDs = TempData["rawsIDs2"].ToString();
+                    List<int> rawsIDsInt = rawsIDs.Split(',').ToList().Select(int.Parse).ToList();
+                    var foundRuloMigrations = await factory.RuloMigrations.GetRuloMigrationFromIDs(rawsIDsInt);
+                    var totalMeters = foundRuloMigrations.Sum(x => x.Meters);
+                    rulo.WeavingLength = totalMeters;
+                }
+
                 await factory.Rulos.Add(rulo, int.Parse(User.Identity.Name));
 
                 if (TempData["rawsIDs2"] != null)
@@ -389,9 +405,11 @@ namespace GD.FinishingSystem.WEB.Controllers
                     {
                         ViewBag.Error = true;
                         ViewBag.ErrorMessage = $"An error occurred while trying to update the system. You must inform to system departament and show rulo: {rulo.RuloID}, and ruloMigrations: {rawsIDs}";
-
+                        //If it happen an error here the information of the view will be load like reprocess because rulo is not 0 or -1. In this case is necesary change value in BD.
                         return View("CreateOrUpdate", rulo);
                     }
+                    else
+                        TempData["rawsIDs2"] = null;
                 }
 
             }

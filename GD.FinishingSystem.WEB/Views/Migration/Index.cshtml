@@ -187,14 +187,20 @@
             <th>
                 <i class="lni lni-line-dashed"></i>
             </th>
+            @if (areaID == (int)AreaType.Acabado)
+            {
             <th></th>
+            }
             <th></th>
+            @if (areaID == (int)AreaType.Desarrollos || areaID == (int)AreaType.Acabado)
+            {
+                <th></th>
+            }
             @if (areaID == (int)AreaType.Acabado)
             {
                 <th></th>
-                <th></th>
-                @* <th></th> *@
             }
+            @* <th></th> *@
             <th>
                 @Html.DisplayNameFor(model => model.RuloMigrationList[0].RuloID)
             </th>
@@ -338,22 +344,24 @@
                         }
                     </div>
                 </td>
+
                 @if (areaID == (int)AreaType.Desarrollos || areaID == (int)AreaType.Acabado)
                 {
                     <td>
-                        <div style="display:block;width:90px">
+                        <div style="display:block;width:100px">
                             @if (User.IsInRole("RuloMigration", AuthType.Add))
                             {
                                 if ((item.WarehouseCategoryID == 1 || item.WarehouseCategoryID == 2) && item.RuloID == null || item.RuloID == 0)  //Se agregó validación porque los de acabado podían hacer un adelanto aún cuando no estaba en su area
                                 {
-                                    <a id="@("rulo"+@item.RuloMigrationID)" onclick="createFactoryAdvance(@item.RuloMigrationID)" class="btn btn-dark">
-                                        Crear Adelanto Parcial
+                                    <a id="@("rulo"+@item.RuloMigrationID)" onclick="createFactoryAdvance(@item.RuloMigrationID)" class="btn input-xs btn-dark">
+                                        Crear Adelanto
                                     </a>
                                 }
                             }
                         </div>
                     </td>
                 }
+
 @*                 @if (areaID == (int)AreaType.Acabado)
                 {
                     <td>
@@ -369,16 +377,19 @@
                         </div>
                     </td>
                 } *@
-                <td>
-                    <div style="display:block;width:15px">
-                        @if (areaID == (int)AreaType.Acabado && item.WarehouseCategoryID == 8)
-                        {
-                            <a id="@("rulo"+@item.RuloMigrationID)" onclick="transferFromWeavingToFinishing(@item.RuloMigrationID)" class="btn input-xs btn-danger">
-                                <i class="lni lni-checkmark-circle"></i>
-                            </a>
-                        }
-                    </div>
-                </td>
+                @if (areaID == (int)AreaType.Acabado)
+                {
+                    <td>
+                        <div style="display:block;width:15px">
+                            @if (areaID == (int)AreaType.Acabado && item.WarehouseCategoryID == 8)
+                            {
+                                <a id="@("rulo"+@item.RuloMigrationID)" onclick="transferFromWeavingToFinishing(@item.RuloMigrationID)" class="btn input-xs btn-danger">
+                                    <i class="lni lni-checkmark-circle"></i>
+                                </a>
+                            }
+                        </div>
+                    </td>
+                }
                 <td>
                     @Html.DisplayFor(modelItem => item.RuloID)
                 </td>
