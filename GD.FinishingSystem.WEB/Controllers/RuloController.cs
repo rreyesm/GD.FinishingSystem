@@ -174,8 +174,11 @@ namespace GD.FinishingSystem.WEB.Controllers
             //Aquí no se valida porque RuloID es igual a 0 y por lo tanto siempre da falso
             await SetViewBagsForCreateOrEdit(true);
 
-            string rawIDs1 = TempData["rawsIDs1"].ToString();
-            TempData["rawsIDs2"] = rawIDs1;
+            if (TempData["rawsIDs1"] != null)
+            {
+                string rawIDs1 = TempData["rawsIDs1"].ToString();
+                TempData["rawsIDs2"] = rawIDs1;
+            }
 
             var systemPrinter = await WebUtilities.GetSystemPrinter(factory, this.HttpContext);
             var currentPeriod = await factory.Periods.GetCurrentPeriod(systemPrinter.SystemPrinterID);
@@ -230,7 +233,7 @@ namespace GD.FinishingSystem.WEB.Controllers
             var sentAuthorizerListItem = WebUtilities.Create<User>(sentAuthorizerList, "UserID", "Name", true);
             ViewBag.SentAuthorizer = sentAuthorizerListItem;
 
-            ViewBag.OriginEnabled = !isFromRuloMigration;
+            ViewBag.FromRuloMigration = !isFromRuloMigration;
         }
 
         [HttpPost]

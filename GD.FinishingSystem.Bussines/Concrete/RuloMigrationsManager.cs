@@ -678,13 +678,37 @@ namespace GD.FinishingSystem.Bussines.Concrete
             return rawReportList;
         }
 
-        public async override Task<IEnumerable<VMRuloMigrationReport>> GetFinishedRawFabricEntranceDetailed(VMReportFilter reportFilter)
+        public async override Task<IEnumerable<VMFinishedRawFabricEntranceDetailed>> GetFinishedRawFabricEntranceDetailed(VMReportFilter reportFilter)
         {
+            DateTime accountingDateBegin = reportFilter.dtBegin;
+            DateTime accountingDateEnd = reportFilter.dtEnd;
+
+            DateTime realDateBegin = accountingDateBegin.GetRealDate(false);
+            DateTime realDateEnd = accountingDateEnd.GetRealDate(true);
+
+            //Order in stored procedure
+            var txtStyle = string.IsNullOrWhiteSpace(reportFilter.txtStyle) ? reportFilter.txtStyle : null;
+            var numLote = reportFilter.numLote != 0 ? (int?)reportFilter.numLote : null;
+            var numBeam = reportFilter.numBeam != 0 ? (int?)reportFilter.numBeam : null;
+            var numLoom = reportFilter.numLoom != 0 ? (int?)reportFilter.numLoom : null;
+            var shift = reportFilter.shift != 0 ? (int?)reportFilter.shift : null;
+
+            object[] parameters = new object[] {
+                    reportFilter.isFinishingDetailed ? accountingDateBegin.ToString("yyyy-MM-dd") : realDateBegin.ToString("yyyy-MM-dd HH:mm:ss"),
+                    reportFilter.isFinishingDetailed ? accountingDateEnd.ToString("yyyy-MM-dd") : realDateEnd.ToString("yyyy-MM-dd HH:mm:ss"),
+                    txtStyle,
+                    numLote,
+                    numBeam,
+                    numLoom,
+                    shift,
+                    reportFilter.isFinishingDetailed
+            };
+
             string query = "stpFinishedRawFabricEntranceDetailed @p0,@p1,@p2,@p3,@p4,@p5,@p6,@p7";
 
-            object[] parameters = GetParameters(reportFilter);
+            //object[] parameters = GetParameters(reportFilter);
 
-            var rawReportList = await context.Set<VMRuloMigrationReport>().FromSqlRaw(query, parameters).ToListAsync();
+            var rawReportList = await context.Set<VMFinishedRawFabricEntranceDetailed>().FromSqlRaw(query, parameters).ToListAsync();
 
             return rawReportList;
         }

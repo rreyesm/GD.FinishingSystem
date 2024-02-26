@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace GD.FinishingSystem.Bussines.Classes
 {
-    internal static class ExtensionsBussines
+    public static class ExtensionsBussines
     {
         public static DateTime GetCurrentAccountingDate(this DateTime? dateTime)
         {

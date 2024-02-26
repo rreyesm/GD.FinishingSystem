@@ -164,6 +164,8 @@ namespace GD.FinishingSystem.DAL.Concrete.EntityFramework
             modelBuilder.Entity<VMRuloMigrationReport>().HasNoKey();
 
             modelBuilder.Entity<VMFinishedRawFabric>().HasNoKey();
+
+            modelBuilder.Entity<VMFinishedRawFabricEntranceDetailed>().HasNoKey();
         }
 
 

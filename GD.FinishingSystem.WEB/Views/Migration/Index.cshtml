@@ -377,7 +377,7 @@
                         </div>
                     </td>
                 } *@
-                @if (areaID == (int)AreaType.Acabado)
+                @if (areaID == (int)AreaType.Acabado && (User.IsInRole("TransferToFinishing", AuthType.Full) || User.IsInRole("TransferToFinishing", AuthType.Update)))
                 {
                     <td>
                         <div style="display:block;width:15px">

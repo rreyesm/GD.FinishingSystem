@@ -1,6 +1,7 @@
 ﻿
 using GD.FinishingSystem.Entities;
 using Microsoft.Extensions.Options;
+using GD.FinishingSystem.Bussines.Classes;
 
 namespace GD.Finishing.WebAPI.Services
 {
@@ -90,6 +91,7 @@ namespace GD.Finishing.WebAPI.Services
                     {
                         ruloMigration.PackingListID = packingListNo;
                         ruloMigration.Observations = item.Observations;
+                        ruloMigration.AccountingDate = ruloMigration.AccountingDate.GetCurrentAccountingDate();
                         ruloMigration.WarehouseCategoryID = 1; //Set to finishing area
                     }
                     else

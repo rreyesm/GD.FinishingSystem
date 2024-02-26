@@ -27,6 +27,7 @@ using System.Security.Cryptography.Xml;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using GD.FinishingSystem.Bussines.Classes;
 
 namespace GD.FinishingSystem.WEB.Controllers
 {
@@ -628,9 +629,12 @@ namespace GD.FinishingSystem.WEB.Controllers
             //Comparation period-rulo style
             if (currentPeriod != null)
             {
-                if (currentPeriod.Style != styleData.Style)
+                if (!ruloMigration.IsTestStyle) //Se agregó validación, ya que cuando la prueba sale de una rollada de producción no no dejaba pasar si no se aplicaba el estilo de producción
                 {
-                    errorMessage += "The style entered does not correspond to the style of the period. First create the period for the style.";
+                    if (currentPeriod.Style != styleData.Style)
+                    {
+                        errorMessage += "The style entered does not correspond to the style of the period. First create the period for the style.";
+                    }
                 }
             }
             else
@@ -920,6 +924,7 @@ namespace GD.FinishingSystem.WEB.Controllers
             if (ruloMigration == null) return NotFound();
 
             ruloMigration.WarehouseCategoryID = 1; //RAW1
+            ruloMigration.AccountingDate = ruloMigration.AccountingDate.GetCurrentAccountingDate();
             await factory.RuloMigrations.Update(ruloMigration, int.Parse(User.Identity.Name));
 
             return Ok();

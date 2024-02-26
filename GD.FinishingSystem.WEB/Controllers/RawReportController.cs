@@ -129,9 +129,9 @@ namespace GD.FinishingSystem.WEB.Controllers
                 case 4: //Fecha contable
                     reportName = "Finished Raw Fabric Entrance Detailed From " + reportFilter.dtBegin.ToString("dd-MM-yyyy") + " To " + reportFilter.dtEnd.ToString("dd-MM-yyyy");
                     fileName = $"Finished Raw Fabric Entrance Detailed_{DateTime.Today.Year}_{DateTime.Today.Month.ToString().PadLeft(2, '0')}_{DateTime.Today.Day.ToString().PadLeft(2, '0')}.xlsx";
-
-                    IEnumerable<VMRuloMigrationReport> result4 = await factory.RuloMigrations.GetFinishedRawFabricEntranceDetailed(reportFilter); //Este se usa en Rulos
-                    var fileResult4 = await export.ExportWithDisplayName<VMRuloMigrationReport>("Global Denim S.A. de C.V.", "Finishing", reportName, fileName, result4.ToList());
+                    //TODO: MODIFICAR EL PROCEDIMIENTO ALMACENADO PARA QUE CONSULTE POR FECHA CONTABLE PARA ACABADO Y FECHA DE CREACIÓN PARA TEJIDO
+                    IEnumerable<VMFinishedRawFabricEntranceDetailed> result4 = await factory.RuloMigrations.GetFinishedRawFabricEntranceDetailed(reportFilter); //Este se usa en Rulos
+                    var fileResult4 = await export.ExportWithDisplayName<VMFinishedRawFabricEntranceDetailed>("Global Denim S.A. de C.V.", "Finishing", reportName, fileName, result4.ToList());
 
                     if (!fileResult4.Item1) return NotFound();
 
