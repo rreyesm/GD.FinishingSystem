@@ -9,8 +9,8 @@ namespace GD.FinishingSystem.Entities.ViewModels
 {
     public class WarehouseStock
     {
-        public string Code { get; set; }
-        //public string Origin { get; set; }
+        public string Warehouse { get; set; }
+        public string Origin { get; set; }
         public string Description { get; set; }
         public string StockSymbol { get; set; }
         public decimal Stock { get; set; }

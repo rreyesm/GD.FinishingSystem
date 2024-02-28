@@ -65,11 +65,11 @@ namespace GD.FinishingSystem.Entities.ViewModels
         public string CanContinue { get; set; }
         [NotMapped]
         public int TestCategoryID { get; set; }
-        [Display(Name = "Resiltado de Pruebas")]
+        [Display(Name = "Resultado de Pruebas")]
         public string TestCategoryCode { get; set; }
         [Display(Name = "Fecha de Pruebas")]
         public DateTime? DateTestResult { get; set; }
-        [Display(Name = "Numeros de Batch")]
+        [Display(Name = "Números de Batch")]
         public string BatchNumbers { get; set; }
         [Display(Name = "Origen Principal")]
         public string MainOriginCode { get; set; }
